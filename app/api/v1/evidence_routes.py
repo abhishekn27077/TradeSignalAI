@@ -63,6 +63,23 @@ async def get_baselines_comparison() -> Dict[str, Any]:
     return live_edge_validation_engine.evaluate_baselines_comparison()
 
 
+@router.get("/audit")
+async def get_live_audit_report() -> Dict[str, Any]:
+    """Returns the immutable runtime audit report for the live forward validation period."""
+    return live_edge_validation_engine.generate_evidence_audit_report()
+
+
+@router.get("/statistical-validation")
+async def get_statistical_validation() -> Dict[str, Any]:
+    """
+    Phase 23 Authoritative Forward Statistical Validation & Trading Edge Endpoint.
+    Returns Wilson CIs, Bootstrap CIs, Brier scores, and formal classification.
+    """
+    from app.analytics.statistical_validation_engine import statistical_validation_engine
+    report = statistical_validation_engine.evaluate_live_shadow_sample([], [])
+    return report.to_dict()
+
+
 @router.get("/models")
 async def get_live_model_contribution() -> Dict[str, Any]:
     """Returns live-only model contribution and forward ablation results."""
