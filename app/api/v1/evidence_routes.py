@@ -80,6 +80,17 @@ async def get_statistical_validation() -> Dict[str, Any]:
     return report.to_dict()
 
 
+@router.get("/forward-monitor")
+async def get_forward_monitor() -> Dict[str, Any]:
+    """
+    Phase 47 Automated Continuous Forward Edge Monitoring Endpoint.
+    """
+    from app.analytics.continuous_forward_monitor import continuous_forward_monitor
+    snapshot = continuous_forward_monitor.evaluate_live_cohort()
+    return snapshot.to_dict()
+
+
+
 @router.get("/models")
 async def get_live_model_contribution() -> Dict[str, Any]:
     """Returns live-only model contribution and forward ablation results."""
