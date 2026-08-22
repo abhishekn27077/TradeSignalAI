@@ -88,3 +88,18 @@ def test_api_execution_simulate():
     data = res.json()
     assert data["fill_status"] == "FILLED"
     assert data["fill_price"] > 1.1000
+
+
+def test_api_pipeline_run():
+    payload = {
+        "asset": "EURUSD",
+        "current_spread_pips": 1.0,
+        "is_event_risk": False
+    }
+    res = client.post("/api/v1/system-intelligence/pipeline/run", json=payload)
+    assert res.status_code == 200
+    data = res.json()
+    assert "trace_id" in data
+    assert "status" in data
+    assert len(data["stages"]) >= 9
+

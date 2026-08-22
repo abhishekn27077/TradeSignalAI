@@ -1,3 +1,4 @@
+import pandas as pd
 from fastapi import APIRouter, Query, HTTPException, Body
 from typing import Dict, Any, List, Optional
 from pydantic import BaseModel, Field
@@ -133,3 +134,57 @@ async def simulate_execution(req: ExecutionSimRequest):
     )
     fill = sim.simulate_execution(order, current_market_price=req.requested_price)
     return fill.to_dict()
+
+
+# 6. Master 15-Stage Quantitative Pipeline Trigger
+class PipelineRunRequest(BaseModel):
+    asset: str = "EURUSD"
+    current_spread_pips: float = 1.2
+    is_event_risk: bool = False
+
+
+@router.post("/pipeline/run")
+async def run_master_quant_pipeline(req: PipelineRunRequest):
+    import numpy as np
+    from datetime import datetime, timedelta, timezone
+    from app.pipeline.quant_pipeline_orchestrator import master_quant_pipeline
+
+    # Build representative dataset for asset
+    now = datetime.now(timezone.utc)
+    base_time = now - timedelta(hours=60)
+    dates = [base_time + timedelta(hours=i) for i in range(60)]
+    base_price = 1.1000 if "EUR" in req.asset else 150.00
+    records = []
+    for i in range(60):
+        drift = i * 0.0003
+        open_p = base_price + drift + float(np.random.normal(0, 0.0002))
+        close_p = open_p + 0.0004
+        high_p = max(open_p, close_p) + 0.0003
+        low_p = min(open_p, close_p) - 0.0003
+        records.append({
+            "timestamp": dates[i],
+            "open": open_p,
+            "high": high_p,
+            "low": low_p,
+            "close": close_p,
+            "volume": 1000.0 + (i * 10),
+        })
+    df_primary = pd.DataFrame(records)
+
+    result = master_quant_pipeline.execute_pipeline(
+        asset=req.asset,
+        df_primary=df_primary,
+        current_spread_pips=req.current_spread_pips,
+        is_event_risk=req.is_event_risk,
+    )
+    return {
+        "trace_id": result.trace_id,
+        "asset": result.asset,
+        "timeframe": result.timeframe,
+        "status": result.status,
+        "stages": [{"stage": s.stage_name, "status": s.status, "details": s.details} for s in result.stages],
+        "final_trade": result.final_trade,
+        "no_trade_reason": result.no_trade_reason,
+        "explainability": result.explainability,
+    }
+
