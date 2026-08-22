@@ -41,10 +41,13 @@ api_v1_router.include_router(strategies_router)
 from app.api.v1.actionable_routes import router as phase50_actionable_router
 # Phase 51: Market Intelligence, SMC, Confluence & Analysis Routes
 from app.api.v1.analysis_routes import router as phase51_analysis_router
+# Phase 52: System Intelligence, Data Quality, Strategy Ensemble & Execution Simulation
+from app.api.v1.system_intelligence_routes import router as phase52_sys_intel_router
 
 # Sub-router inclusions (Actionable and Analysis routes take precedence over generic {signal_id})
 api_v1_router.include_router(phase50_actionable_router)
 api_v1_router.include_router(phase51_analysis_router)
+api_v1_router.include_router(phase52_sys_intel_router)
 api_v1_router.include_router(signals_router)
 
 
