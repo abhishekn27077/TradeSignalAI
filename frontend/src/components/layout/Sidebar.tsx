@@ -27,6 +27,7 @@ const mainNav: NavItem[] = [
     id: 'signals-group', label: 'Signals', icon: <Zap className="w-4 h-4" />,
     children: [
       { id: 'todays-signals', label: "Today's Signals", icon: <Zap className="w-3.5 h-3.5" /> },
+      { id: 'market-structure', label: 'Smart Money & Structure (P51)', icon: <Layers className="w-3.5 h-3.5" /> },
       { id: 'h4-forecasts-new', label: 'H4 Forecasts', icon: <Clock className="w-3.5 h-3.5" /> },
       { id: 'swing-signals', label: 'Swing Signals', icon: <TrendingUp className="w-3.5 h-3.5" /> },
       { id: 'signal-history', label: 'Signal History', icon: <Archive className="w-3.5 h-3.5" /> },
@@ -83,6 +84,7 @@ const adminSections: AdminSection[] = [
   {
     label: 'Market Intelligence',
     items: [
+      { id: 'market-structure', label: 'Phase 51 Intelligence', icon: <Layers className="w-3.5 h-3.5" /> },
       { id: 'market-command', label: 'Command Center', icon: <LayoutDashboard className="w-3.5 h-3.5" /> },
       { id: 'currency-strength', label: 'Currency Strength', icon: <BarChart2 className="w-3.5 h-3.5" /> },
       { id: 'correlation-matrix', label: 'Correlation Matrix', icon: <Grid className="w-3.5 h-3.5" /> },

@@ -39,9 +39,12 @@ api_v1_router.include_router(agents_router)
 api_v1_router.include_router(strategies_router)
 # Phase 50: Actionable Trade Timing, Revalidation & Position Lifecycle
 from app.api.v1.actionable_routes import router as phase50_actionable_router
+# Phase 51: Market Intelligence, SMC, Confluence & Analysis Routes
+from app.api.v1.analysis_routes import router as phase51_analysis_router
 
-# Sub-router inclusions (Actionable routes take precedence over generic {signal_id})
+# Sub-router inclusions (Actionable and Analysis routes take precedence over generic {signal_id})
 api_v1_router.include_router(phase50_actionable_router)
+api_v1_router.include_router(phase51_analysis_router)
 api_v1_router.include_router(signals_router)
 
 

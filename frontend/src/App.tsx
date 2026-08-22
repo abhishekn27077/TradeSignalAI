@@ -54,6 +54,7 @@ import { DecisionHistory } from './pages/decision/DecisionHistory';
 
 // Market Intelligence (Phase 8)
 import { MarketCommandCenter } from './pages/market_intelligence/MarketCommandCenter';
+import { MarketStructureIntelligence } from './pages/market_intelligence/MarketStructureIntelligence';
 import { CurrencyStrength } from './pages/market_intelligence/CurrencyStrength';
 import { CorrelationMatrix } from './pages/market_intelligence/CorrelationMatrix';
 import { PortfolioIntelligence } from './pages/market_intelligence/PortfolioIntelligence';
@@ -136,6 +137,8 @@ const pageMap: Record<string, React.FC> = {
   'decision-dashboard': DecisionDashboard,
   'decision-history': DecisionHistory,
   'market-command': MarketCommandCenter,
+  'market-structure': MarketStructureIntelligence,
+  'phase51-intelligence': MarketStructureIntelligence,
   'currency-strength': CurrencyStrength,
   'correlation-matrix': CorrelationMatrix,
   'portfolio-intel': PortfolioIntelligence,
