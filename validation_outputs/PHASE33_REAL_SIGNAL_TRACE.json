@@ -1,0 +1,304 @@
+{
+  "schema_version": "phase33.v1",
+  "trace_id": "c162458f-7455-4aff-aaab-4181e296bafb",
+  "prediction_timestamp_utc": "2026-08-19T18:11:05.766328+00:00",
+  "prediction_timestamp_ist": "2026-08-19 23:41:05 IST",
+  "timeframe": "H4",
+  "candle_status": {
+    "timeframe": "H4",
+    "reference_time_utc": "2026-08-19T18:11:05.766328+00:00",
+    "reference_time_ist": "2026-08-19 23:41:05 IST",
+    "current_candle_open_utc": "2026-08-19T16:00:00+00:00",
+    "current_candle_open_ist": "2026-08-19 21:30:00 IST",
+    "current_candle_close_utc": "2026-08-19T20:00:00+00:00",
+    "current_candle_close_ist": "2026-08-20 01:30:00 IST",
+    "next_candle_open_utc": "2026-08-19T20:00:00+00:00",
+    "next_candle_open_ist": "2026-08-20 01:30:00 IST",
+    "remaining_seconds": 6534,
+    "countdown": "01:48:54"
+  },
+  "assets": {
+    "BTCUSD": {
+      "symbol": "BTCUSD",
+      "trace_id": "c162458f-7455-4aff-aaab-4181e296bafb",
+      "stage_1_data": {
+        "symbol": "BTCUSD",
+        "timeframe": "H4",
+        "rates_count": 100,
+        "freshness": {
+          "status": "FRESH",
+          "data_age_seconds": 67.3,
+          "latest_candle_ts": "2026-08-19T18:10:00+00:00",
+          "prediction_timestamp_utc": "2026-08-19T18:11:07.293866+00:00",
+          "prediction_timestamp_ist": "2026-08-19 23:41:07 IST",
+          "previous_closed_candle": {
+            "open": "2026-08-19T16:00:00+00:00",
+            "close": "2026-08-19T20:00:00+00:00",
+            "open_ist": "2026-08-19 21:30:00 IST",
+            "close_ist": "2026-08-20 01:30:00 IST"
+          },
+          "current_open_candle": null,
+          "next_candle_open": {
+            "open": "2026-08-19T20:00:00+00:00",
+            "open_ist": "2026-08-20 01:30:00 IST"
+          },
+          "provider": "market_service",
+          "timeframe": "H4",
+          "symbol": "BTCUSD",
+          "reason": null
+        },
+        "status": "FRESH"
+      },
+      "stage_2_candle_discipline": {
+        "passed": true,
+        "prediction_timestamp": "2026-08-19T18:11:05.766328+00:00",
+        "latest_candle_timestamp": "2026-08-19T18:10:00+00:00",
+        "violating_rows": 0,
+        "previous_closed_candle_ts": "2026-08-19T18:10:00+00:00",
+        "current_candle_ts": null,
+        "next_candle_ts": null,
+        "reason": null
+      },
+      "stage_3_consensus": {
+        "status": "OK",
+        "signal": "NEUTRAL",
+        "agreement_pct": 100.0,
+        "expected_return": 0.0008505204682630723,
+        "breakdown": {
+          "kronos": 0.0017010409365261446,
+          "xgboost": 0.0,
+          "random_forest": 0.0,
+          "hist_gb": 0.0,
+          "pattern_memory": 0.0
+        },
+        "df_rows": 100,
+        "last_close": 68078.71875,
+        "last_candle_ts": "2026-08-19T18:10:00+00:00"
+      },
+      "stage_4_intelligence": {
+        "trace_id": "c162458f-7455-4aff-aaab-4181e296bafb",
+        "master_signal": "NO_TRADE",
+        "total_latency_ms": null,
+        "faiss_status": null,
+        "time_pattern_status": null
+      },
+      "stage_5_risk": {
+        "decision": "NO_TRADE",
+        "reason": "UPSTREAM_FAILURE_OR_NO_SIGNAL"
+      },
+      "verdict": "NO_VALID_SETUP (NO_TRADE)"
+    },
+    "ETHUSD": {
+      "symbol": "ETHUSD",
+      "trace_id": "c162458f-7455-4aff-aaab-4181e296bafb",
+      "stage_1_data": {
+        "symbol": "ETHUSD",
+        "timeframe": "H4",
+        "rates_count": 100,
+        "freshness": {
+          "status": "FRESH",
+          "data_age_seconds": 76.7,
+          "latest_candle_ts": "2026-08-19T18:10:00+00:00",
+          "prediction_timestamp_utc": "2026-08-19T18:11:16.656499+00:00",
+          "prediction_timestamp_ist": "2026-08-19 23:41:16 IST",
+          "previous_closed_candle": {
+            "open": "2026-08-19T16:00:00+00:00",
+            "close": "2026-08-19T20:00:00+00:00",
+            "open_ist": "2026-08-19 21:30:00 IST",
+            "close_ist": "2026-08-20 01:30:00 IST"
+          },
+          "current_open_candle": null,
+          "next_candle_open": {
+            "open": "2026-08-19T20:00:00+00:00",
+            "open_ist": "2026-08-20 01:30:00 IST"
+          },
+          "provider": "market_service",
+          "timeframe": "H4",
+          "symbol": "ETHUSD",
+          "reason": null
+        },
+        "status": "FRESH"
+      },
+      "stage_2_candle_discipline": {
+        "passed": true,
+        "prediction_timestamp": "2026-08-19T18:11:05.766328+00:00",
+        "latest_candle_timestamp": "2026-08-19T18:10:00+00:00",
+        "violating_rows": 0,
+        "previous_closed_candle_ts": "2026-08-19T18:10:00+00:00",
+        "current_candle_ts": null,
+        "next_candle_ts": null,
+        "reason": null
+      },
+      "stage_3_consensus": {
+        "status": "OK",
+        "signal": "NEUTRAL",
+        "agreement_pct": 100.0,
+        "expected_return": 9.088197023668244e-06,
+        "breakdown": {
+          "kronos": 1.817639404733649e-05,
+          "xgboost": 0.0,
+          "random_forest": 0.0,
+          "hist_gb": 0.0,
+          "pattern_memory": 0.0
+        },
+        "df_rows": 100,
+        "last_close": 2081.919921875,
+        "last_candle_ts": "2026-08-19T18:10:00+00:00"
+      },
+      "stage_4_intelligence": {
+        "trace_id": "c162458f-7455-4aff-aaab-4181e296bafb",
+        "master_signal": "NO_TRADE",
+        "total_latency_ms": null,
+        "faiss_status": null,
+        "time_pattern_status": null
+      },
+      "stage_5_risk": {
+        "decision": "NO_TRADE",
+        "reason": "UPSTREAM_FAILURE_OR_NO_SIGNAL"
+      },
+      "verdict": "NO_VALID_SETUP (NO_TRADE)"
+    },
+    "EURUSD": {
+      "symbol": "EURUSD",
+      "trace_id": "c162458f-7455-4aff-aaab-4181e296bafb",
+      "stage_1_data": {
+        "symbol": "EURUSD",
+        "timeframe": "H4",
+        "rates_count": 100,
+        "freshness": {
+          "status": "FRESH",
+          "data_age_seconds": 78.9,
+          "latest_candle_ts": "2026-08-19T18:10:00+00:00",
+          "prediction_timestamp_utc": "2026-08-19T18:11:18.853723+00:00",
+          "prediction_timestamp_ist": "2026-08-19 23:41:18 IST",
+          "previous_closed_candle": {
+            "open": "2026-08-19T16:00:00+00:00",
+            "close": "2026-08-19T20:00:00+00:00",
+            "open_ist": "2026-08-19 21:30:00 IST",
+            "close_ist": "2026-08-20 01:30:00 IST"
+          },
+          "current_open_candle": null,
+          "next_candle_open": {
+            "open": "2026-08-19T20:00:00+00:00",
+            "open_ist": "2026-08-20 01:30:00 IST"
+          },
+          "provider": "market_service",
+          "timeframe": "H4",
+          "symbol": "EURUSD",
+          "reason": null
+        },
+        "status": "FRESH"
+      },
+      "stage_2_candle_discipline": {
+        "passed": true,
+        "prediction_timestamp": "2026-08-19T18:11:05.766328+00:00",
+        "latest_candle_timestamp": "2026-08-19T18:10:00+00:00",
+        "violating_rows": 0,
+        "previous_closed_candle_ts": "2026-08-19T18:10:00+00:00",
+        "current_candle_ts": null,
+        "next_candle_ts": null,
+        "reason": null
+      },
+      "stage_3_consensus": {
+        "status": "OK",
+        "signal": "NEUTRAL",
+        "agreement_pct": 100.0,
+        "expected_return": 0.00013404116600801818,
+        "breakdown": {
+          "kronos": 0.00026808233201603635,
+          "xgboost": 0.0,
+          "random_forest": 0.0,
+          "hist_gb": 0.0,
+          "pattern_memory": 0.0
+        },
+        "df_rows": 100,
+        "last_close": 1.1672697067260742,
+        "last_candle_ts": "2026-08-19T18:10:00+00:00"
+      },
+      "stage_4_intelligence": {
+        "trace_id": "c162458f-7455-4aff-aaab-4181e296bafb",
+        "master_signal": "NO_TRADE",
+        "total_latency_ms": null,
+        "faiss_status": null,
+        "time_pattern_status": null
+      },
+      "stage_5_risk": {
+        "decision": "NO_TRADE",
+        "reason": "UPSTREAM_FAILURE_OR_NO_SIGNAL"
+      },
+      "verdict": "NO_VALID_SETUP (NO_TRADE)"
+    },
+    "USDJPY": {
+      "symbol": "USDJPY",
+      "trace_id": "c162458f-7455-4aff-aaab-4181e296bafb",
+      "stage_1_data": {
+        "symbol": "USDJPY",
+        "timeframe": "H4",
+        "rates_count": 100,
+        "freshness": {
+          "status": "FRESH",
+          "data_age_seconds": 20.7,
+          "latest_candle_ts": "2026-08-19T18:11:00+00:00",
+          "prediction_timestamp_utc": "2026-08-19T18:11:20.722493+00:00",
+          "prediction_timestamp_ist": "2026-08-19 23:41:20 IST",
+          "previous_closed_candle": {
+            "open": "2026-08-19T16:00:00+00:00",
+            "close": "2026-08-19T20:00:00+00:00",
+            "open_ist": "2026-08-19 21:30:00 IST",
+            "close_ist": "2026-08-20 01:30:00 IST"
+          },
+          "current_open_candle": null,
+          "next_candle_open": {
+            "open": "2026-08-19T20:00:00+00:00",
+            "open_ist": "2026-08-20 01:30:00 IST"
+          },
+          "provider": "market_service",
+          "timeframe": "H4",
+          "symbol": "USDJPY",
+          "reason": null
+        },
+        "status": "FRESH"
+      },
+      "stage_2_candle_discipline": {
+        "passed": true,
+        "prediction_timestamp": "2026-08-19T18:11:05.766328+00:00",
+        "latest_candle_timestamp": "2026-08-19T18:11:00+00:00",
+        "violating_rows": 0,
+        "previous_closed_candle_ts": "2026-08-19T18:11:00+00:00",
+        "current_candle_ts": null,
+        "next_candle_ts": null,
+        "reason": null
+      },
+      "stage_3_consensus": {
+        "status": "OK",
+        "signal": "NEUTRAL",
+        "agreement_pct": 100.0,
+        "expected_return": 0.0002949037718683768,
+        "breakdown": {
+          "kronos": 0.0005898075437367536,
+          "xgboost": 0.0,
+          "random_forest": 0.0,
+          "hist_gb": 0.0,
+          "pattern_memory": 0.0
+        },
+        "df_rows": 100,
+        "last_close": 158.38099670410156,
+        "last_candle_ts": "2026-08-19T18:11:00+00:00"
+      },
+      "stage_4_intelligence": {
+        "trace_id": "c162458f-7455-4aff-aaab-4181e296bafb",
+        "master_signal": "NO_TRADE",
+        "total_latency_ms": null,
+        "faiss_status": null,
+        "time_pattern_status": null
+      },
+      "stage_5_risk": {
+        "decision": "NO_TRADE",
+        "reason": "UPSTREAM_FAILURE_OR_NO_SIGNAL"
+      },
+      "verdict": "NO_VALID_SETUP (NO_TRADE)"
+    }
+  },
+  "best_signal": null,
+  "overall_status": "NO_VALID_SETUP"
+}

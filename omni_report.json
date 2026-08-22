@@ -1,0 +1,85 @@
+{
+    "phases": {
+        "Phase 1: SYSTEM STARTUP AUDIT": {
+            "status": "PASS",
+            "details": {
+                "api_running": true,
+                "db_connected": true,
+                "latency": 0.054109811782836914
+            }
+        },
+        "Phase 3: API VALIDATION": {
+            "status": "PASS",
+            "details": {
+                "/api/v1/system/health": {
+                    "status": 200,
+                    "latency": 0.004590511322021484,
+                    "valid_json": true
+                },
+                "/api/v1/extensions/regime": {
+                    "status": 200,
+                    "latency": 0.014835119247436523,
+                    "valid_json": true
+                },
+                "/api/v1/extensions/learning": {
+                    "status": 200,
+                    "latency": 0.005766868591308594,
+                    "valid_json": true
+                },
+                "/api/v1/extensions/risk": {
+                    "status": 200,
+                    "latency": 0.005278348922729492,
+                    "valid_json": true
+                }
+            }
+        },
+        "Phase 5: MARKET DATA VALIDATION": {
+            "status": "PASS",
+            "details": {
+                "rows": 200,
+                "latest_close": 64063.73
+            }
+        },
+        "Phase 7: MARKET REGIME ENGINE": {
+            "status": "PASS",
+            "details": {
+                "regime_output": {
+                    "trend": "STRONG_BEARISH",
+                    "state": "NEUTRAL",
+                    "volatility": "HIGH",
+                    "compression": "NO",
+                    "expansion": "NO",
+                    "adx": 41.16,
+                    "atr": 79.5186
+                },
+                "selected_strategies": [
+                    "SuperTrendStrategy",
+                    "PSARStrategy",
+                    "TrendFollowingStrategy"
+                ]
+            }
+        },
+        "Phase 8: TRADE QUALITY ENGINE": {
+            "status": "PASS",
+            "details": {
+                "score": 79
+            }
+        },
+        "Phase 11: RISK ENGINE VALIDATION": {
+            "status": "PASS",
+            "details": {
+                "risk_passed": true
+            }
+        },
+        "Phase 19: PERFORMANCE TEST": {
+            "status": "PASS",
+            "details": {
+                "avg_risk_check_ms": 0.00023126602172851562,
+                "cpu_usage": 0.0,
+                "mem_usage_mb": 122.5078125
+            }
+        }
+    },
+    "bugs": [],
+    "scores": {}
+}

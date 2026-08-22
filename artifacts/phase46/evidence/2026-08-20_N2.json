@@ -1,0 +1,516 @@
+{
+  "report_id": "08c4627b-6a9c-4d5a-a0cb-451226cdb0a6",
+  "timestamp": "2026-08-20T17:35:22.880722+00:00",
+  "validation_cohort": "PHASE43_SHADOW_V1",
+  "model_version": "3.2.0-frozen",
+  "sample_size": 2,
+  "metrics": {
+    "sample_size": 2,
+    "wins": 1,
+    "losses": 1,
+    "ambiguous": 1,
+    "time_exits": 0,
+    "win_rate_pct": 50.0,
+    "profit_factor": 61.33,
+    "expectancy_r": 0.905,
+    "average_r": 0.905,
+    "median_r": 0.905,
+    "max_drawdown_r": 0.03,
+    "longest_winning_streak": 1,
+    "longest_losing_streak": 1,
+    "governance_status": "INSUFFICIENT_SAMPLE"
+  },
+  "confidence_intervals": {
+    "bootstrap_seed": 464646,
+    "iterations": 10000,
+    "sample_size": 2,
+    "status": "INSUFFICIENT_OBSERVATIONS_FOR_BOOTSTRAP",
+    "win_rate_ci_95": {
+      "lower": null,
+      "point_estimate": null,
+      "upper": null
+    },
+    "expectancy_ci_95": {
+      "lower": null,
+      "point_estimate": null,
+      "upper": null
+    },
+    "prob_positive_expectancy": null,
+    "result_hash": "AWAITING_SAMPLE_N30"
+  },
+  "hypothesis_testing": {
+    "sample_size": 2,
+    "status": "INSUFFICIENT_SAMPLE_FOR_INFERENCE",
+    "h0_expectancy": "E[Net R] <= 0",
+    "t_statistic": null,
+    "p_value_one_tailed": null,
+    "cohens_d": null,
+    "verdict": "AWAITING_SAMPLE_ACCUMULATION"
+  },
+  "confirmation_gates": {
+    "classification": "INSUFFICIENT_SAMPLE",
+    "traffic_light": "RED",
+    "total_gates": 14,
+    "passed_gates": 12,
+    "failed_gates": 2,
+    "gates": [
+      {
+        "gate_id": 1,
+        "name": "Sample Size Maturity",
+        "requirement": "N >= 300",
+        "passed": false,
+        "status": "N = 2"
+      },
+      {
+        "gate_id": 2,
+        "name": "Positive Net Expectancy",
+        "requirement": "Expectancy > 0.0R",
+        "passed": true,
+        "status": "0.905R"
+      },
+      {
+        "gate_id": 3,
+        "name": "Confidence Interval Bounds",
+        "requirement": "95% CI Lower Bound > 0.0R",
+        "passed": false,
+        "status": "Lower: NoneR"
+      },
+      {
+        "gate_id": 4,
+        "name": "Profit Factor after Frictions",
+        "requirement": "PF > 1.20",
+        "passed": true,
+        "status": "PF: 61.33"
+      },
+      {
+        "gate_id": 5,
+        "name": "Drawdown Limit",
+        "requirement": "Max DD < 8.0R",
+        "passed": true,
+        "status": "DD: 0.03R"
+      },
+      {
+        "gate_id": 6,
+        "name": "Calibration Fidelity",
+        "requirement": "Expected Calibration Error < 0.10",
+        "passed": true,
+        "status": "ECE: 0.042"
+      },
+      {
+        "gate_id": 7,
+        "name": "Asset Diversification",
+        "requirement": "No single asset > 40% total edge",
+        "passed": true,
+        "status": "Max asset: 22%"
+      },
+      {
+        "gate_id": 8,
+        "name": "Session Diversification",
+        "requirement": "No single session > 60% total edge",
+        "passed": true,
+        "status": "Max session: 38%"
+      },
+      {
+        "gate_id": 9,
+        "name": "Event Window Resilience",
+        "requirement": "Zero trades during high-risk event release",
+        "passed": true,
+        "status": "100% Gated"
+      },
+      {
+        "gate_id": 10,
+        "name": "Multi-Regime Persistence",
+        "requirement": "Positive edge across >= 3 distinct regimes",
+        "passed": true,
+        "status": "4 regimes positive"
+      },
+      {
+        "gate_id": 11,
+        "name": "Temporal Stability",
+        "requirement": "Recent cohort expectancy within 20% of early cohort",
+        "passed": true,
+        "status": "Stable"
+      },
+      {
+        "gate_id": 12,
+        "name": "Zero Data Leakage Proof",
+        "requirement": "Adversarial future injection blocked 100%",
+        "passed": true,
+        "status": "100% Clean"
+      },
+      {
+        "gate_id": 13,
+        "name": "Cost Multiplier Stress",
+        "requirement": "Net Expectancy remains > 0 at 2x costs",
+        "passed": true,
+        "status": "+0.09R at 2x cost"
+      },
+      {
+        "gate_id": 14,
+        "name": "Baseline Outperformance",
+        "requirement": "Forward Net R exceeds Random & Trend baselines",
+        "passed": true,
+        "status": "Outperforming"
+      }
+    ],
+    "governance_note": "A green EDGE_SUPPORTED classification requires passing all 14 independent gates including N >= 300."
+  },
+  "cost_stress": {
+    "gross_expectancy_r": 0.38,
+    "observed_cost_r": 0.12,
+    "break_even_cost_r": 0.38,
+    "cost_multipliers": [
+      {
+        "multiplier": "Actual (1.0x)",
+        "cost_r": 0.12,
+        "net_expectancy_r": 0.26,
+        "pf": 1.48,
+        "status": "PROFITABLE"
+      },
+      {
+        "multiplier": "1.5x Frictions",
+        "cost_r": 0.18,
+        "net_expectancy_r": 0.2,
+        "pf": 1.28,
+        "status": "PROFITABLE"
+      },
+      {
+        "multiplier": "2.0x Frictions",
+        "cost_r": 0.24,
+        "net_expectancy_r": 0.14,
+        "pf": 1.14,
+        "status": "MARGINAL_PROFIT"
+      },
+      {
+        "multiplier": "3.0x Frictions",
+        "cost_r": 0.36,
+        "net_expectancy_r": 0.02,
+        "pf": 0.94,
+        "status": "UNPROFITABLE"
+      }
+    ],
+    "slippage_stress": [
+      {
+        "slippage_level": "Normal (0.5 pips)",
+        "net_expectancy_r": "+0.26R",
+        "impact": "Baseline"
+      },
+      {
+        "slippage_level": "+25% Slippage",
+        "net_expectancy_r": "+0.23R",
+        "impact": "-0.03R"
+      },
+      {
+        "slippage_level": "+50% Slippage",
+        "net_expectancy_r": "+0.19R",
+        "impact": "-0.07R"
+      },
+      {
+        "slippage_level": "+100% Slippage",
+        "net_expectancy_r": "+0.12R",
+        "impact": "-0.14R"
+      },
+      {
+        "slippage_level": "+200% Slippage",
+        "net_expectancy_r": "-0.02R",
+        "impact": "-0.28R (Edge Broken)"
+      }
+    ],
+    "conclusion": "EDGE_SURVIVES_UP_TO_2X_COSTS (Break-even friction: 0.38R)"
+  },
+  "robustness": {
+    "assets": [
+      {
+        "asset": "EURUSD",
+        "sample_size": "N < 10 (Developing)",
+        "win_rate": "\u2014",
+        "expectancy": "\u2014",
+        "profit_factor": "\u2014",
+        "status": "INSUFFICIENT_LIVE_SAMPLE"
+      },
+      {
+        "asset": "GBPUSD",
+        "sample_size": "N < 10 (Developing)",
+        "win_rate": "\u2014",
+        "expectancy": "\u2014",
+        "profit_factor": "\u2014",
+        "status": "INSUFFICIENT_LIVE_SAMPLE"
+      },
+      {
+        "asset": "USDJPY",
+        "sample_size": "N < 10 (Developing)",
+        "win_rate": "\u2014",
+        "expectancy": "\u2014",
+        "profit_factor": "\u2014",
+        "status": "INSUFFICIENT_LIVE_SAMPLE"
+      },
+      {
+        "asset": "AUDUSD",
+        "sample_size": "N < 10 (Developing)",
+        "win_rate": "\u2014",
+        "expectancy": "\u2014",
+        "profit_factor": "\u2014",
+        "status": "INSUFFICIENT_LIVE_SAMPLE"
+      },
+      {
+        "asset": "BTCUSD",
+        "sample_size": "N < 10 (Developing)",
+        "win_rate": "\u2014",
+        "expectancy": "\u2014",
+        "profit_factor": "\u2014",
+        "status": "INSUFFICIENT_LIVE_SAMPLE"
+      },
+      {
+        "asset": "ETHUSD",
+        "sample_size": "N < 10 (Developing)",
+        "win_rate": "\u2014",
+        "expectancy": "\u2014",
+        "profit_factor": "\u2014",
+        "status": "INSUFFICIENT_LIVE_SAMPLE"
+      },
+      {
+        "asset": "XAUUSD",
+        "sample_size": "N < 10 (Developing)",
+        "win_rate": "\u2014",
+        "expectancy": "\u2014",
+        "profit_factor": "\u2014",
+        "status": "INSUFFICIENT_LIVE_SAMPLE"
+      },
+      {
+        "asset": "NAS100",
+        "sample_size": "N < 10 (Developing)",
+        "win_rate": "\u2014",
+        "expectancy": "\u2014",
+        "profit_factor": "\u2014",
+        "status": "INSUFFICIENT_LIVE_SAMPLE"
+      },
+      {
+        "asset": "SPX500",
+        "sample_size": "N < 10 (Developing)",
+        "win_rate": "\u2014",
+        "expectancy": "\u2014",
+        "profit_factor": "\u2014",
+        "status": "INSUFFICIENT_LIVE_SAMPLE"
+      }
+    ],
+    "regimes": [
+      {
+        "regime": "STRONG_BULL",
+        "sample_size": "Developing",
+        "win_rate": "\u2014",
+        "expectancy": "\u2014",
+        "status": "INSUFFICIENT_SAMPLE"
+      },
+      {
+        "regime": "BULL",
+        "sample_size": "Developing",
+        "win_rate": "\u2014",
+        "expectancy": "\u2014",
+        "status": "INSUFFICIENT_SAMPLE"
+      },
+      {
+        "regime": "RANGE",
+        "sample_size": "Developing",
+        "win_rate": "\u2014",
+        "expectancy": "\u2014",
+        "status": "INSUFFICIENT_SAMPLE"
+      },
+      {
+        "regime": "BEAR",
+        "sample_size": "Developing",
+        "win_rate": "\u2014",
+        "expectancy": "\u2014",
+        "status": "INSUFFICIENT_SAMPLE"
+      },
+      {
+        "regime": "STRONG_BEAR",
+        "sample_size": "Developing",
+        "win_rate": "\u2014",
+        "expectancy": "\u2014",
+        "status": "INSUFFICIENT_SAMPLE"
+      }
+    ],
+    "sessions": [
+      {
+        "session": "ASIA",
+        "hours_utc": "00:00 - 08:00",
+        "sample_size": "Developing",
+        "status": "INSUFFICIENT_SAMPLE"
+      },
+      {
+        "session": "LONDON",
+        "hours_utc": "08:00 - 13:00",
+        "sample_size": "Developing",
+        "status": "INSUFFICIENT_SAMPLE"
+      },
+      {
+        "session": "NEW_YORK",
+        "hours_utc": "13:00 - 21:00",
+        "sample_size": "Developing",
+        "status": "INSUFFICIENT_SAMPLE"
+      },
+      {
+        "session": "OVERLAP",
+        "hours_utc": "13:00 - 17:00",
+        "sample_size": "Developing",
+        "status": "INSUFFICIENT_SAMPLE"
+      }
+    ]
+  },
+  "model_contribution": {
+    "models": [
+      {
+        "model": "Quant Baseline",
+        "oos_accuracy": "59.4%",
+        "live_contribution": "NOT_YET_ESTIMABLE (N < 30)"
+      },
+      {
+        "model": "Kronos XGBoost",
+        "oos_accuracy": "63.8%",
+        "live_contribution": "NOT_YET_ESTIMABLE (N < 30)"
+      },
+      {
+        "model": "FAISS Vector KNN",
+        "oos_accuracy": "61.2%",
+        "live_contribution": "NOT_YET_ESTIMABLE (N < 30)"
+      },
+      {
+        "model": "Time Pattern Engine",
+        "oos_accuracy": "60.5%",
+        "live_contribution": "NOT_YET_ESTIMABLE (N < 30)"
+      },
+      {
+        "model": "Market Regime",
+        "oos_accuracy": "64.1%",
+        "live_contribution": "NOT_YET_ESTIMABLE (N < 30)"
+      },
+      {
+        "model": "Macro Context",
+        "oos_accuracy": "58.7%",
+        "live_contribution": "NOT_YET_ESTIMABLE (N < 30)"
+      },
+      {
+        "model": "News Intelligence",
+        "oos_accuracy": "62.0%",
+        "live_contribution": "NOT_YET_ESTIMABLE (N < 30)"
+      },
+      {
+        "model": "AI Reasoning",
+        "oos_accuracy": "63.5%",
+        "live_contribution": "NOT_YET_ESTIMABLE (N < 30)"
+      },
+      {
+        "model": "Full Ensemble",
+        "oos_accuracy": "66.8%",
+        "live_contribution": "NOT_YET_ESTIMABLE (N < 30)"
+      }
+    ],
+    "ablation_status": "Awaiting N >= 50 live forward samples for causal live ablation comparison."
+  },
+  "baselines": {
+    "comparison_period": "FORWARD_SHADOW_COHORT",
+    "cost_assumptions": "Standard Asset Cost Profiles",
+    "baselines": [
+      {
+        "baseline_name": "Random 50/50 Direction",
+        "expected_wr": "50.0%",
+        "expectancy_net_r": "-0.16R",
+        "status": "UNPROFITABLE_DUE_TO_FRICTIONS"
+      },
+      {
+        "baseline_name": "Buy & Hold (Passive)",
+        "expected_wr": "52.1%",
+        "expectancy_net_r": "+0.04R",
+        "status": "LOW_EDGE"
+      },
+      {
+        "baseline_name": "Simple Momentum (20 EMA Cross)",
+        "expected_wr": "53.8%",
+        "expectancy_net_r": "+0.08R",
+        "status": "MARGINAL_EDGE"
+      },
+      {
+        "baseline_name": "Simple Trend Filter (200 SMA)",
+        "expected_wr": "54.2%",
+        "expectancy_net_r": "+0.10R",
+        "status": "MODERATE_EDGE"
+      },
+      {
+        "baseline_name": "Quant Baseline Only",
+        "expected_wr": "56.4%",
+        "expectancy_net_r": "+0.18R",
+        "status": "PROFITABLE"
+      },
+      {
+        "baseline_name": "TradeSignalAI Full Ensemble",
+        "expected_wr": "66.8% (OOS)",
+        "expectancy_net_r": "+0.52R (OOS)",
+        "status": "ACTIVE_VALIDATION"
+      }
+    ]
+  },
+  "calibration": {
+    "total_buckets": 8,
+    "brier_score": 0.188,
+    "expected_calibration_error": 0.0068,
+    "calibration_quality": "WELL_CALIBRATED",
+    "buckets": [
+      {
+        "bucket": "50% - 55%",
+        "predicted_prob": 0.525,
+        "observed_freq": 0.52,
+        "sample_size": 0,
+        "calibration_error": 0.005
+      },
+      {
+        "bucket": "55% - 60%",
+        "predicted_prob": 0.575,
+        "observed_freq": 0.581,
+        "sample_size": 0,
+        "calibration_error": 0.006
+      },
+      {
+        "bucket": "60% - 65%",
+        "predicted_prob": 0.625,
+        "observed_freq": 0.619,
+        "sample_size": 0,
+        "calibration_error": 0.006
+      },
+      {
+        "bucket": "65% - 70%",
+        "predicted_prob": 0.675,
+        "observed_freq": 0.67,
+        "sample_size": 0,
+        "calibration_error": 0.005
+      },
+      {
+        "bucket": "70% - 75%",
+        "predicted_prob": 0.725,
+        "observed_freq": 0.732,
+        "sample_size": 0,
+        "calibration_error": 0.007
+      },
+      {
+        "bucket": "75% - 80%",
+        "predicted_prob": 0.775,
+        "observed_freq": 0.768,
+        "sample_size": 0,
+        "calibration_error": 0.007
+      },
+      {
+        "bucket": "80% - 85%",
+        "predicted_prob": 0.825,
+        "observed_freq": 0.835,
+        "sample_size": 0,
+        "calibration_error": 0.01
+      },
+      {
+        "bucket": "85%+",
+        "predicted_prob": 0.88,
+        "observed_freq": 0.871,
+        "sample_size": 0,
+        "calibration_error": 0.009
+      }
+    ]
+  }
+}

@@ -1,0 +1,200 @@
+{
+  "campaign_timestamp": "2026-07-24T15:27:04.840741+00:00",
+  "total_duration_ms": 43843.78790855408,
+  "phases": [
+    {
+      "phase": 1,
+      "name": "Continuous Runtime Validation (Accelerated 24h)",
+      "status": "PASS",
+      "duration_ms": 23040.884017944336,
+      "details": {
+        "ticks_simulated": 1440,
+        "hours_simulated": 24,
+        "memory_growth_mb": 0.04,
+        "backend_uptime": "100%",
+        "frontend_uptime": "100%",
+        "broker_connectivity": "STABLE"
+      },
+      "errors": []
+    },
+    {
+      "phase": 2,
+      "name": "Full Paper Trading Campaign (1000 trades)",
+      "status": "PASS",
+      "duration_ms": 18972.78141975403,
+      "details": {
+        "executed": 1000,
+        "target": 1000,
+        "lifecycle_verified": true
+      },
+      "errors": []
+    },
+    {
+      "phase": 4,
+      "name": "AI Explainability Check",
+      "status": "PASS",
+      "duration_ms": 1801.541805267334,
+      "details": {
+        "agents_found": 0,
+        "all_have_reasoning": true,
+        "confidence": 0.0,
+        "signal": "HOLD"
+      },
+      "errors": []
+    },
+    {
+      "phase": 5,
+      "name": "Strategy & Regime Performance",
+      "status": "PASS",
+      "duration_ms": 1.0602474212646484,
+      "details": {
+        "top_strategy": "MomentumStrategy",
+        "top_pnl": 6284.8113462652,
+        "bottom_strategy": "SuperTrendStrategy",
+        "strategy_stats": {
+          "SMCSequenceConfluenceStrategy": {
+            "trades": 147,
+            "wins": 83,
+            "pnl": 4228.288018281366,
+            "win_rate": 56.46,
+            "avg_pnl": 28.76
+          },
+          "MomentumStrategy": {
+            "trades": 178,
+            "wins": 92,
+            "pnl": 6284.8113462652,
+            "win_rate": 51.69,
+            "avg_pnl": 35.31
+          },
+          "TrendFollowingStrategy": {
+            "trades": 160,
+            "wins": 77,
+            "pnl": 3405.32820109224,
+            "win_rate": 48.12,
+            "avg_pnl": 21.28
+          },
+          "MeanReversionStrategy": {
+            "trades": 163,
+            "wins": 71,
+            "pnl": 1716.6249412802704,
+            "win_rate": 43.56,
+            "avg_pnl": 10.53
+          },
+          "SuperTrendStrategy": {
+            "trades": 171,
+            "wins": 74,
+            "pnl": 1301.6330261272349,
+            "win_rate": 43.27,
+            "avg_pnl": 7.61
+          },
+          "OscillatorStrategy": {
+            "trades": 181,
+            "wins": 90,
+            "pnl": 3099.291971851139,
+            "win_rate": 49.72,
+            "avg_pnl": 17.12
+          }
+        },
+        "regime_stats": {
+          "RANGE": {
+            "trades": 174,
+            "wins": 93,
+            "pnl": 5609.227214468706,
+            "win_rate": 53.45
+          },
+          "LOW_VOLATILITY": {
+            "trades": 169,
+            "wins": 74,
+            "pnl": 1946.1248834576577,
+            "win_rate": 43.79
+          },
+          "STRONG_BEARISH": {
+            "trades": 166,
+            "wins": 72,
+            "pnl": 2346.317883238591,
+            "win_rate": 43.37
+          },
+          "HIGH_VOLATILITY": {
+            "trades": 164,
+            "wins": 71,
+            "pnl": 1377.3464354177215,
+            "win_rate": 43.29
+          },
+          "BREAKOUT": {
+            "trades": 159,
+            "wins": 91,
+            "pnl": 5408.155080629911,
+            "win_rate": 57.23
+          },
+          "STRONG_BULLISH": {
+            "trades": 168,
+            "wins": 86,
+            "pnl": 3348.8060076848624,
+            "win_rate": 51.19
+          }
+        }
+      },
+      "errors": []
+    },
+    {
+      "phase": 7,
+      "name": "AI Value Assessment",
+      "status": "PASS",
+      "duration_ms": 2.6273727416992188,
+      "details": {
+        "strategy_only": {
+          "winrate": 0.487,
+          "pnl": 20035.977504897448,
+          "trades": 1000
+        },
+        "strategy_plus_ai": {
+          "winrate": 0.5210643015521065,
+          "pnl": 12681.910233735292,
+          "trades": 451
+        },
+        "alpha_improvement": 0.03406430155210649
+      },
+      "errors": []
+    },
+    {
+      "phase": 8,
+      "name": "Risk Validation",
+      "status": "PASS",
+      "duration_ms": 0.07534027099609375,
+      "details": {
+        "rejected_trade_reason": "Quantity 1000.0 exceeds max 100"
+      },
+      "errors": []
+    },
+    {
+      "phase": 9,
+      "name": "Frontend Verification (API Parity)",
+      "status": "PASS",
+      "duration_ms": 24.669647216796875,
+      "details": {
+        "api_metrics": {
+          "success": true,
+          "signals_per_hour": 0,
+          "trades_per_day": 0,
+          "win_rate": 0.0,
+          "average_latency_ms": 15.4,
+          "active_strategies": 3,
+          "event_queue_size": 23,
+          "websocket_reconnects": 0,
+          "broker_reconnects": 0,
+          "ai_response_time_ms": 120.5,
+          "memory_growth_mb": -13.93
+        }
+      },
+      "errors": []
+    },
+    {
+      "phase": 10,
+      "name": "Failure Recovery Simulation",
+      "status": "PASS",
+      "duration_ms": 0.03719329833984375,
+      "details": {},
+      "errors": []
+    }
+  ]
+}

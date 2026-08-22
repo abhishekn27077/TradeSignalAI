@@ -1,0 +1,142 @@
+{
+  "ws_url": "ws://127.0.0.1:8000/api/v1/ws/stream",
+  "connection_duration_seconds": 125.51,
+  "is_successful": true,
+  "total_pings_sent": 8,
+  "total_pongs_received": 8,
+  "avg_ping_rtt_ms": 110.22,
+  "total_events_received": 10,
+  "ping_pongs": [
+    {
+      "ping_time": 1787296034.7885432,
+      "pong_elapsed_s": 0.071,
+      "rtt_ms": 2.93
+    },
+    {
+      "ping_time": 1787296050.8733819,
+      "pong_elapsed_s": 17.021,
+      "rtt_ms": 868.94
+    },
+    {
+      "ping_time": 1787296067.8193028,
+      "pong_elapsed_s": 33.099,
+      "rtt_ms": 1.03
+    },
+    {
+      "ping_time": 1787296083.9096174,
+      "pong_elapsed_s": 49.19,
+      "rtt_ms": 1.55
+    },
+    {
+      "ping_time": 1787296099.968514,
+      "pong_elapsed_s": 65.249,
+      "rtt_ms": 1.03
+    },
+    {
+      "ping_time": 1787296116.0282056,
+      "pong_elapsed_s": 81.308,
+      "rtt_ms": 0.88
+    },
+    {
+      "ping_time": 1787296132.0938222,
+      "pong_elapsed_s": 97.377,
+      "rtt_ms": 3.88
+    },
+    {
+      "ping_time": 1787296148.179017,
+      "pong_elapsed_s": 113.46,
+      "rtt_ms": 1.54
+    }
+  ],
+  "sample_events": [
+    {
+      "elapsed_s": 0.068,
+      "event": "connected",
+      "raw": {
+        "event": "connected",
+        "client_id": "a19e37f7-1661-47a7-978d-de6095781ad0"
+      }
+    },
+    {
+      "elapsed_s": 0.07,
+      "event": "system_health",
+      "raw": {
+        "event": "system_health",
+        "data": {
+          "status": "healthy",
+          "components": {
+            "database": "ok",
+            "websocket": "ok",
+            "market_feed": "ok",
+            "ai_engine": "ok",
+            "broker_api": "ok"
+          }
+        }
+      }
+    },
+    {
+      "elapsed_s": 0.071,
+      "event": "pong",
+      "raw": {
+        "event": "pong",
+        "timestamp": 1787296034.7892246
+      }
+    },
+    {
+      "elapsed_s": 17.021,
+      "event": "pong",
+      "raw": {
+        "event": "pong",
+        "timestamp": 1787296051.741657
+      }
+    },
+    {
+      "elapsed_s": 33.099,
+      "event": "pong",
+      "raw": {
+        "event": "pong",
+        "timestamp": 1787296067.819967
+      }
+    },
+    {
+      "elapsed_s": 49.19,
+      "event": "pong",
+      "raw": {
+        "event": "pong",
+        "timestamp": 1787296083.9107213
+      }
+    },
+    {
+      "elapsed_s": 65.249,
+      "event": "pong",
+      "raw": {
+        "event": "pong",
+        "timestamp": 1787296099.969126
+      }
+    },
+    {
+      "elapsed_s": 81.308,
+      "event": "pong",
+      "raw": {
+        "event": "pong",
+        "timestamp": 1787296116.0287642
+      }
+    },
+    {
+      "elapsed_s": 97.377,
+      "event": "pong",
+      "raw": {
+        "event": "pong",
+        "timestamp": 1787296132.0953534
+      }
+    },
+    {
+      "elapsed_s": 113.46,
+      "event": "pong",
+      "raw": {
+        "event": "pong",
+        "timestamp": 1787296148.180107
+      }
+    }
+  ]
+}

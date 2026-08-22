@@ -1,0 +1,44 @@
+{
+  "timestamp_utc": "2026-08-20T07:57:39.833740+00:00",
+  "timestamp_ist": "2026-08-20T13:27:39.833757+05:30",
+  "phase": 38,
+  "stages": {
+    "stage_1_market_data": {
+      "status": "PASS",
+      "symbol": "BTCUSD",
+      "timeframe": "H4",
+      "candles_count": 50,
+      "latest_candle": {
+        "symbol": "BTCUSD",
+        "timeframe": "H4",
+        "timestamp": "2026-08-20T07:57:00+00:00",
+        "open": 69698.6015625,
+        "high": 69714.3515625,
+        "low": 69686.03125,
+        "close": 69714.3515625,
+        "volume": 0.0
+      }
+    },
+    "stage_2_outcome_engine": {
+      "status": "PASS",
+      "result": {
+        "outcome": "TP_HIT",
+        "exit_price": 69000.0,
+        "exit_time": "2026-08-20T07:08:00+00:00",
+        "exit_time_ist": "2026-08-20 12:38:00 IST",
+        "gross_pnl": 200.0,
+        "spread_cost": 0.2,
+        "slippage_cost": 0.05,
+        "fees_cost": 0.0,
+        "net_pnl": 199.75,
+        "r_multiple": 1.9975,
+        "resolution_method": "CANDLE_TP_BREACH",
+        "candles_evaluated": 50
+      }
+    },
+    "stage_3_database": {
+      "status": "PASS",
+      "note": "Database clean and operational, 0 records"
+    }
+  }
+}

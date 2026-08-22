@@ -1,0 +1,113 @@
+{
+  "timestamp_utc": "2026-08-21T06:32:13.943230+00:00",
+  "database_file": "tradesignal.db",
+  "database_size_bytes": 98885632,
+  "total_tables_count": 41,
+  "total_historical_candles": 214261,
+  "journal_trades_count": 5,
+  "forecast_results_count": 7602,
+  "forecast_consensus_count": 1087,
+  "decision_history_count": 939,
+  "assets_health": [
+    {
+      "asset": "EURUSD",
+      "timeframe": "1h",
+      "row_count": 24011,
+      "first_timestamp": "2016-08-01 00:00:00.000000",
+      "latest_timestamp": "2026-08-14 05:00:00",
+      "null_ohlc_count": 0,
+      "invalid_ohlc_count": 0,
+      "source": "SQLITE_HISTORICAL_STORE",
+      "freshness": "REAL_DATABASE_VERIFIED"
+    },
+    {
+      "asset": "GBPUSD",
+      "timeframe": "1h",
+      "row_count": 25113,
+      "first_timestamp": "2016-08-01 00:00:00.000000",
+      "latest_timestamp": "2026-08-14 05:00:00",
+      "null_ohlc_count": 0,
+      "invalid_ohlc_count": 0,
+      "source": "SQLITE_HISTORICAL_STORE",
+      "freshness": "REAL_DATABASE_VERIFIED"
+    },
+    {
+      "asset": "USDJPY",
+      "timeframe": "1h",
+      "row_count": 25012,
+      "first_timestamp": "2016-08-01 00:00:00.000000",
+      "latest_timestamp": "2026-08-14 05:00:00",
+      "null_ohlc_count": 0,
+      "invalid_ohlc_count": 0,
+      "source": "SQLITE_HISTORICAL_STORE",
+      "freshness": "REAL_DATABASE_VERIFIED"
+    },
+    {
+      "asset": "AUDUSD",
+      "timeframe": "1h",
+      "row_count": 25222,
+      "first_timestamp": "2016-08-01 00:00:00.000000",
+      "latest_timestamp": "2026-08-14 05:00:00",
+      "null_ohlc_count": 0,
+      "invalid_ohlc_count": 0,
+      "source": "SQLITE_HISTORICAL_STORE",
+      "freshness": "REAL_DATABASE_VERIFIED"
+    },
+    {
+      "asset": "BTCUSD",
+      "timeframe": "1h",
+      "row_count": 27263,
+      "first_timestamp": "2023-08-14 00:00:00",
+      "latest_timestamp": "2026-08-14 04:00:00",
+      "null_ohlc_count": 0,
+      "invalid_ohlc_count": 0,
+      "source": "SQLITE_HISTORICAL_STORE",
+      "freshness": "REAL_DATABASE_VERIFIED"
+    },
+    {
+      "asset": "ETHUSD",
+      "timeframe": "1h",
+      "row_count": 23086,
+      "first_timestamp": "2023-08-14 00:00:00",
+      "latest_timestamp": "2026-08-14 04:00:00",
+      "null_ohlc_count": 0,
+      "invalid_ohlc_count": 0,
+      "source": "SQLITE_HISTORICAL_STORE",
+      "freshness": "REAL_DATABASE_VERIFIED"
+    },
+    {
+      "asset": "XAUUSD",
+      "timeframe": "1h",
+      "row_count": 20849,
+      "first_timestamp": "2016-08-01 00:00:00.000000",
+      "latest_timestamp": "2026-08-14 00:00:00",
+      "null_ohlc_count": 0,
+      "invalid_ohlc_count": 0,
+      "source": "SQLITE_HISTORICAL_STORE",
+      "freshness": "REAL_DATABASE_VERIFIED"
+    },
+    {
+      "asset": "NAS100",
+      "timeframe": "1h",
+      "row_count": 20804,
+      "first_timestamp": "2016-08-01 00:00:00.000000",
+      "latest_timestamp": "2026-08-14 00:00:00",
+      "null_ohlc_count": 0,
+      "invalid_ohlc_count": 0,
+      "source": "SQLITE_HISTORICAL_STORE",
+      "freshness": "REAL_DATABASE_VERIFIED"
+    },
+    {
+      "asset": "SPX500",
+      "timeframe": "1h",
+      "row_count": 22901,
+      "first_timestamp": "2016-08-01 00:00:00.000000",
+      "latest_timestamp": "2026-08-14 00:00:00",
+      "null_ohlc_count": 0,
+      "invalid_ohlc_count": 0,
+      "source": "SQLITE_HISTORICAL_STORE",
+      "freshness": "REAL_DATABASE_VERIFIED"
+    }
+  ],
+  "integrity_status": "100% CLEAN (0 NULLS, 0 INVALID OHLC)"
+}

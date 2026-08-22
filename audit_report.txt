@@ -1,0 +1,2200 @@
+=== DEPENDENCY AUDIT ===
+{
+  "app\\main.py": [
+    "contextlib",
+    "fastapi",
+    "fastapi.middleware.cors",
+    "app.config.settings",
+    "app.logs.logger",
+    "fastapi.middleware.gzip",
+    "app.api.router",
+    "app.api.middleware",
+    "app.utils.provider_manager",
+    "app.database.manager",
+    "app.utils.startup_validator",
+    "app.market_data.providers.manager",
+    "app.agents.providers.router",
+    "asyncio",
+    "app.market_data.realtime.stream_manager",
+    "app.strategies.manager",
+    "app.agents.manager",
+    "app.execution.coordinator",
+    "app.tasks.monitoring",
+    "app.journal.manager",
+    "app.market_intelligence.sync_service",
+    "app.forecast_engine.registry.manager",
+    "app.market_intelligence.h4_engine",
+    "app.market_intelligence.swing_scanner",
+    "app.forecast_engine.lifecycle",
+    "app.market_intelligence.schedule_engine",
+    "app.market_intelligence.execution_bridge",
+    "app.research.evaluation_engine",
+    "app.research.self_learning_engine",
+    "app.decision.engine",
+    "webbrowser",
+    "app.portfolio_intelligence.manager",
+    "asyncio",
+    "app.market_intelligence.sync_service",
+    "app.market_intelligence.h4_engine",
+    "app.market_intelligence.swing_scanner",
+    "app.forecast_engine.lifecycle",
+    "app.market_intelligence.schedule_engine",
+    "app.research.evaluation_engine",
+    "app.research.self_learning_engine",
+    "app.brokers.factory",
+    "app.execution.router"
+  ],
+  "app\\agents\\base.py": [
+    "typing",
+    "app.logs.logger",
+    "app.agents.providers.router",
+    "app.agents.prompts",
+    "app.agents.types",
+    "json"
+  ],
+  "app\\agents\\manager.py": [
+    "logging",
+    "typing",
+    "app.agents.base",
+    "app.agents.types",
+    "app.agents.consensus.engine",
+    "app.utils.event_bus",
+    "app.agents.consensus.engine",
+    "asyncio"
+  ],
+  "app\\agents\\prompts.py": [
+    "typing",
+    "app.logs.logger"
+  ],
+  "app\\agents\\tools.py": [
+    "typing",
+    "app.logs.logger"
+  ],
+  "app\\agents\\types.py": [
+    "enum",
+    "typing",
+    "pydantic",
+    "datetime"
+  ],
+  "app\\agents\\__init__.py": [
+    "base"
+  ],
+  "app\\agents\\consensus\\engine.py": [
+    "logging",
+    "asyncio",
+    "typing",
+    "app.agents.base",
+    "app.agents.consensus.voting",
+    "app.utils.event_bus",
+    "app.logs.logger",
+    "pandas",
+    "app.market_data.providers.manager",
+    "app.strategies.strategy_engine.regime_detector",
+    "app.strategies.strategy_engine.agreement_engine",
+    "app.strategies.strategy_engine.adaptive_weights",
+    "app.strategies.filters.news",
+    "datetime",
+    "app.memory.manager"
+  ],
+  "app\\agents\\consensus\\voting.py": [
+    "typing",
+    "app.agents.types"
+  ],
+  "app\\agents\\learning\\learning_engine.py": [
+    "typing",
+    "app.logs.logger"
+  ],
+  "app\\agents\\providers\\base.py": [
+    "abc",
+    "typing",
+    "pydantic"
+  ],
+  "app\\agents\\providers\\heuristic.py": [
+    "json",
+    "typing",
+    "app.agents.providers.base",
+    "app.logs.logger",
+    "app.agents.providers.base",
+    "re",
+    "hashlib",
+    "ast"
+  ],
+  "app\\agents\\providers\\omni.py": [
+    "typing",
+    "httpx",
+    "app.logs.logger",
+    "app.config.settings",
+    "app.agents.providers.base",
+    "asyncio"
+  ],
+  "app\\agents\\providers\\router.py": [
+    "typing",
+    "app.logs.logger",
+    "app.agents.providers.base",
+    "app.agents.providers.omni",
+    "app.api.exceptions",
+    "app.config.settings",
+    "app.agents.providers.heuristic"
+  ],
+  "app\\analytics\\cross_asset_tester.py": [
+    "random",
+    "typing"
+  ],
+  "app\\analytics\\engine.py": [
+    "math",
+    "numpy",
+    "typing",
+    "app.database.models.journal"
+  ],
+  "app\\analytics\\monte_carlo.py": [
+    "random",
+    "typing",
+    "random"
+  ],
+  "app\\analytics\\patterns.py": [
+    "typing"
+  ],
+  "app\\analytics\\recommendations.py": [
+    "uuid",
+    "typing",
+    "app.database.models.journal",
+    "app.analytics.patterns"
+  ],
+  "app\\analytics\\regime_analyzer.py": [
+    "typing"
+  ],
+  "app\\analytics\\statistical_metrics.py": [
+    "math",
+    "typing"
+  ],
+  "app\\analytics\\strategy_optimizer.py": [
+    "typing"
+  ],
+  "app\\analytics\\walk_forward.py": [
+    "typing"
+  ],
+  "app\\analytics\\models\\kronos\\adapter.py": [
+    "pandas",
+    "numpy",
+    "typing",
+    "torch",
+    "kronos"
+  ],
+  "app\\analytics\\models\\kronos\\kronos.py": [
+    "numpy",
+    "pandas",
+    "torch",
+    "huggingface_hub",
+    "tqdm",
+    "module"
+  ],
+  "app\\analytics\\models\\kronos\\module.py": [
+    "math",
+    "einops",
+    "torch",
+    "torch.nn",
+    "torch.autograd",
+    "torch.nn.functional"
+  ],
+  "app\\analytics\\models\\kronos\\__init__.py": [
+    "kronos"
+  ],
+  "app\\api\\dependencies.py": [
+    "fastapi",
+    "typing",
+    "sqlalchemy.ext.asyncio",
+    "app.database.manager",
+    "app.api.exceptions",
+    "app.logs.logger",
+    "app.auth.security"
+  ],
+  "app\\api\\exceptions.py": [
+    "datetime",
+    "typing"
+  ],
+  "app\\api\\middleware.py": [
+    "uuid",
+    "time",
+    "fastapi",
+    "fastapi.responses",
+    "starlette.middleware.base",
+    "app.logs.logger",
+    "app.api.exceptions",
+    "app.config.constants"
+  ],
+  "app\\api\\router.py": [
+    "fastapi",
+    "app.config.settings",
+    "app.api.v1.router"
+  ],
+  "app\\api\\v1\\agents.py": [
+    "fastapi",
+    "typing",
+    "app.logs.logger",
+    "app.agents.manager",
+    "app.agents.manager",
+    "app.agents.consensus.engine",
+    "app.agents.consensus.engine",
+    "app.agents.providers.router"
+  ],
+  "app\\api\\v1\\analytics.py": [
+    "fastapi",
+    "typing",
+    "app.logs.logger",
+    "app.journal.manager",
+    "app.analytics.patterns",
+    "app.analytics.recommendations",
+    "app.tasks.monitoring",
+    "app.journal.manager",
+    "app.analytics.monte_carlo",
+    "app.journal.manager",
+    "app.analytics.walk_forward"
+  ],
+  "app\\api\\v1\\backtest.py": [
+    "fastapi",
+    "typing",
+    "app.logs.logger",
+    "app.backtesting.core",
+    "app.backtesting.core"
+  ],
+  "app\\api\\v1\\brokers.py": [
+    "fastapi",
+    "typing",
+    "app.logs.logger",
+    "app.api.exceptions",
+    "app.execution.router",
+    "app.execution.router"
+  ],
+  "app\\api\\v1\\data.py": [
+    "fastapi",
+    "typing",
+    "app.logs.logger",
+    "app.market_intelligence.providers.yfinance_adapter",
+    "app.database.manager",
+    "app.database.models.market",
+    "sqlalchemy",
+    "app.database.manager",
+    "app.database.models.market",
+    "sqlalchemy",
+    "app.database.manager",
+    "app.database.models.market",
+    "sqlalchemy",
+    "app.market_intelligence.downloader",
+    "app.market_intelligence.config",
+    "app.market_intelligence.downloader",
+    "app.market_intelligence.config",
+    "app.market_intelligence.downloader",
+    "app.market_intelligence.sync_service",
+    "app.database.manager",
+    "app.database.models.market",
+    "sqlalchemy",
+    "app.market_intelligence.quality",
+    "app.market_intelligence.quality",
+    "app.market_intelligence.features",
+    "app.market_intelligence.features",
+    "app.market_intelligence.features",
+    "app.database.manager",
+    "app.database.models.market",
+    "sqlalchemy",
+    "app.market_intelligence.downloader"
+  ],
+  "app\\api\\v1\\decision_routes.py": [
+    "fastapi",
+    "typing",
+    "sqlalchemy",
+    "app.database.manager",
+    "app.database.models.decision"
+  ],
+  "app\\api\\v1\\enterprise_routes.py": [
+    "fastapi",
+    "typing",
+    "app.operations.health",
+    "app.operations.audit",
+    "app.operations.backup",
+    "app.plugins.loader",
+    "app.orchestration.scheduler",
+    "app.core.config_manager",
+    "app.auth.security"
+  ],
+  "app\\api\\v1\\execution.py": [
+    "fastapi",
+    "typing",
+    "app.logs.logger",
+    "app.api.exceptions",
+    "app.execution.router",
+    "app.execution.router",
+    "app.execution.router",
+    "app.execution.router"
+  ],
+  "app\\api\\v1\\extensions.py": [
+    "fastapi",
+    "typing",
+    "app.strategies.indicators.regime",
+    "app.risk.advanced_risk_manager",
+    "app.agents.learning.learning_engine",
+    "pandas",
+    "numpy"
+  ],
+  "app\\api\\v1\\forecast.py": [
+    "fastapi",
+    "typing",
+    "pydantic",
+    "app.forecast_engine.orchestrator.engine",
+    "app.forecast_engine.registry.manager"
+  ],
+  "app\\api\\v1\\health.py": [
+    "fastapi",
+    "typing",
+    "app.config.settings",
+    "app.logs.logger",
+    "app.utils.provider_manager",
+    "app.utils.event_bus",
+    "app.database.manager",
+    "app.brokers.tradingview_broker",
+    "app.market_data.providers.manager",
+    "app.agents.providers.router",
+    "app.utils.websocket_manager",
+    "sqlalchemy"
+  ],
+  "app\\api\\v1\\journal.py": [
+    "fastapi",
+    "typing",
+    "app.logs.logger",
+    "app.journal.manager",
+    "app.journal.manager",
+    "app.journal.manager",
+    "app.journal.manager",
+    "app.journal.ai_reviewer"
+  ],
+  "app\\api\\v1\\market.py": [
+    "fastapi",
+    "typing",
+    "app.logs.logger",
+    "app.api.exceptions",
+    "app.market_data.service"
+  ],
+  "app\\api\\v1\\memory.py": [
+    "fastapi",
+    "typing",
+    "app.logs.logger",
+    "app.memory.manager",
+    "app.memory.manager",
+    "app.memory.graph.query",
+    "app.memory.graph.query"
+  ],
+  "app\\api\\v1\\news.py": [
+    "fastapi",
+    "typing",
+    "app.logs.logger",
+    "app.news.providers.manager",
+    "app.news.providers.manager",
+    "app.news.nlp.sentiment"
+  ],
+  "app\\api\\v1\\paper.py": [
+    "fastapi",
+    "typing",
+    "app.logs.logger",
+    "app.paper_trading.account_manager",
+    "app.execution.paper.order_manager",
+    "app.paper_trading.statistics"
+  ],
+  "app\\api\\v1\\portfolio.py": [
+    "fastapi",
+    "typing",
+    "app.logs.logger",
+    "app.api.exceptions",
+    "app.paper_trading.account_manager",
+    "app.portfolio.optimizer"
+  ],
+  "app\\api\\v1\\portfolio_routes.py": [
+    "fastapi",
+    "typing",
+    "app.portfolio_intelligence.currency_strength",
+    "app.portfolio_intelligence.correlation",
+    "app.portfolio_intelligence.exposure_monitor",
+    "app.portfolio_intelligence.capital_allocation",
+    "app.portfolio_intelligence.market_rotation",
+    "app.portfolio_intelligence.portfolio_manager",
+    "app.portfolio_intelligence.ai_insights",
+    "app.portfolio_intelligence.research_analytics"
+  ],
+  "app\\api\\v1\\qualification.py": [
+    "fastapi",
+    "typing",
+    "app.qualification",
+    "app.logs.logger"
+  ],
+  "app\\api\\v1\\risk.py": [
+    "fastapi",
+    "typing",
+    "app.logs.logger",
+    "app.risk.limits",
+    "app.portfolio.exposure",
+    "app.risk.stress_test",
+    "app.risk.stress_test"
+  ],
+  "app\\api\\v1\\router.py": [
+    "fastapi",
+    "health",
+    "market",
+    "agents",
+    "strategies",
+    "signals",
+    "news",
+    "backtest",
+    "paper",
+    "journal",
+    "memory",
+    "risk",
+    "portfolio",
+    "app.api.v1.execution",
+    "app.api.v1.brokers",
+    "app.api.v1.analytics",
+    "app.api.v1.extensions",
+    "app.api.v1.forecast",
+    "ws",
+    "qualification",
+    "data",
+    "app.api.v1.forecast_routes.predictions",
+    "app.api.v1.forecast_routes.outlook",
+    "app.api.v1.forecast_routes.scanners",
+    "app.api.v1.forecast_routes.schedule",
+    "app.api.v1.forecast_routes.heatmap",
+    "app.api.v1.research_routes.backtest",
+    "app.api.v1.research_routes.replay",
+    "app.api.v1.research_routes.evaluation",
+    "app.api.v1.research_routes.models",
+    "app.api.v1.research_routes.experiments",
+    "app.api.v1.research_routes.reports",
+    "app.api.v1.enterprise_routes",
+    "app.api.v1.strategy_lab.library",
+    "app.api.v1.strategy_lab.builder",
+    "app.api.v1.strategy_lab.features",
+    "app.api.v1.strategy_lab.notebook",
+    "app.api.v1.strategy_lab.benchmarks",
+    "app.api.v1.strategy_lab.recommendations",
+    "app.api.v1.decision_routes",
+    "app.api.v1.validation_routes"
+  ],
+  "app\\api\\v1\\signals.py": [
+    "fastapi",
+    "typing",
+    "app.logs.logger",
+    "app.strategies.manager",
+    "app.strategies.manager",
+    "datetime",
+    "uuid",
+    "app.utils.event_bus",
+    "app.strategies.manager",
+    "app.strategies.manager",
+    "app.strategies.prediction.engine",
+    "app.strategies.scoring.trade_quality",
+    "app.strategies.ai_validation.engine",
+    "app.database.manager",
+    "app.database.models.forecast",
+    "json",
+    "app.strategies.prediction.engine",
+    "app.market_data.providers.manager",
+    "pandas",
+    "app.strategies.manager",
+    "app.strategies.scoring.trade_quality",
+    "app.strategies.manager",
+    "app.strategies.ai_validation.engine",
+    "app.strategies.holding.adaptive",
+    "app.strategies.smart_money.structure",
+    "app.strategies.smart_money.liquidity",
+    "app.strategies.smart_money.blocks",
+    "app.strategies.smart_money.fvg",
+    "app.market_data.providers.manager",
+    "pandas",
+    "sqlalchemy"
+  ],
+  "app\\api\\v1\\strategies.py": [
+    "fastapi",
+    "typing",
+    "pydantic",
+    "app.logs.logger",
+    "app.strategies.manager",
+    "app.strategies.manager",
+    "app.strategies.manager",
+    "app.strategies.manager",
+    "app.strategies.plugins.registry",
+    "app.strategies.manager",
+    "app.strategies.manager",
+    "app.strategies.manager",
+    "app.strategies.manager",
+    "app.strategies.manager",
+    "app.strategies.manager",
+    "app.strategies.analytics.engine",
+    "app.strategies.analytics.engine",
+    "app.strategies.optimizer",
+    "app.strategies.manager",
+    "app.strategies.analytics.engine",
+    "app.strategies.optimizer"
+  ],
+  "app\\api\\v1\\validation_routes.py": [
+    "fastapi",
+    "typing",
+    "app.validation.benchmarking",
+    "app.validation.ab_testing",
+    "app.validation.walk_forward",
+    "app.validation.regime",
+    "app.validation.session",
+    "app.validation.hold_time",
+    "app.validation.pair_analysis",
+    "app.validation.drift",
+    "app.validation.calibration",
+    "app.validation.improvement",
+    "app.validation.reports"
+  ],
+  "app\\api\\v1\\ws.py": [
+    "fastapi",
+    "app.utils.websocket_manager",
+    "app.utils.event_bus",
+    "app.logs.logger",
+    "uuid",
+    "json",
+    "asyncio"
+  ],
+  "app\\api\\v1\\forecast_routes\\heatmap.py": [
+    "fastapi",
+    "app.market_intelligence.heatmap_engine"
+  ],
+  "app\\api\\v1\\forecast_routes\\outlook.py": [
+    "fastapi",
+    "typing",
+    "app.market_intelligence.outlook"
+  ],
+  "app\\api\\v1\\forecast_routes\\predictions.py": [
+    "fastapi",
+    "typing",
+    "app.market_intelligence.opportunity_ranking",
+    "app.logs.logger",
+    "app.database.manager",
+    "sqlalchemy",
+    "app.database.models.forecast"
+  ],
+  "app\\api\\v1\\forecast_routes\\scanners.py": [
+    "fastapi",
+    "app.market_intelligence.swing_scanner",
+    "app.market_intelligence.h4_engine",
+    "asyncio"
+  ],
+  "app\\api\\v1\\forecast_routes\\schedule.py": [
+    "fastapi",
+    "app.market_intelligence.schedule_engine",
+    "datetime"
+  ],
+  "app\\api\\v1\\research_routes\\backtest.py": [
+    "fastapi",
+    "pydantic",
+    "typing",
+    "app.backtesting.enterprise_engine"
+  ],
+  "app\\api\\v1\\research_routes\\evaluation.py": [
+    "fastapi",
+    "sqlalchemy.future",
+    "app.database.core",
+    "app.database.models.research",
+    "app.database.models.forecast"
+  ],
+  "app\\api\\v1\\research_routes\\experiments.py": [
+    "fastapi",
+    "pydantic"
+  ],
+  "app\\api\\v1\\research_routes\\models.py": [
+    "fastapi"
+  ],
+  "app\\api\\v1\\research_routes\\replay.py": [
+    "fastapi",
+    "pydantic",
+    "app.research.replay_engine",
+    "app.research.replay_engine",
+    "app.research.replay_engine",
+    "app.research.replay_engine"
+  ],
+  "app\\api\\v1\\research_routes\\reports.py": [
+    "fastapi",
+    "app.research.report_generator"
+  ],
+  "app\\api\\v1\\strategy_lab\\benchmarks.py": [
+    "fastapi",
+    "typing",
+    "sqlalchemy.ext.asyncio",
+    "sqlalchemy",
+    "app.api.dependencies",
+    "app.database.models.strategy_lab"
+  ],
+  "app\\api\\v1\\strategy_lab\\builder.py": [
+    "fastapi",
+    "typing"
+  ],
+  "app\\api\\v1\\strategy_lab\\features.py": [
+    "fastapi",
+    "typing"
+  ],
+  "app\\api\\v1\\strategy_lab\\library.py": [
+    "fastapi",
+    "typing",
+    "sqlalchemy.ext.asyncio",
+    "sqlalchemy",
+    "app.api.dependencies",
+    "app.database.models.strategy_lab",
+    "app.strategy_lab.lifecycle"
+  ],
+  "app\\api\\v1\\strategy_lab\\notebook.py": [
+    "fastapi",
+    "typing",
+    "sqlalchemy.ext.asyncio",
+    "sqlalchemy",
+    "app.api.dependencies",
+    "app.database.models.strategy_lab"
+  ],
+  "app\\api\\v1\\strategy_lab\\recommendations.py": [
+    "fastapi",
+    "typing",
+    "sqlalchemy.ext.asyncio",
+    "sqlalchemy",
+    "app.api.dependencies",
+    "app.database.models.strategy_lab"
+  ],
+  "app\\auth\\rate_limiter.py": [
+    "fastapi",
+    "time"
+  ],
+  "app\\auth\\security.py": [
+    "time",
+    "typing",
+    "datetime",
+    "app.config.settings",
+    "app.logs.logger",
+    "fastapi",
+    "fastapi.security",
+    "jose",
+    "passlib.context"
+  ],
+  "app\\backtesting\\core.py": [
+    "logging",
+    "typing",
+    "app.backtesting.types",
+    "app.utils.event_bus",
+    "app.logs.logger",
+    "pandas",
+    "app.database.manager",
+    "app.strategies.plugins.registry"
+  ],
+  "app\\backtesting\\enterprise_engine.py": [
+    "typing",
+    "pandas",
+    "random"
+  ],
+  "app\\backtesting\\monte_carlo.py": [
+    "numpy",
+    "pandas",
+    "typing",
+    "app.logs.logger"
+  ],
+  "app\\backtesting\\run_backtest.py": [
+    "asyncio",
+    "sys",
+    "os",
+    "pandas",
+    "datetime",
+    "app.market_data.providers.tradingview",
+    "app.strategies.plugins.registry",
+    "app.logs.logger"
+  ],
+  "app\\backtesting\\types.py": [
+    "enum",
+    "typing",
+    "pydantic",
+    "datetime"
+  ],
+  "app\\backtesting\\analytics\\metrics.py": [
+    "math",
+    "numpy",
+    "typing",
+    "app.backtesting.types"
+  ],
+  "app\\backtesting\\analytics\\performance.py": [
+    "typing",
+    "datetime"
+  ],
+  "app\\backtesting\\data\\loader.py": [
+    "pandas",
+    "datetime"
+  ],
+  "app\\backtesting\\execution\\conditions.py": [
+    "app.backtesting.types"
+  ],
+  "app\\backtesting\\execution\\simulator.py": [
+    "uuid",
+    "datetime",
+    "typing",
+    "app.backtesting.types",
+    "app.backtesting.execution.conditions"
+  ],
+  "app\\backtesting\\portfolio\\manager.py": [
+    "logging"
+  ],
+  "app\\brokers\\factory.py": [
+    "typing",
+    "app.logs.logger",
+    "app.brokers.interface",
+    "app.brokers.tradingview_broker"
+  ],
+  "app\\brokers\\interface.py": [
+    "abc",
+    "typing",
+    "app.database.models.execution"
+  ],
+  "app\\brokers\\tradingview_broker.py": [
+    "asyncio",
+    "uuid",
+    "typing",
+    "datetime",
+    "app.brokers.interface",
+    "app.database.models.execution",
+    "app.execution.types",
+    "app.logs.logger",
+    "app.market_data.providers.manager"
+  ],
+  "app\\config\\constants.py": [
+    "enum",
+    "pydantic"
+  ],
+  "app\\config\\settings.py": [
+    "pydantic_settings",
+    "functools",
+    "typing"
+  ],
+  "app\\core\\caching.py": [
+    "functools",
+    "typing"
+  ],
+  "app\\core\\config_manager.py": [
+    "typing"
+  ],
+  "app\\database\\core.py": [
+    "sqlalchemy.orm"
+  ],
+  "app\\database\\manager.py": [
+    "logging",
+    "typing",
+    "sqlalchemy.ext.asyncio",
+    "app.config.settings",
+    "app.api.exceptions",
+    "app.database.core",
+    "app.database.models"
+  ],
+  "app\\database\\repository.py": [
+    "typing",
+    "sqlalchemy.ext.asyncio",
+    "sqlalchemy.future",
+    "sqlalchemy"
+  ],
+  "app\\database\\models\\ai.py": [
+    "sqlalchemy",
+    "sqlalchemy.orm"
+  ],
+  "app\\database\\models\\backtest.py": [
+    "sqlalchemy",
+    "sqlalchemy.orm",
+    "sqlalchemy.sql",
+    "app.database.core"
+  ],
+  "app\\database\\models\\broker.py": [
+    "dataclasses",
+    "datetime",
+    "typing"
+  ],
+  "app\\database\\models\\decision.py": [
+    "uuid",
+    "datetime",
+    "sqlalchemy",
+    "app.database.core"
+  ],
+  "app\\database\\models\\execution.py": [
+    "dataclasses",
+    "datetime",
+    "typing"
+  ],
+  "app\\database\\models\\forecast.py": [
+    "uuid",
+    "datetime",
+    "typing",
+    "sqlalchemy",
+    "sqlalchemy.orm",
+    "sqlalchemy.ext.declarative",
+    "app.database.core"
+  ],
+  "app\\database\\models\\journal.py": [
+    "sqlalchemy",
+    "sqlalchemy.orm",
+    "sqlalchemy.sql",
+    "app.database.core"
+  ],
+  "app\\database\\models\\market.py": [
+    "sqlalchemy",
+    "sqlalchemy.sql",
+    "app.database.core"
+  ],
+  "app\\database\\models\\memory.py": [
+    "dataclasses",
+    "datetime",
+    "typing"
+  ],
+  "app\\database\\models\\news.py": [
+    "sqlalchemy",
+    "sqlalchemy.sql",
+    "app.database.core"
+  ],
+  "app\\database\\models\\paper.py": [
+    "sqlalchemy",
+    "sqlalchemy.orm",
+    "sqlalchemy.sql",
+    "app.database.core",
+    "enum"
+  ],
+  "app\\database\\models\\portfolio.py": [
+    "dataclasses",
+    "datetime",
+    "typing"
+  ],
+  "app\\database\\models\\prediction.py": [
+    "sqlalchemy",
+    "sqlalchemy.sql",
+    "app.database.core"
+  ],
+  "app\\database\\models\\research.py": [
+    "sqlalchemy",
+    "sqlalchemy.orm",
+    "datetime",
+    "app.database.core"
+  ],
+  "app\\database\\models\\risk.py": [
+    "dataclasses",
+    "datetime",
+    "typing"
+  ],
+  "app\\database\\models\\smc.py": [
+    "sqlalchemy",
+    "sqlalchemy.orm"
+  ],
+  "app\\database\\models\\strategy_config.py": [
+    "sqlalchemy",
+    "sqlalchemy.sql",
+    "app.database.core"
+  ],
+  "app\\database\\models\\strategy_lab.py": [
+    "sqlalchemy",
+    "sqlalchemy.sql",
+    "app.database.core"
+  ],
+  "app\\database\\models\\validation.py": [
+    "sqlalchemy",
+    "datetime",
+    "uuid",
+    "app.database.core"
+  ],
+  "app\\database\\models\\__init__.py": [
+    "app.database.models.journal",
+    "app.database.models.strategy_config",
+    "app.database.models.prediction",
+    "app.database.models.smc",
+    "app.database.models.market",
+    "app.database.models.backtest",
+    "app.database.models.paper",
+    "app.database.models.news",
+    "app.database.models.ai",
+    "app.database.models.forecast",
+    "app.database.models.research",
+    "app.database.models.decision",
+    "app.database.models.strategy_lab",
+    "app.database.models.validation"
+  ],
+  "app\\decision\\engine.py": [
+    "uuid",
+    "typing",
+    "app.logs.logger",
+    "app.utils.event_bus",
+    "app.database.manager",
+    "app.database.models.decision",
+    "app.decision.qualification",
+    "app.decision.entry",
+    "app.decision.exit",
+    "app.decision.risk_reward",
+    "app.decision.session",
+    "app.decision.regime",
+    "app.decision.explanation"
+  ],
+  "app\\decision\\entry.py": [
+    "typing"
+  ],
+  "app\\decision\\exit.py": [
+    "typing"
+  ],
+  "app\\decision\\explanation.py": [
+    "typing"
+  ],
+  "app\\decision\\qualification.py": [
+    "typing"
+  ],
+  "app\\decision\\regime.py": [
+    "typing"
+  ],
+  "app\\decision\\risk_reward.py": [
+    "typing"
+  ],
+  "app\\decision\\session.py": [
+    "datetime",
+    "typing"
+  ],
+  "app\\execution\\base.py": [
+    "abc",
+    "typing",
+    "types"
+  ],
+  "app\\execution\\coordinator.py": [
+    "asyncio",
+    "typing",
+    "app.logs.logger",
+    "app.config.settings",
+    "app.utils.event_bus",
+    "app.api.exceptions",
+    "app.risk.engine",
+    "app.execution.router"
+  ],
+  "app\\execution\\failsafe.py": [
+    "logging",
+    "typing",
+    "app.config.settings",
+    "app.utils.event_bus"
+  ],
+  "app\\execution\\lifecycle.py": [
+    "logging",
+    "typing",
+    "app.utils.event_bus",
+    "app.execution.manager"
+  ],
+  "app\\execution\\manager.py": [
+    "typing",
+    "uuid",
+    "logging",
+    "datetime",
+    "app.database.models.execution",
+    "app.utils.event_bus",
+    "app.execution.router"
+  ],
+  "app\\execution\\monitor.py": [
+    "logging",
+    "asyncio",
+    "app.execution.router"
+  ],
+  "app\\execution\\position_manager.py": [
+    "typing",
+    "app.logs.logger"
+  ],
+  "app\\execution\\reconciliation.py": [
+    "logging",
+    "typing",
+    "app.utils.event_bus"
+  ],
+  "app\\execution\\recovery.py": [
+    "logging",
+    "asyncio",
+    "typing",
+    "app.execution.router",
+    "app.utils.event_bus"
+  ],
+  "app\\execution\\router.py": [
+    "typing",
+    "app.brokers.interface",
+    "app.brokers.factory",
+    "uuid",
+    "app.database.models.execution",
+    "app.paper_trading.account_manager",
+    "app.paper_trading.account_manager",
+    "app.paper_trading.executor"
+  ],
+  "app\\execution\\synchronizer.py": [
+    "asyncio",
+    "logging",
+    "typing",
+    "app.execution.router",
+    "app.utils.event_bus"
+  ],
+  "app\\execution\\types.py": [
+    "enum",
+    "datetime",
+    "typing",
+    "pydantic"
+  ],
+  "app\\execution\\paper\\executor.py": [
+    "uuid",
+    "typing",
+    "datetime",
+    "base",
+    "types"
+  ],
+  "app\\execution\\paper\\matching_engine.py": [
+    "asyncio",
+    "logging",
+    "app.utils.event_bus",
+    "app.execution.paper.order_manager",
+    "app.execution.paper.simulator",
+    "app.database.models.paper"
+  ],
+  "app\\execution\\paper\\order_manager.py": [
+    "uuid",
+    "asyncio",
+    "typing",
+    "app.utils.event_bus",
+    "app.database.models.paper"
+  ],
+  "app\\execution\\paper\\simulator.py": [
+    "random"
+  ],
+  "app\\execution\\paper\\validator.py": [
+    "app.paper_trading.account_manager"
+  ],
+  "app\\forecast\\base.py": [
+    "abc",
+    "typing"
+  ],
+  "app\\forecast\\consensus.py": [
+    "typing"
+  ],
+  "app\\forecast\\engine.py": [
+    "abc",
+    "typing",
+    "datetime",
+    "logging"
+  ],
+  "app\\forecast\\h4_generator.py": [
+    "asyncio",
+    "logging",
+    "datetime",
+    "typing",
+    "datetime"
+  ],
+  "app\\forecast\\pattern_engine.py": [
+    "numpy",
+    "typing"
+  ],
+  "app\\forecast\\provider.py": [
+    "abc",
+    "typing",
+    "dataclasses",
+    "datetime",
+    "app.logs.logger"
+  ],
+  "app\\forecast\\swing_scanner.py": [
+    "logging",
+    "typing"
+  ],
+  "app\\forecast_engine\\lifecycle.py": [
+    "asyncio",
+    "datetime",
+    "sqlalchemy",
+    "app.logs.logger",
+    "app.database.manager",
+    "app.database.models.forecast"
+  ],
+  "app\\forecast_engine\\base\\models.py": [
+    "pydantic",
+    "typing",
+    "datetime"
+  ],
+  "app\\forecast_engine\\base\\provider.py": [
+    "abc",
+    "typing",
+    "app.forecast_engine.base.models"
+  ],
+  "app\\forecast_engine\\consensus\\engine.py": [
+    "typing",
+    "app.forecast_engine.base.models",
+    "app.logs.logger"
+  ],
+  "app\\forecast_engine\\evaluation\\engine.py": [
+    "asyncio",
+    "datetime",
+    "typing",
+    "app.logs.logger",
+    "app.database.manager",
+    "app.database.models.forecast",
+    "sqlalchemy"
+  ],
+  "app\\forecast_engine\\orchestrator\\engine.py": [
+    "asyncio",
+    "uuid",
+    "datetime",
+    "typing",
+    "app.logs.logger",
+    "app.database.manager",
+    "app.database.models.forecast",
+    "app.forecast_engine.base.models",
+    "app.forecast_engine.registry.manager",
+    "app.forecast_engine.validation.engine",
+    "app.forecast_engine.consensus.engine",
+    "app.utils.event_bus",
+    "app.market_data.providers.manager",
+    "sqlalchemy"
+  ],
+  "app\\forecast_engine\\providers\\kronos_provider.py": [
+    "app.forecast_engine.base.provider",
+    "app.forecast_engine.base.models"
+  ],
+  "app\\forecast_engine\\providers\\lstm_provider.py": [
+    "app.forecast_engine.base.provider",
+    "app.forecast_engine.base.models"
+  ],
+  "app\\forecast_engine\\providers\\prophet_provider.py": [
+    "app.forecast_engine.base.provider",
+    "app.forecast_engine.base.models"
+  ],
+  "app\\forecast_engine\\providers\\rule_based_provider.py": [
+    "app.forecast_engine.base.provider",
+    "app.forecast_engine.base.models"
+  ],
+  "app\\forecast_engine\\providers\\statistical_provider.py": [
+    "app.forecast_engine.base.provider",
+    "app.forecast_engine.base.models"
+  ],
+  "app\\forecast_engine\\providers\\transformer_provider.py": [
+    "app.forecast_engine.base.provider",
+    "app.forecast_engine.base.models"
+  ],
+  "app\\forecast_engine\\providers\\xgboost_provider.py": [
+    "app.forecast_engine.base.provider",
+    "app.forecast_engine.base.models"
+  ],
+  "app\\forecast_engine\\registry\\manager.py": [
+    "importlib",
+    "uuid",
+    "typing",
+    "app.logs.logger",
+    "app.database.manager",
+    "app.database.models.forecast",
+    "app.forecast_engine.base.provider",
+    "sqlalchemy"
+  ],
+  "app\\forecast_engine\\validation\\engine.py": [
+    "math",
+    "typing",
+    "app.forecast_engine.base.models"
+  ],
+  "app\\journal\\ai_reviewer.py": [
+    "typing",
+    "app.logs.logger",
+    "app.journal.manager",
+    "app.agents.providers.router"
+  ],
+  "app\\journal\\manager.py": [
+    "typing",
+    "datetime",
+    "app.logs.logger",
+    "app.utils.event_bus",
+    "app.database.manager",
+    "app.utils.event_bus",
+    "app.database.manager",
+    "app.database.manager",
+    "app.analytics.engine",
+    "app.database.models.journal",
+    "app.database.models.journal",
+    "sqlalchemy",
+    "app.database.models.journal",
+    "sqlalchemy"
+  ],
+  "app\\learning\\learning_engine.py": [
+    "logging",
+    "typing"
+  ],
+  "app\\logs\\logger.py": [
+    "logging",
+    "sys",
+    "json",
+    "datetime",
+    "pathlib",
+    "app.config.settings",
+    "logging.handlers"
+  ],
+  "app\\market_data\\feature_store.py": [
+    "pandas",
+    "numpy",
+    "typing",
+    "datetime"
+  ],
+  "app\\market_data\\historical_downloader.py": [
+    "asyncio",
+    "logging",
+    "datetime",
+    "typing",
+    "sqlalchemy.orm",
+    "database.models.market"
+  ],
+  "app\\market_data\\registry.py": [
+    "typing",
+    "app.logs.logger"
+  ],
+  "app\\market_data\\service.py": [
+    "typing",
+    "app.logs.logger",
+    "app.market_data.providers.manager",
+    "app.api.exceptions"
+  ],
+  "app\\market_data\\types.py": [
+    "datetime",
+    "enum",
+    "typing",
+    "pydantic"
+  ],
+  "app\\market_data\\validation.py": [
+    "logging",
+    "typing",
+    "datetime",
+    "app.market_data.types"
+  ],
+  "app\\market_data\\cache\\redis_cache.py": [
+    "json",
+    "logging",
+    "typing",
+    "app.market_data.types"
+  ],
+  "app\\market_data\\historical\\manager.py": [
+    "typing",
+    "app.logs.logger",
+    "app.market_data.service"
+  ],
+  "app\\market_data\\historical\\replay.py": [
+    "logging",
+    "asyncio",
+    "typing",
+    "app.market_data.historical.manager",
+    "app.utils.event_bus",
+    "app.logs.logger"
+  ],
+  "app\\market_data\\providers\\base.py": [
+    "abc",
+    "typing",
+    "types"
+  ],
+  "app\\market_data\\providers\\manager.py": [
+    "typing",
+    "app.logs.logger",
+    "app.market_data.providers.base",
+    "app.api.exceptions",
+    "app.market_data.providers.yfinance_provider",
+    "app.market_data.providers.tradingview",
+    "app.market_data.providers.simulated"
+  ],
+  "app\\market_data\\providers\\simulated.py": [
+    "time",
+    "random",
+    "typing",
+    "app.market_data.providers.base"
+  ],
+  "app\\market_data\\providers\\tradingview.py": [
+    "asyncio",
+    "datetime",
+    "typing",
+    "pandas",
+    "tvDatafeed",
+    "app.logs.logger",
+    "app.market_data.providers.base",
+    "app.market_data.types",
+    "app.config.settings"
+  ],
+  "app\\market_data\\providers\\yfinance_provider.py": [
+    "asyncio",
+    "yfinance",
+    "pandas",
+    "datetime",
+    "typing",
+    "app.logs.logger",
+    "app.market_data.providers.base",
+    "app.market_data.types"
+  ],
+  "app\\market_data\\realtime\\stream_manager.py": [
+    "asyncio",
+    "typing",
+    "app.logs.logger",
+    "app.utils.event_bus",
+    "app.market_data.providers.manager"
+  ],
+  "app\\market_data\\websocket\\base.py": [
+    "abc",
+    "typing"
+  ],
+  "app\\market_intelligence\\config.py": [
+    "typing",
+    "dataclasses"
+  ],
+  "app\\market_intelligence\\downloader.py": [
+    "asyncio",
+    "datetime",
+    "typing",
+    "app.logs.logger",
+    "app.utils.event_bus",
+    "app.market_intelligence.config",
+    "app.market_intelligence.config",
+    "app.database.manager",
+    "sqlalchemy",
+    "app.database.manager",
+    "app.database.models.market",
+    "app.database.manager",
+    "app.database.models.market",
+    "sqlalchemy",
+    "app.database.manager",
+    "app.database.models.market",
+    "sqlalchemy",
+    "app.database.manager",
+    "app.database.models.market",
+    "app.database.manager",
+    "app.database.models.market",
+    "sqlalchemy",
+    "app.database.manager",
+    "app.database.models.market",
+    "sqlalchemy",
+    "app.market_intelligence.providers.yfinance_adapter",
+    "sqlalchemy"
+  ],
+  "app\\market_intelligence\\execution_bridge.py": [
+    "asyncio",
+    "app.logs.logger",
+    "app.utils.event_bus"
+  ],
+  "app\\market_intelligence\\features.py": [
+    "json",
+    "math",
+    "datetime",
+    "typing",
+    "numpy",
+    "app.logs.logger",
+    "app.utils.event_bus",
+    "app.database.manager",
+    "app.database.models.market",
+    "sqlalchemy",
+    "app.database.manager",
+    "app.database.models.market",
+    "sqlalchemy",
+    "app.database.manager",
+    "app.database.models.market",
+    "sqlalchemy",
+    "app.database.manager",
+    "app.database.models.market",
+    "sqlalchemy"
+  ],
+  "app\\market_intelligence\\h4_engine.py": [
+    "asyncio",
+    "datetime",
+    "app.logs.logger",
+    "app.forecast_engine.orchestrator.engine",
+    "app.market_intelligence.sync_service"
+  ],
+  "app\\market_intelligence\\heatmap_engine.py": [
+    "typing",
+    "app.logs.logger",
+    "app.database.manager",
+    "sqlalchemy",
+    "app.database.models.forecast"
+  ],
+  "app\\market_intelligence\\opportunity_ranking.py": [
+    "typing",
+    "sqlalchemy",
+    "app.database.manager",
+    "app.database.models.forecast",
+    "app.logs.logger"
+  ],
+  "app\\market_intelligence\\outlook.py": [
+    "typing",
+    "app.logs.logger",
+    "app.database.manager",
+    "app.database.models.forecast",
+    "uuid",
+    "datetime"
+  ],
+  "app\\market_intelligence\\quality.py": [
+    "datetime",
+    "typing",
+    "app.logs.logger",
+    "app.utils.event_bus",
+    "app.market_intelligence.config",
+    "datetime",
+    "app.market_intelligence.downloader",
+    "app.database.manager",
+    "app.database.models.market",
+    "sqlalchemy",
+    "app.database.manager",
+    "app.database.models.market",
+    "sqlalchemy",
+    "app.database.manager",
+    "app.database.models.market",
+    "app.database.manager",
+    "app.database.models.market",
+    "sqlalchemy"
+  ],
+  "app\\market_intelligence\\schedule_engine.py": [
+    "datetime",
+    "asyncio",
+    "app.logs.logger",
+    "app.utils.websocket_manager",
+    "json"
+  ],
+  "app\\market_intelligence\\swing_scanner.py": [
+    "asyncio",
+    "app.logs.logger",
+    "app.forecast_engine.orchestrator.engine",
+    "app.market_intelligence.sync_service"
+  ],
+  "app\\market_intelligence\\sync_service.py": [
+    "asyncio",
+    "datetime",
+    "typing",
+    "app.logs.logger",
+    "app.utils.event_bus",
+    "app.market_intelligence.config",
+    "app.market_intelligence.downloader",
+    "app.market_intelligence.quality",
+    "app.market_intelligence.features",
+    "app.database.manager",
+    "app.database.models.market",
+    "sqlalchemy"
+  ],
+  "app\\market_intelligence\\providers\\yfinance_adapter.py": [
+    "asyncio",
+    "datetime",
+    "typing",
+    "app.logs.logger",
+    "yfinance"
+  ],
+  "app\\memory\\context.py": [
+    "typing",
+    "json"
+  ],
+  "app\\memory\\interface.py": [
+    "logging",
+    "abc",
+    "typing"
+  ],
+  "app\\memory\\interfaces.py": [
+    "abc",
+    "typing",
+    "app.database.models.memory"
+  ],
+  "app\\memory\\manager.py": [
+    "logging",
+    "typing",
+    "app.logs.logger",
+    "app.memory.registry",
+    "app.utils.event_bus",
+    "app.memory.vector.search",
+    "app.memory.vector.provider",
+    "app.utils.event_bus"
+  ],
+  "app\\memory\\registry.py": [
+    "typing",
+    "app.logs.logger"
+  ],
+  "app\\memory\\graph\\builder.py": [
+    "uuid",
+    "typing",
+    "app.database.models.memory"
+  ],
+  "app\\memory\\graph\\query.py": [
+    "typing",
+    "app.database.models.memory",
+    "app.memory.graph.builder"
+  ],
+  "app\\memory\\pipeline\\analyzer.py": [
+    "typing",
+    "app.database.models.journal"
+  ],
+  "app\\memory\\pipeline\\generator.py": [
+    "uuid",
+    "logging",
+    "typing",
+    "app.database.models.memory",
+    "app.memory.vector.embeddings",
+    "app.utils.event_bus"
+  ],
+  "app\\memory\\vector\\embeddings.py": [
+    "typing",
+    "app.logs.logger",
+    "hashlib",
+    "random",
+    "sentence_transformers"
+  ],
+  "app\\memory\\vector\\provider.py": [
+    "numpy",
+    "typing",
+    "app.database.models.memory",
+    "app.memory.interfaces"
+  ],
+  "app\\memory\\vector\\search.py": [
+    "typing",
+    "app.database.models.memory",
+    "app.memory.vector.embeddings",
+    "app.memory.interfaces"
+  ],
+  "app\\news\\core.py": [
+    "logging",
+    "uuid",
+    "typing",
+    "datetime",
+    "app.news.types",
+    "app.news.pipeline.parser",
+    "app.news.pipeline.deduplicator",
+    "app.news.pipeline.translation",
+    "app.news.nlp.sentiment",
+    "app.news.nlp.classifier",
+    "app.news.nlp.extraction",
+    "app.news.analytics.mapping",
+    "app.news.analytics.scoring",
+    "app.utils.event_bus"
+  ],
+  "app\\news\\types.py": [
+    "enum",
+    "typing",
+    "pydantic",
+    "datetime"
+  ],
+  "app\\news\\analytics\\mapping.py": [
+    "app.news.types"
+  ],
+  "app\\news\\analytics\\scoring.py": [
+    "app.news.types"
+  ],
+  "app\\news\\nlp\\extraction.py": [
+    "re"
+  ],
+  "app\\news\\nlp\\sentiment.py": [
+    "app.news.types"
+  ],
+  "app\\news\\pipeline\\deduplicator.py": [
+    "hashlib",
+    "typing"
+  ],
+  "app\\news\\pipeline\\parser.py": [
+    "re",
+    "html"
+  ],
+  "app\\news\\providers\\base.py": [
+    "abc",
+    "typing",
+    "datetime"
+  ],
+  "app\\news\\providers\\economic.py": [
+    "typing",
+    "datetime",
+    "app.logs.logger",
+    "app.news.providers.base"
+  ],
+  "app\\news\\providers\\manager.py": [
+    "typing",
+    "app.logs.logger",
+    "app.news.providers.rss"
+  ],
+  "app\\news\\providers\\rss.py": [
+    "typing",
+    "datetime",
+    "app.logs.logger",
+    "app.news.providers.base",
+    "asyncio",
+    "httpx",
+    "xml.etree.ElementTree"
+  ],
+  "app\\operations\\audit.py": [
+    "typing",
+    "datetime"
+  ],
+  "app\\operations\\backup.py": [
+    "typing"
+  ],
+  "app\\operations\\health.py": [
+    "psutil",
+    "typing"
+  ],
+  "app\\operations\\notifications.py": [
+    "typing",
+    "app.utils.event_bus"
+  ],
+  "app\\orchestration\\scheduler.py": [
+    "asyncio",
+    "typing"
+  ],
+  "app\\paper_trading\\account_manager.py": [
+    "uuid",
+    "logging",
+    "typing"
+  ],
+  "app\\paper_trading\\statistics.py": [
+    "datetime",
+    "typing"
+  ],
+  "app\\plugins\\loader.py": [
+    "os",
+    "importlib.util",
+    "typing"
+  ],
+  "app\\portfolio\\exit_manager.py": [
+    "typing",
+    "app.logs.logger"
+  ],
+  "app\\portfolio\\exposure.py": [
+    "typing",
+    "app.logs.logger"
+  ],
+  "app\\portfolio\\manager.py": [
+    "uuid",
+    "typing",
+    "app.paper_trading.account_manager",
+    "app.utils.event_bus",
+    "asyncio",
+    "app.utils.event_bus",
+    "app.utils.event_bus",
+    "app.portfolio.exposure",
+    "app.portfolio.margin",
+    "app.paper_trading.account_manager"
+  ],
+  "app\\portfolio\\margin.py": [
+    "typing",
+    "app.logs.logger"
+  ],
+  "app\\portfolio\\optimizer.py": [
+    "typing",
+    "app.logs.logger"
+  ],
+  "app\\portfolio_intelligence\\ai_insights.py": [
+    "typing"
+  ],
+  "app\\portfolio_intelligence\\capital_allocation.py": [
+    "typing"
+  ],
+  "app\\portfolio_intelligence\\correlation.py": [
+    "typing"
+  ],
+  "app\\portfolio_intelligence\\currency_strength.py": [
+    "typing"
+  ],
+  "app\\portfolio_intelligence\\exposure_monitor.py": [
+    "typing"
+  ],
+  "app\\portfolio_intelligence\\manager.py": [
+    "asyncio",
+    "app.logs.logger",
+    "app.utils.event_bus",
+    "app.portfolio_intelligence.currency_strength",
+    "app.portfolio_intelligence.correlation",
+    "app.portfolio_intelligence.market_rotation",
+    "app.portfolio_intelligence.exposure_monitor"
+  ],
+  "app\\portfolio_intelligence\\market_rotation.py": [
+    "typing"
+  ],
+  "app\\portfolio_intelligence\\portfolio_manager.py": [
+    "typing"
+  ],
+  "app\\portfolio_intelligence\\research_analytics.py": [
+    "typing"
+  ],
+  "app\\qualification\\manager.py": [
+    "asyncio",
+    "psutil",
+    "os",
+    "time",
+    "typing",
+    "datetime",
+    "app.utils.event_bus",
+    "app.logs.logger",
+    "app.database.manager",
+    "app.market_data.providers.manager",
+    "app.market_data.providers.simulated",
+    "app.market_data.providers.manager"
+  ],
+  "app\\qualification\\reporter.py": [
+    "typing",
+    "json",
+    "os",
+    "datetime"
+  ],
+  "app\\qualification\\__init__.py": [
+    "manager",
+    "reporter"
+  ],
+  "app\\research\\evaluation_engine.py": [
+    "asyncio",
+    "datetime",
+    "uuid",
+    "typing",
+    "app.logs.logger",
+    "app.utils.event_bus",
+    "app.database.manager",
+    "app.database.models.research"
+  ],
+  "app\\research\\portfolio_simulator.py": [
+    "typing",
+    "app.logs.logger"
+  ],
+  "app\\research\\replay_engine.py": [
+    "asyncio",
+    "typing",
+    "app.logs.logger",
+    "app.utils.event_bus"
+  ],
+  "app\\research\\report_generator.py": [
+    "json",
+    "typing",
+    "app.logs.logger"
+  ],
+  "app\\research\\self_learning_engine.py": [
+    "asyncio",
+    "typing",
+    "uuid",
+    "datetime",
+    "app.logs.logger",
+    "app.utils.event_bus",
+    "app.database.manager",
+    "app.database.models.research"
+  ],
+  "app\\risk\\advanced_risk_manager.py": [
+    "typing",
+    "app.logs.logger"
+  ],
+  "app\\risk\\correlation.py": [
+    "typing"
+  ],
+  "app\\risk\\engine.py": [
+    "typing",
+    "app.logs.logger",
+    "app.config.settings",
+    "app.execution.failsafe"
+  ],
+  "app\\risk\\limits.py": [
+    "logging",
+    "typing",
+    "app.logs.logger"
+  ],
+  "app\\risk\\scoring.py": [
+    "typing"
+  ],
+  "app\\risk\\sizing.py": [
+    "math",
+    "typing"
+  ],
+  "app\\risk\\stress_test.py": [
+    "typing",
+    "app.logs.logger"
+  ],
+  "app\\risk\\__init__.py": [
+    "limits"
+  ],
+  "app\\strategies\\manager.py": [
+    "asyncio",
+    "pandas",
+    "uuid",
+    "typing",
+    "datetime",
+    "app.logs.logger",
+    "app.utils.event_bus",
+    "app.strategies.plugins.registry",
+    "app.strategies.strategy_engine.metadata",
+    "app.strategies.strategy_engine.core",
+    "app.strategies.strategy_engine.types",
+    "app.market_data.providers.manager",
+    "datetime",
+    "app.strategies.strategy_engine.metadata"
+  ],
+  "app\\strategies\\optimizer.py": [
+    "typing",
+    "dataclasses",
+    "app.logs.logger"
+  ],
+  "app\\strategies\\selector.py": [
+    "typing",
+    "app.logs.logger"
+  ],
+  "app\\strategies\\ai_validation\\engine.py": [
+    "typing",
+    "dataclasses",
+    "app.logs.logger"
+  ],
+  "app\\strategies\\analytics\\engine.py": [
+    "math",
+    "numpy",
+    "typing",
+    "dataclasses",
+    "datetime",
+    "app.logs.logger"
+  ],
+  "app\\strategies\\filters\\market_conditions.py": [
+    "datetime",
+    "typing"
+  ],
+  "app\\strategies\\filters\\news.py": [
+    "datetime",
+    "typing",
+    "app.logs.logger",
+    "random"
+  ],
+  "app\\strategies\\filters\\session.py": [
+    "datetime",
+    "pytz",
+    "typing"
+  ],
+  "app\\strategies\\holding\\adaptive.py": [
+    "typing",
+    "dataclasses",
+    "datetime",
+    "app.logs.logger"
+  ],
+  "app\\strategies\\indicators\\base.py": [
+    "abc",
+    "typing",
+    "pandas"
+  ],
+  "app\\strategies\\indicators\\market_structure.py": [
+    "dataclasses",
+    "pandas",
+    "typing",
+    "numpy",
+    "app.logs.logger",
+    "app.strategies.indicators.otc.liquidity_sweep"
+  ],
+  "app\\strategies\\indicators\\momentum.py": [
+    "typing",
+    "app.logs.logger",
+    "app.strategies.indicators.base",
+    "pandas",
+    "numpy"
+  ],
+  "app\\strategies\\indicators\\regime.py": [
+    "pandas",
+    "numpy",
+    "typing"
+  ],
+  "app\\strategies\\indicators\\sequence_engine.py": [
+    "__future__",
+    "dataclasses",
+    "typing",
+    "pandas",
+    "numpy",
+    "app.logs.logger"
+  ],
+  "app\\strategies\\indicators\\trend.py": [
+    "pandas",
+    "numpy",
+    "typing",
+    "app.logs.logger"
+  ],
+  "app\\strategies\\indicators\\volatility.py": [
+    "pandas",
+    "numpy",
+    "typing",
+    "app.logs.logger"
+  ],
+  "app\\strategies\\indicators\\volume_confirm.py": [
+    "pandas",
+    "typing",
+    "app.logs.logger"
+  ],
+  "app\\strategies\\indicators\\otc\\currency_strength.py": [
+    "__future__",
+    "dataclasses",
+    "datetime",
+    "typing",
+    "pandas",
+    "numpy",
+    "logging",
+    "requests"
+  ],
+  "app\\strategies\\indicators\\otc\\liquidity_sweep.py": [
+    "__future__",
+    "dataclasses",
+    "typing",
+    "pandas",
+    "logging"
+  ],
+  "app\\strategies\\plugins\\momentum.py": [
+    "pandas",
+    "typing",
+    "uuid",
+    "app.strategies.strategy_engine.core",
+    "app.strategies.strategy_engine.types"
+  ],
+  "app\\strategies\\plugins\\otc_confluence.py": [
+    "pandas",
+    "typing",
+    "uuid",
+    "app.strategies.strategy_engine.core",
+    "app.strategies.strategy_engine.types",
+    "app.strategies.indicators.otc.currency_strength",
+    "app.strategies.indicators.otc.liquidity_sweep"
+  ],
+  "app\\strategies\\plugins\\psar_super_trend.py": [
+    "pandas",
+    "numpy",
+    "uuid",
+    "typing",
+    "datetime",
+    "app.strategies.strategy_engine.core",
+    "app.strategies.strategy_engine.types",
+    "app.strategies.strategy_engine.metadata",
+    "app.strategies.plugins.registry"
+  ],
+  "app\\strategies\\plugins\\registry.py": [
+    "os",
+    "importlib",
+    "inspect",
+    "typing",
+    "app.logs.logger",
+    "app.strategies.strategy_engine.core",
+    "app.strategies.strategy_engine.metadata",
+    "datetime"
+  ],
+  "app\\strategies\\plugins\\smc_sequence_confluence.py": [
+    "pandas",
+    "typing",
+    "uuid",
+    "app.strategies.strategy_engine.core",
+    "app.strategies.strategy_engine.types",
+    "app.strategies.indicators.sequence_engine",
+    "app.strategies.indicators.market_structure"
+  ],
+  "app\\strategies\\prediction\\engine.py": [
+    "numpy",
+    "pandas",
+    "typing",
+    "dataclasses",
+    "datetime",
+    "app.logs.logger"
+  ],
+  "app\\strategies\\price_action\\patterns.py": [
+    "typing",
+    "app.logs.logger"
+  ],
+  "app\\strategies\\price_action\\support_resistance.py": [
+    "pandas",
+    "numpy",
+    "typing"
+  ],
+  "app\\strategies\\scoring\\confidence.py": [
+    "typing"
+  ],
+  "app\\strategies\\scoring\\trade_quality.py": [
+    "typing",
+    "app.logs.logger"
+  ],
+  "app\\strategies\\smart_money\\blocks.py": [
+    "pandas",
+    "typing",
+    "app.logs.logger"
+  ],
+  "app\\strategies\\smart_money\\fvg.py": [
+    "pandas",
+    "typing",
+    "app.logs.logger"
+  ],
+  "app\\strategies\\smart_money\\liquidity.py": [
+    "pandas",
+    "typing",
+    "app.logs.logger"
+  ],
+  "app\\strategies\\smart_money\\mtf_engine.py": [
+    "typing",
+    "pandas",
+    "app.logs.logger",
+    "app.strategies.smart_money.structure"
+  ],
+  "app\\strategies\\smart_money\\structure.py": [
+    "pandas",
+    "typing",
+    "app.logs.logger"
+  ],
+  "app\\strategies\\strategy_engine\\adaptive_weights.py": [
+    "typing",
+    "dataclasses"
+  ],
+  "app\\strategies\\strategy_engine\\agreement_engine.py": [
+    "__future__",
+    "dataclasses",
+    "typing",
+    "pandas",
+    "logging"
+  ],
+  "app\\strategies\\strategy_engine\\core.py": [
+    "abc",
+    "pandas",
+    "typing",
+    "app.strategies.strategy_engine.types"
+  ],
+  "app\\strategies\\strategy_engine\\metadata.py": [
+    "__future__",
+    "enum",
+    "typing",
+    "pydantic",
+    "datetime"
+  ],
+  "app\\strategies\\strategy_engine\\metrics.py": [
+    "logging",
+    "typing",
+    "app.strategies.strategy_engine.types"
+  ],
+  "app\\strategies\\strategy_engine\\mtf.py": [
+    "typing",
+    "app.logs.logger"
+  ],
+  "app\\strategies\\strategy_engine\\regime_detector.py": [
+    "logging",
+    "numpy",
+    "pandas"
+  ],
+  "app\\strategies\\strategy_engine\\signal.py": [
+    "logging",
+    "typing",
+    "app.strategies.strategy_engine.types",
+    "app.utils.event_bus"
+  ],
+  "app\\strategies\\strategy_engine\\types.py": [
+    "enum",
+    "typing",
+    "pydantic",
+    "datetime"
+  ],
+  "app\\strategy_lab\\library.py": [
+    "typing",
+    "datetime"
+  ],
+  "app\\strategy_lab\\lifecycle.py": [
+    "typing"
+  ],
+  "app\\tasks\\monitoring.py": [
+    "asyncio",
+    "time",
+    "psutil",
+    "app.logs.logger",
+    "app.utils.event_bus",
+    "app.strategies.manager",
+    "app.journal.manager",
+    "app.api.v1.health",
+    "app.execution.router",
+    "app.journal.manager",
+    "app.risk.limits",
+    "app.agents.manager"
+  ],
+  "app\\utils\\event_bus.py": [
+    "asyncio",
+    "typing",
+    "app.logs.logger"
+  ],
+  "app\\utils\\plugins.py": [
+    "importlib",
+    "logging",
+    "inspect",
+    "typing"
+  ],
+  "app\\utils\\provider_manager.py": [
+    "asyncio",
+    "datetime",
+    "time",
+    "enum",
+    "typing",
+    "app.logs.logger"
+  ],
+  "app\\utils\\scheduler.py": [
+    "logging",
+    "asyncio",
+    "typing"
+  ],
+  "app\\utils\\startup_validator.py": [
+    "typing",
+    "sqlalchemy",
+    "app.config.settings",
+    "app.database.manager",
+    "app.logs.logger",
+    "app.utils.provider_manager"
+  ],
+  "app\\utils\\websocket_manager.py": [
+    "asyncio",
+    "json",
+    "typing",
+    "fastapi",
+    "app.logs.logger"
+  ],
+  "app\\validation\\ab_testing.py": [
+    "typing"
+  ],
+  "app\\validation\\benchmarking.py": [
+    "typing"
+  ],
+  "app\\validation\\calibration.py": [
+    "typing"
+  ],
+  "app\\validation\\drift.py": [
+    "typing"
+  ],
+  "app\\validation\\engine.py": [
+    "numpy",
+    "pandas",
+    "typing",
+    "sqlalchemy.future",
+    "app.database.manager",
+    "app.database.models.validation"
+  ],
+  "app\\validation\\hold_time.py": [
+    "typing"
+  ],
+  "app\\validation\\improvement.py": [
+    "typing"
+  ],
+  "app\\validation\\pair_analysis.py": [
+    "typing"
+  ],
+  "app\\validation\\regime.py": [
+    "typing"
+  ],
+  "app\\validation\\reports.py": [
+    "typing",
+    "app.validation.engine"
+  ],
+  "app\\validation\\session.py": [
+    "typing"
+  ],
+  "app\\validation\\walk_forward.py": [
+    "typing"
+  ]
+}
+
+=== VULTURE DEAD CODE SCAN ===
+app\agents\consensus\engine.py:5: unused import 'VotingEngine' (90% confidence)
+app\agents\providers\base.py:23: unused variable 'tools' (100% confidence)
+app\agents\providers\heuristic.py:76: unused variable 'tools' (100% confidence)
+app\agents\providers\omni.py:84: unused variable 'tools' (100% confidence)
+app\agents\providers\router.py:5: unused import 'AIProviderException' (90% confidence)
+app\analytics\models\kronos\adapter.py:12: unused variable 'model_path' (100% confidence)
+app\api\dependencies.py:5: unused import 'AuthenticationException' (90% confidence)
+app\api\v1\brokers.py:4: unused import 'BrokerException' (90% confidence)
+app\backtesting\core.py:3: unused import 'BacktestConfig' (90% confidence)
+app\core\caching.py:4: unused variable 'expire_seconds' (100% confidence)
+app\database\manager.py:64: unused import 'memory' (90% confidence)
+app\database\models\forecast.py:16: unused import 'declared_attr' (90% confidence)
+app\decision\entry.py:4: unused variable 'forecast_data' (100% confidence)
+app\execution\coordinator.py:6: unused import 'ExecutionException' (90% confidence)
+app\forecast\base.py:11: unused variable 'current_data' (100% confidence)
+app\forecast\pattern_engine.py:12: unused variable 'current_features' (100% confidence)
+app\forecast_engine\base\models.py:1: unused import 'root_validator' (90% confidence)
+app\forecast_engine\evaluation\engine.py:7: unused import 'ForecastPerformanceModel' (90% confidence)
+app\market_data\providers\base.py:39: unused variable 'depth' (100% confidence)
+app\market_data\providers\manager.py:4: unused import 'MarketDataException' (90% confidence)
+app\market_data\providers\simulated.py:90: unused variable 'depth' (100% confidence)
+app\market_data\providers\tradingview.py:189: unused variable 'depth' (100% confidence)
+app\market_data\providers\yfinance_provider.py:167: unused variable 'depth' (100% confidence)
+app\market_data\service.py:4: unused import 'MarketDataException' (90% confidence)
+app\market_data\validation.py:4: unused import 'BidAsk' (90% confidence)
+app\market_data\websocket\base.py:33: unused variable 'channels' (100% confidence)
+app\market_data\websocket\base.py:40: unused variable 'channels' (100% confidence)
+app\research\self_learning_engine.py:8: unused import 'ModelCalibrationModel' (90% confidence)
+app\strategies\ai_validation\engine.py:30: unused variable 'market_data' (100% confidence)
+app\strategies\indicators\base.py:21: unused variable 'new_data' (100% confidence)
+app\strategies\indicators\momentum.py:49: unused variable 'new_data' (100% confidence)
+app\utils\websocket_manager.py:3: unused import 'Set' (90% confidence)

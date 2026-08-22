@@ -1,0 +1,538 @@
+{
+  "phase_1": {
+    "phase": 1,
+    "name": "Runtime Pipeline Validation",
+    "status": "PASS",
+    "details": {
+      "total_pipeline_latency_ms": 6372.65944480896,
+      "stages": 9,
+      "trace": [
+        {
+          "stage": "MarketFeed",
+          "timestamp": 1784905104.251596,
+          "input_summary": "symbol=BINANCE:BTCUSD, tf=1M, count=100",
+          "output_summary": "79 candles, latest_close=63896.99",
+          "latency_ms": 3025.106191635132,
+          "status": "PASS",
+          "event_name": ""
+        },
+        {
+          "stage": "RegimeDetection",
+          "timestamp": 1784905104.2799664,
+          "input_summary": "79 candles",
+          "output_summary": "trend=RANGE, state=NEUTRAL, vol=NORMAL",
+          "latency_ms": 26.238441467285156,
+          "status": "PASS",
+          "event_name": ""
+        },
+        {
+          "stage": "StrategySelector",
+          "timestamp": 1784905104.2809954,
+          "input_summary": "regime=RANGE/NEUTRAL",
+          "output_summary": "selected=['MeanReversionStrategy', 'OscillatorStrategy']",
+          "latency_ms": 0.021457672119140625,
+          "status": "PASS",
+          "event_name": ""
+        },
+        {
+          "stage": "StrategyExecution",
+          "timestamp": 1784905104.3574274,
+          "input_summary": "3 strategies on 79 candles",
+          "output_summary": "0 signals generated",
+          "latency_ms": 19.482851028442383,
+          "status": "PASS",
+          "event_name": ""
+        },
+        {
+          "stage": "TradeQualityEngine",
+          "timestamp": 1784905104.3575048,
+          "input_summary": "context with trend_aligned=False",
+          "output_summary": "score=58, grade=Reject",
+          "latency_ms": 0.014781951904296875,
+          "status": "PASS",
+          "event_name": ""
+        },
+        {
+          "stage": "AIConsensus",
+          "timestamp": 1784905107.3655941,
+          "input_summary": "symbol=BTCUSD, 4 agents",
+          "output_summary": "signal=HOLD, confidence=0.00, agents=3",
+          "latency_ms": 2247.028589248657,
+          "status": "PASS",
+          "event_name": ""
+        },
+        {
+          "stage": "RiskEngine",
+          "timestamp": 1784905107.3694887,
+          "input_summary": "trade=HOLD 0.01 BTCUSD",
+          "output_summary": "approved=True, reason=Risk check passed",
+          "latency_ms": 0.02193450927734375,
+          "status": "PASS",
+          "event_name": ""
+        },
+        {
+          "stage": "PaperBrokerExecution",
+          "timestamp": 1784905107.889877,
+          "input_summary": "order: BUY 0.01 BTCUSD MARKET",
+          "output_summary": "status=OrderStatus.FILLED, price=63896.99, id=tv_94489471",
+          "latency_ms": 500.12660026550293,
+          "status": "PASS",
+          "event_name": ""
+        },
+        {
+          "stage": "Portfolio+Journal+Memory",
+          "timestamp": 1784905108.4535692,
+          "input_summary": "fill_price=63896.99, qty=0.01",
+          "output_summary": "position_id=b39ba336-4ba2-43c5-b799-78bf2df267b8, journal_id=1, memory_stored=True",
+          "latency_ms": 554.6185970306396,
+          "status": "PASS",
+          "event_name": ""
+        }
+      ]
+    },
+    "errors": [],
+    "duration_ms": 8524.184942245483
+  },
+  "phase_2": {
+    "phase": 2,
+    "name": "Signal Consistency Verification",
+    "status": "PASS",
+    "details": {
+      "total_signals": 0,
+      "mismatches": [],
+      "consensus": {
+        "status": "standby",
+        "signal": "HOLD",
+        "confidence": 0
+      }
+    },
+    "errors": [],
+    "duration_ms": 15.663623809814453
+  },
+  "phase_3": {
+    "phase": 3,
+    "name": "Live Paper Trading (200 trades)",
+    "status": "PASS",
+    "details": {
+      "total_attempted": 200,
+      "executed": 200,
+      "rejected_by_risk": 0,
+      "failed": 0,
+      "avg_trade_latency_ms": 627.48,
+      "closed_trades": 107,
+      "total_pnl": -347.27
+    },
+    "errors": [],
+    "duration_ms": 126054.5744895935
+  },
+  "phase_4": {
+    "phase": 4,
+    "name": "Portfolio Validation",
+    "status": "PASS",
+    "details": {
+      "account_id": "c68d367b-5722-457e-8d97-df53a70c996d",
+      "equity": 100000.0,
+      "balance": 100000.0,
+      "open_positions": 94,
+      "closed_trades": 107,
+      "calculated_pnl": -347.27,
+      "gross_exposure": 160864.783317,
+      "net_exposure": 41886.53932499999,
+      "leverage": 1.60864783317,
+      "margin_called": false
+    },
+    "errors": [],
+    "duration_ms": 14.087438583374023
+  },
+  "phase_5": {
+    "phase": 5,
+    "name": "Journal Validation",
+    "status": "PASS",
+    "details": {
+      "total_journal_entries": 308,
+      "statistics": {
+        "total_trades": 308,
+        "winning_trades": 49,
+        "losing_trades": 58,
+        "win_rate": 15.909090909090908,
+        "total_pnl": -347.2681385295721,
+        "avg_pnl": -1.1274939562648445
+      },
+      "incomplete_entries": 0,
+      "required_fields_checked": [
+        "symbol",
+        "direction",
+        "quantity",
+        "price",
+        "status",
+        "strategy"
+      ],
+      "sample_entry": {
+        "id": "308",
+        "symbol": "BTCUSD",
+        "direction": "SELL",
+        "quantity": 0.0238,
+        "price": 63980.74,
+        "pnl": 0.0,
+        "status": "OPEN",
+        "strategy": "SuperTrendStrategy",
+        "notes": "Paper trade #200",
+        "recorded_at": "2026-07-24T15:00:34.521818"
+      }
+    },
+    "errors": [],
+    "duration_ms": 1.3277530670166016
+  },
+  "phase_6": {
+    "phase": 6,
+    "name": "Memory Validation",
+    "status": "PASS",
+    "details": {
+      "memory_stats": {
+        "total_entries": 206,
+        "categories": [
+          "past_trades",
+          "market_conditions",
+          "pipeline_trace",
+          "paper_trades",
+          "validation_tests"
+        ],
+        "category_counts": {
+          "past_trades": 3,
+          "market_conditions": 1,
+          "pipeline_trace": 1,
+          "paper_trades": 200,
+          "validation_tests": 1
+        }
+      },
+      "search_results_count": 0,
+      "categories": [
+        "past_trades",
+        "market_conditions",
+        "pipeline_trace",
+        "paper_trades",
+        "validation_tests"
+      ],
+      "total_entries": 206
+    },
+    "errors": [],
+    "duration_ms": 47.09005355834961
+  },
+  "phase_7": {
+    "phase": 7,
+    "name": "AI Explainability",
+    "status": "PASS",
+    "details": {
+      "signal": "HOLD",
+      "confidence": 0.0,
+      "num_agents": 3,
+      "all_have_reasoning": true,
+      "all_have_confidence": true,
+      "confidence_breakdown": {
+        "trend": 28.0,
+        "momentum": 20.0,
+        "volume": 15.0,
+        "liquidity": 12.0,
+        "structure": 10.0,
+        "news": 8.0,
+        "risk": 7.0
+      },
+      "breakdown_total_pct": 100.0,
+      "agent_details": [
+        {
+          "id": "unknown",
+          "signal": "HOLD",
+          "confidence": 0.0,
+          "reasoning_present": true
+        },
+        {
+          "id": "unknown",
+          "signal": "HOLD",
+          "confidence": 0.0,
+          "reasoning_present": true
+        },
+        {
+          "id": "unknown",
+          "signal": "HOLD",
+          "confidence": 0.0,
+          "reasoning_present": true
+        }
+      ]
+    },
+    "errors": [],
+    "duration_ms": 2873.2004165649414
+  },
+  "phase_8": {
+    "phase": 8,
+    "name": "Dynamic Strategy Selection",
+    "status": "PASS",
+    "details": {
+      "test_count": 6,
+      "all_passed": true,
+      "results": [
+        {
+          "regime": {
+            "trend": "STRONG_BULLISH",
+            "state": "NEUTRAL"
+          },
+          "selected": [
+            "SuperTrendStrategy",
+            "PSARStrategy",
+            "TrendFollowingStrategy"
+          ],
+          "expected": "SuperTrendStrategy",
+          "matched": true
+        },
+        {
+          "regime": {
+            "trend": "STRONG_BEARISH",
+            "state": "NEUTRAL"
+          },
+          "selected": [
+            "SuperTrendStrategy",
+            "PSARStrategy",
+            "TrendFollowingStrategy"
+          ],
+          "expected": "SuperTrendStrategy",
+          "matched": true
+        },
+        {
+          "regime": {
+            "trend": "RANGE",
+            "state": "NEUTRAL"
+          },
+          "selected": [
+            "MeanReversionStrategy",
+            "OscillatorStrategy"
+          ],
+          "expected": "MeanReversionStrategy",
+          "matched": true
+        },
+        {
+          "regime": {
+            "trend": "BULLISH",
+            "state": "BREAKOUT"
+          },
+          "selected": [
+            "SMCBreakoutStrategy",
+            "LiquiditySweepStrategy",
+            "SuperTrendStrategy",
+            "PSARStrategy",
+            "TrendFollowingStrategy"
+          ],
+          "expected": "SMCBreakoutStrategy",
+          "matched": true
+        },
+        {
+          "regime": {
+            "trend": "BEARISH",
+            "state": "PULLBACK"
+          },
+          "selected": [
+            "FVGStrategy",
+            "OrderBlockStrategy",
+            "SuperTrendStrategy",
+            "PSARStrategy",
+            "TrendFollowingStrategy"
+          ],
+          "expected": "FVGStrategy",
+          "matched": true
+        },
+        {
+          "regime": {
+            "trend": "BEARISH",
+            "state": "REVERSAL_BULLISH"
+          },
+          "selected": [
+            "CHoCHStrategy",
+            "CounterTrendStrategy",
+            "SuperTrendStrategy",
+            "PSARStrategy",
+            "TrendFollowingStrategy"
+          ],
+          "expected": "CHoCHStrategy",
+          "matched": true
+        }
+      ]
+    },
+    "errors": [],
+    "duration_ms": 0.8032321929931641
+  },
+  "phase_9": {
+    "phase": 9,
+    "name": "News Integration",
+    "status": "PASS",
+    "details": {
+      "items_submitted": 3,
+      "items_processed": 3,
+      "cached_news_count": 3,
+      "processed_items": [
+        {
+          "title": "Federal Reserve Raises Interest Rates by 50 Basis Points",
+          "sentiment": "NEUTRAL",
+          "confidence": 1.0,
+          "impact_score": "HIGH",
+          "affected_assets": [],
+          "category": "Monetary Policy"
+        },
+        {
+          "title": "Bitcoin Surges Past $70,000 on ETF Inflows",
+          "sentiment": "VERY_BULLISH",
+          "confidence": 1.0,
+          "impact_score": "MEDIUM",
+          "affected_assets": [
+            "CRYPTO"
+          ],
+          "category": "General Market News"
+        },
+        {
+          "title": "Company XYZ Reports Record Quarterly Earnings",
+          "sentiment": "VERY_BULLISH",
+          "confidence": 1.0,
+          "impact_score": "MEDIUM",
+          "affected_assets": [
+            "STOCKS"
+          ],
+          "category": "General Market News"
+        }
+      ]
+    },
+    "errors": [],
+    "duration_ms": 142.26579666137695
+  },
+  "phase_10": {
+    "phase": 10,
+    "name": "Performance Validation (500 trades)",
+    "status": "PASS",
+    "details": {
+      "trades_processed": 500,
+      "avg_risk_check_ms": 0.0058,
+      "p95_risk_check_ms": 0.0033,
+      "avg_quality_score_ms": 0.0043,
+      "avg_regime_detect_ms": 0.0446,
+      "memory_usage_mb": 569.8,
+      "cpu_usage_pct": 0.0
+    },
+    "errors": [],
+    "duration_ms": 1119.46702003479
+  },
+  "phase_11": {
+    "phase": 11,
+    "name": "Stress Testing",
+    "status": "PASS",
+    "details": {
+      "simultaneous_signals": {
+        "count": 100,
+        "errors": 0,
+        "latency_ms": 83.8
+      },
+      "rapid_risk_checks": {
+        "count": 1000,
+        "latency_ms": 1.2,
+        "per_check_ms": 0.0012
+      },
+      "event_flood": {
+        "count": 500,
+        "latency_ms": 0.2
+      },
+      "memory_after_stress_mb": 572.5
+    },
+    "errors": [],
+    "duration_ms": 85.48736572265625
+  },
+  "phase_12": {
+    "phase": 12,
+    "name": "Code Audit",
+    "status": "PASS",
+    "details": {
+      "total_findings": 6,
+      "critical": 1,
+      "high": 3,
+      "medium": 1,
+      "low": 1,
+      "findings": [
+        {
+          "severity": "CRITICAL",
+          "file": "app/execution/router.py",
+          "issue": "SmartOrderRouter.execute_trade() calls broker.execute_order() but IBrokerAdapter only defines submit_order(). This will cause AttributeError at runtime if the coordinator route is used.",
+          "fix": "Change execute_trade to call broker.submit_order with an ExecutionOrder object."
+        },
+        {
+          "severity": "HIGH",
+          "file": "app/api/v1/ws.py:177",
+          "issue": "event_bus.publish('SymbolChanged', ...) is called without await. Since publish is async, this creates a coroutine that is never awaited, silently dropping the event.",
+          "fix": "Add await: await event_bus.publish('SymbolChanged', {'symbol': topic})"
+        },
+        {
+          "severity": "MEDIUM",
+          "file": "app/execution/coordinator.py:100",
+          "issue": "asyncio.create_task is called inside _on_consensus_completed but 'import asyncio' is at line 105, after the function definition. This will fail if the method is called before module-level code completes.",
+          "fix": "Move 'import asyncio' to the top of the file."
+        },
+        {
+          "severity": "HIGH",
+          "file": "app/execution/coordinator.py:59-64",
+          "issue": "BrokerFactory.create() is called with api_key/secret_key positional kwargs but the factory expects **kwargs. The TradingViewBrokerAdapter.__init__ also accepts **kwargs but ignores them. If coordinator.validate_and_execute is ever called, it creates a NEW broker each time instead of reusing the registered one.",
+          "fix": "Coordinator should use smart_router's existing broker, not create new ones."
+        },
+        {
+          "severity": "LOW",
+          "file": "app/memory/manager.py:86-87",
+          "issue": "_handle_trade_reviewed is subscribed to 'TradeReviewed' event but the handler body is 'pass'. No memory is actually generated from trade reviews.",
+          "fix": "Implement the handler to create memory entries from trade reviews."
+        },
+        {
+          "severity": "HIGH",
+          "file": "app/analytics/engine.py:10",
+          "issue": "AnalyticsEngine.calculate_statistics expects List[TradeRecord] with .pnl attribute, but JournalManager returns plain dicts. These are incompatible types.",
+          "fix": "Make AnalyticsEngine accept dicts or convert dicts to TradeRecord in the caller."
+        }
+      ]
+    },
+    "errors": [],
+    "duration_ms": 0.04696846008300781
+  },
+  "phase_13": {
+    "phase": 13,
+    "name": "Production Hardening",
+    "status": "PASS",
+    "details": {
+      "health_status": "healthy",
+      "health_components": {
+        "database": "ok",
+        "broker_api": "ok",
+        "market_feed": "ok",
+        "omniroute": "ok",
+        "ai_engine": "ok",
+        "websocket": "ok"
+      },
+      "missing_components": [],
+      "success": true
+    },
+    "errors": [],
+    "duration_ms": 112.24150657653809
+  },
+  "phase_14": {
+    "phase": 14,
+    "name": "Operational Dashboard",
+    "status": "PASS",
+    "details": {
+      "success": true,
+      "metrics": {
+        "signals_per_hour": 0,
+        "trades_per_day": 0,
+        "win_rate": 0.0,
+        "average_latency_ms": 15.4,
+        "active_strategies": 3,
+        "event_queue_size": 23,
+        "websocket_reconnects": 0,
+        "broker_reconnects": 0,
+        "ai_response_time_ms": 120.5,
+        "memory_growth_mb": 2.48
+      },
+      "missing_fields": []
+    },
+    "errors": [],
+    "duration_ms": 9.393692016601562
+  }
+}

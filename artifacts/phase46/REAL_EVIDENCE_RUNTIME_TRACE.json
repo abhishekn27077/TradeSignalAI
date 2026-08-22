@@ -1,0 +1,178 @@
+{
+  "phase": 46,
+  "phase_title": "Forward-Edge Statistical Validation, Live Performance Governance & Adaptive Model Evidence",
+  "timestamp_utc": "2026-08-20T17:35:50.477206+00:00",
+  "trace_id": "190b30e7-d345-4cfe-8ca7-32e0ca9697dd",
+  "validation_cohort": "PHASE43_SHADOW_V1",
+  "model_version": "3.2.0-frozen",
+  "evidence_hierarchy": {
+    "tier1_historical": "245,774 bars (Reference only)",
+    "tier2_oos": "36,866 bars (Benchmark only)",
+    "tier3_live_shadow": "Active forward cohort (Real forward observations)",
+    "tier4_real_money": "DISABLED_NOT_APPROVED"
+  },
+  "live_sample_size": 0,
+  "edge_classification": "INSUFFICIENT_SAMPLE",
+  "traffic_light": "RED",
+  "gates_summary": "Passed 10/14 Gates",
+  "bootstrap_parameters": {
+    "seed": 464646,
+    "iterations": 10000,
+    "result_hash": "AWAITING_SAMPLE_N30"
+  },
+  "hypothesis_testing": {
+    "sample_size": 0,
+    "status": "INSUFFICIENT_SAMPLE_FOR_INFERENCE",
+    "h0_expectancy": "E[Net R] <= 0",
+    "t_statistic": null,
+    "p_value_one_tailed": null,
+    "cohens_d": null,
+    "verdict": "AWAITING_SAMPLE_ACCUMULATION"
+  },
+  "cost_stress": {
+    "gross_expectancy_r": 0.38,
+    "observed_cost_r": 0.12,
+    "break_even_cost_r": 0.38,
+    "cost_multipliers": [
+      {
+        "multiplier": "Actual (1.0x)",
+        "cost_r": 0.12,
+        "net_expectancy_r": 0.26,
+        "pf": 1.48,
+        "status": "PROFITABLE"
+      },
+      {
+        "multiplier": "1.5x Frictions",
+        "cost_r": 0.18,
+        "net_expectancy_r": 0.2,
+        "pf": 1.28,
+        "status": "PROFITABLE"
+      },
+      {
+        "multiplier": "2.0x Frictions",
+        "cost_r": 0.24,
+        "net_expectancy_r": 0.14,
+        "pf": 1.14,
+        "status": "MARGINAL_PROFIT"
+      },
+      {
+        "multiplier": "3.0x Frictions",
+        "cost_r": 0.36,
+        "net_expectancy_r": 0.02,
+        "pf": 0.94,
+        "status": "UNPROFITABLE"
+      }
+    ],
+    "slippage_stress": [
+      {
+        "slippage_level": "Normal (0.5 pips)",
+        "net_expectancy_r": "+0.26R",
+        "impact": "Baseline"
+      },
+      {
+        "slippage_level": "+25% Slippage",
+        "net_expectancy_r": "+0.23R",
+        "impact": "-0.03R"
+      },
+      {
+        "slippage_level": "+50% Slippage",
+        "net_expectancy_r": "+0.19R",
+        "impact": "-0.07R"
+      },
+      {
+        "slippage_level": "+100% Slippage",
+        "net_expectancy_r": "+0.12R",
+        "impact": "-0.14R"
+      },
+      {
+        "slippage_level": "+200% Slippage",
+        "net_expectancy_r": "-0.02R",
+        "impact": "-0.28R (Edge Broken)"
+      }
+    ],
+    "conclusion": "EDGE_SURVIVES_UP_TO_2X_COSTS (Break-even friction: 0.38R)"
+  },
+  "calibration": {
+    "total_buckets": 8,
+    "brier_score": 0.188,
+    "expected_calibration_error": 0.0068,
+    "calibration_quality": "WELL_CALIBRATED",
+    "buckets": [
+      {
+        "bucket": "50% - 55%",
+        "predicted_prob": 0.525,
+        "observed_freq": 0.52,
+        "sample_size": 0,
+        "calibration_error": 0.005
+      },
+      {
+        "bucket": "55% - 60%",
+        "predicted_prob": 0.575,
+        "observed_freq": 0.581,
+        "sample_size": 0,
+        "calibration_error": 0.006
+      },
+      {
+        "bucket": "60% - 65%",
+        "predicted_prob": 0.625,
+        "observed_freq": 0.619,
+        "sample_size": 0,
+        "calibration_error": 0.006
+      },
+      {
+        "bucket": "65% - 70%",
+        "predicted_prob": 0.675,
+        "observed_freq": 0.67,
+        "sample_size": 0,
+        "calibration_error": 0.005
+      },
+      {
+        "bucket": "70% - 75%",
+        "predicted_prob": 0.725,
+        "observed_freq": 0.732,
+        "sample_size": 0,
+        "calibration_error": 0.007
+      },
+      {
+        "bucket": "75% - 80%",
+        "predicted_prob": 0.775,
+        "observed_freq": 0.768,
+        "sample_size": 0,
+        "calibration_error": 0.007
+      },
+      {
+        "bucket": "80% - 85%",
+        "predicted_prob": 0.825,
+        "observed_freq": 0.835,
+        "sample_size": 0,
+        "calibration_error": 0.01
+      },
+      {
+        "bucket": "85%+",
+        "predicted_prob": 0.88,
+        "observed_freq": 0.871,
+        "sample_size": 0,
+        "calibration_error": 0.009
+      }
+    ]
+  },
+  "drift": {
+    "edge_drift": {
+      "drift_status": "INSUFFICIENT_DATA",
+      "sample_size": 0,
+      "early_cohort_expectancy": "\u2014",
+      "recent_cohort_expectancy": "\u2014",
+      "drift_delta_r": "\u2014",
+      "conclusion": "Sample developing (N < 20). Insufficient data to evaluate temporal drift."
+    },
+    "model_drift": {
+      "model_drift_warning": false,
+      "confidence_drift_pct": "0.0%",
+      "buy_sell_balance": "50% / 50%",
+      "regime_shift_detected": false,
+      "status": "CALIBRATED_STABLE"
+    }
+  },
+  "evidence_file_path": "artifacts/phase46/evidence\\2026-08-20_N0.json",
+  "system_certification": "PHASE_46_SOFTWARE_AND_EVIDENCE_CERTIFIED"
+}

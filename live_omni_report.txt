@@ -1,0 +1,35 @@
+==================================================
+OMNI-ENGINE LIVE BACKTEST & SIGNAL GENERATOR
+==================================================
+
+[1] Connecting to Data Provider (TradingView)...
+    Fetching latest 200 candles for BINANCE:BTCUSD (1h timeframe)...
+    Successfully fetched 200 candles.
+    Latest Price: $65023.86
+
+[2] Market Regime Engine Analysis...
+    Trend: RANGE
+    Volatility: NORMAL
+    Regime Profile: NEUTRAL
+
+[3] AI Strategy Selector...
+    Selected Optimal Strategies based on Regime: ['MeanReversionStrategy', 'OscillatorStrategy']
+
+[4] Risk Management Check...
+    Daily Drawdown Check Passed: True
+
+[5] Live Signal Generation & Trade Quality Scoring...
+    (Simulating signal evaluation for active strategies...)
+
+    >> Analyzing MeanReversionStrategy conditions...
+       AI Confidence Score: 57/100
+       Trade Quality Grade: Reject
+       [REJECTED] SIGNAL: Did not meet minimum quality threshold.
+
+    >> Analyzing OscillatorStrategy conditions...
+       AI Confidence Score: 57/100
+       Trade Quality Grade: Reject
+       [REJECTED] SIGNAL: Did not meet minimum quality threshold.
+
+==================================================
+Report complete.

@@ -1,0 +1,900 @@
+Run started:2026-08-07 05:25:12.229068+00:00
+
+Test results:
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: app\agents\consensus\engine.py:37:8
+36	            await event_bus.publish("ConsensusStarted", payload={"symbol": symbol})
+37	        except Exception:
+38	            pass
+39	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: app\agents\consensus\engine.py:202:8
+201	            await event_bus.publish("ConsensusCompleted", payload=result)
+202	        except Exception:
+203	            pass
+204	
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak MD5 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: app\agents\providers\heuristic.py:65:26
+64	        # Add pseudo-randomness for agent distinction based on prompt hash
+65	        prompt_hash = int(hashlib.md5(prompt.encode()).hexdigest(), 16)
+66	        hash_val = (prompt_hash % 100) / 100.0
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b101_assert_used.html
+   Location: app\analytics\models\kronos\module.py:58:8
+57	        self.input_format = input_format
+58	        assert self.embed_dim % group_size == 0, "embed_dim must be divisible by group_size"
+59	        self.num_groups = self.embed_dim // group_size
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b101_assert_used.html
+   Location: app\analytics\models\kronos\module.py:61:8
+60	        self.group_size = group_size
+61	        assert persample_entropy_compute in ['group', 'analytical'], "persample_entropy_compute must be either 'group' or 'analytical'"
+62	        assert cb_entropy_compute in ['group', 'nce'], "cb_entropy_compute must be either 'group' or 'nce'"
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b101_assert_used.html
+   Location: app\analytics\models\kronos\module.py:62:8
+61	        assert persample_entropy_compute in ['group', 'analytical'], "persample_entropy_compute must be either 'group' or 'analytical'"
+62	        assert cb_entropy_compute in ['group', 'nce'], "cb_entropy_compute must be either 'group' or 'nce'"
+63	        self.persample_entropy_compute = persample_entropy_compute
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b101_assert_used.html
+   Location: app\analytics\models\kronos\module.py:83:8
+82	    def quantize(self, z):
+83	        assert z.shape[-1] == self.embed_dim, f"Expected {self.embed_dim} dimensions, got {z.shape[-1]}"
+84	
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b101_assert_used.html
+   Location: app\analytics\models\kronos\module.py:168:8
+167	        """
+168	        assert zhat.shape[-1] == self.embed_dim, f"Expected {self.embed_dim} dimensions, got {zhat.shape[-1]}"
+169	        return ((zhat + 1) / 2 * self.basis).sum(axis=-1).to(torch.int64)
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b101_assert_used.html
+   Location: app\analytics\models\kronos\module.py:210:12
+209	            h, w = int(z_q.shape[1] ** 0.5)
+210	            assert h * w == z_q.shape[1], 'Invalid sequence length'
+211	            z_q = rearrange(z_q, 'b (h w) c -> b c h w', h=h)
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b101_assert_used.html
+   Location: app\analytics\models\kronos\module.py:220:12
+219	            h, w = int(z_q.shape[1] ** 0.5)
+220	            assert h * w == z_q.shape[1], 'Invalid sequence length'
+221	            z_q = rearrange(z_q, 'b (h w) c -> b c h w', h=h)
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b101_assert_used.html
+   Location: app\analytics\models\kronos\module.py:422:8
+421	        """
+422	        assert isinstance(s2_bits, int) and s2_bits > 0, "s2_bits must be a positive integer"
+423	
+
+--------------------------------------------------
+>> Issue: [B311:blacklist] Standard pseudo-random generators are not suitable for security/cryptographic purposes.
+   Severity: Low   Confidence: High
+   CWE: CWE-330 (https://cwe.mitre.org/data/definitions/330.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random
+   Location: app\analytics\monte_carlo.py:17:31
+16	        for _ in range(self.iterations):
+17	            simulated_trades = random.choices(trades, k=n_trades)
+18	            
+
+--------------------------------------------------
+>> Issue: [B311:blacklist] Standard pseudo-random generators are not suitable for security/cryptographic purposes.
+   Severity: Low   Confidence: High
+   CWE: CWE-330 (https://cwe.mitre.org/data/definitions/330.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random
+   Location: app\analytics\monte_carlo.py:73:39
+72	            import random as rnd
+73	            sample_paths["random_1"] = rnd.choice(valid_results)["path"]
+74	            sample_paths["random_2"] = rnd.choice(valid_results)["path"]
+
+--------------------------------------------------
+>> Issue: [B311:blacklist] Standard pseudo-random generators are not suitable for security/cryptographic purposes.
+   Severity: Low   Confidence: High
+   CWE: CWE-330 (https://cwe.mitre.org/data/definitions/330.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random
+   Location: app\analytics\monte_carlo.py:74:39
+73	            sample_paths["random_1"] = rnd.choice(valid_results)["path"]
+74	            sample_paths["random_2"] = rnd.choice(valid_results)["path"]
+75	        
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: app\api\v1\ws.py:32:4
+31	        await ws_manager.broadcast(message, topic="ticks")
+32	    except Exception:
+33	        pass
+34	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: app\api\v1\ws.py:41:4
+40	        await ws_manager.broadcast(message, topic="orders")
+41	    except Exception:
+42	        pass
+43	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: app\api\v1\ws.py:50:4
+49	        await ws_manager.broadcast(message, topic="positions")
+50	    except Exception:
+51	        pass
+52	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: app\api\v1\ws.py:59:4
+58	        await ws_manager.broadcast(message, topic="signals")
+59	    except Exception:
+60	        pass
+61	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: app\api\v1\ws.py:68:4
+67	        await ws_manager.broadcast(message, topic="system")
+68	    except Exception:
+69	        pass
+70	async def broadcast_portfolio(*args, **kwargs):
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: app\api\v1\ws.py:75:4
+74	        await ws_manager.broadcast(message, topic="portfolio")
+75	    except Exception:
+76	        pass
+77	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: app\api\v1\ws.py:84:4
+83	        await ws_manager.broadcast(message, topic="risk")
+84	    except Exception:
+85	        pass
+86	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: app\api\v1\ws.py:93:4
+92	        await ws_manager.broadcast(message, topic="ai")
+93	    except Exception:
+94	        pass
+95	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: app\api\v1\ws.py:102:4
+101	        await ws_manager.broadcast(message, topic="ai")
+102	    except Exception:
+103	        pass
+104	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: app\api\v1\ws.py:111:4
+110	        await ws_manager.broadcast(message, topic="news")
+111	    except Exception:
+112	        pass
+113	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: app\api\v1\ws.py:121:4
+120	        await ws_manager.broadcast(message, topic="data_sync")
+121	    except Exception:
+122	        pass
+123	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: app\api\v1\ws.py:130:4
+129	        await ws_manager.broadcast(message, topic="forecast")
+130	    except Exception:
+131	        pass
+132	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: app\api\v1\ws.py:138:4
+137	        await ws_manager.broadcast(message, topic="replay")
+138	    except Exception:
+139	        pass
+140	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: app\api\v1\ws.py:147:4
+146	        await ws_manager.broadcast(message, topic="research")
+147	    except Exception:
+148	        pass
+149	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: app\api\v1\ws.py:156:4
+155	        await ws_manager.broadcast(message, topic="decision")
+156	    except Exception:
+157	        pass
+158	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: app\api\v1\ws.py:165:4
+164	        await ws_manager.broadcast(message, topic="portfolio_intelligence")
+165	    except Exception:
+166	        pass
+167	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: app\api\v1\ws.py:174:4
+173	        await ws_manager.broadcast(message, topic="strategy_lab")
+174	    except Exception:
+175	        pass
+176	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: app\api\v1\ws.py:245:8
+244	            await ws_manager.broadcast(message, topic="journal")
+245	        except Exception:
+246	            pass
+247	            
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: app\api\v1\ws.py:253:8
+252	            await ws_manager.broadcast(message, topic="memory")
+253	        except Exception:
+254	            pass
+255	            
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: app\api\v1\ws.py:264:0
+263	    event_bus.subscribe("DataDownloadComplete", lambda *a, **k: broadcast_data_sync(*a, event_name="DataDownloadComplete", **k))
+264	except Exception:
+265	    pass
+266	
+
+--------------------------------------------------
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Low
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html
+   Location: app\backtesting\core.py:32:22
+31	            
+32	            query = f"SELECT timestamp, open, high, low, close, volume FROM historical_candles WHERE symbol = '{symbol}' AND timeframe = '{timeframe}' ORDER BY timestamp ASC"
+33	            async with conn.begin() as sql_conn:
+
+--------------------------------------------------
+>> Issue: [B311:blacklist] Standard pseudo-random generators are not suitable for security/cryptographic purposes.
+   Severity: Low   Confidence: High
+   CWE: CWE-330 (https://cwe.mitre.org/data/definitions/330.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random
+   Location: app\backtesting\enterprise_engine.py:51:21
+50	        for i in range(100):
+51	            change = random.uniform(-0.01, 0.015)
+52	            equity *= (1 + change)
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: app\backtesting\run_backtest.py:116:8
+115	                print(f"[{b_time}] {sig['strategy_name']} | {sig['direction']} | Confidence: {sig['confidence']} | Reasoning: {sig['reasoning'][:80]}... | PnL: {pnl:.2f}")
+116	        except Exception:
+117	            pass
+118	            
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: app\execution\coordinator.py:95:12
+94	                await event_bus.publish("trade_executed", payload)
+95	            except Exception:
+96	                pass
+97	
+
+--------------------------------------------------
+>> Issue: [B311:blacklist] Standard pseudo-random generators are not suitable for security/cryptographic purposes.
+   Severity: Low   Confidence: High
+   CWE: CWE-330 (https://cwe.mitre.org/data/definitions/330.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random
+   Location: app\execution\paper\simulator.py:11:56
+10	        # Randomize slippage slightly to simulate real conditions
+11	        variable_slip = self.base * volatility_factor * random.uniform(0.5, 1.5)
+12	        if side == "BUY":
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: app\execution\router.py:53:12
+52	                self.add_broker("default_dummy", DummyBroker())
+53	            except Exception:
+54	                pass
+55	            
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: app\execution\router.py:103:16
+102	                    positions.extend(broker_positions)
+103	                except Exception:
+104	                    pass
+105	            elif hasattr(broker, "positions"):
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: app\execution\router.py:120:16
+119	                            orders.append({"id": getattr(o, "id", ""), "symbol": getattr(o, "symbol", ""), "side": getattr(o, "side", ""), "quantity": getattr(o, "quantity", 0), "status": getattr(o, "status", "")})
+120	                except Exception:
+121	                    pass
+122	            elif hasattr(broker, "orders"):
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: app\execution\router.py:133:16
+132	                    return await broker.get_balance()
+133	                except Exception:
+134	                    pass
+135	            elif hasattr(broker, "balance"):
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: app\execution\router.py:145:8
+144	                return {"balance": acc.balance, "equity": acc.equity, "margin": acc.used_margin, "free_margin": acc.free_margin}
+145	        except Exception:
+146	            pass
+147	        return {"balance": 100000.0, "equity": 100000.0, "margin": 0, "free_margin": 100000.0}
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: app\journal\manager.py:102:8
+101	            await event_bus.publish("JournalUpdated", record)
+102	        except Exception:
+103	            pass
+104	            
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: app\journal\manager.py:164:8
+163	                    }
+164	        except Exception:
+165	            pass
+166	        return self._trades.get(trade_id)
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: app\main.py:179:4
+178	        await db_manager.disconnect()
+179	    except Exception:
+180	        pass
+181	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: app\market_data\historical\replay.py:16:16
+15	                    await event_bus.publish("CandleClosed", payload=candle)
+16	                except Exception:
+17	                    pass
+18	            logger.info(f"Replay finished for {config.symbol}")
+
+--------------------------------------------------
+>> Issue: [B112:try_except_continue] Try, Except, Continue detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b112_try_except_continue.html
+   Location: app\market_data\providers\manager.py:54:12
+53	                    return rates
+54	            except Exception:
+55	                continue
+56	
+
+--------------------------------------------------
+>> Issue: [B311:blacklist] Standard pseudo-random generators are not suitable for security/cryptographic purposes.
+   Severity: Low   Confidence: High
+   CWE: CWE-330 (https://cwe.mitre.org/data/definitions/330.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random
+   Location: app\market_data\providers\simulated.py:33:19
+32	        if self.regime == "trending":
+33	            return random.uniform(-2, 10) # Upward bias
+34	        elif self.regime == "sideways":
+
+--------------------------------------------------
+>> Issue: [B311:blacklist] Standard pseudo-random generators are not suitable for security/cryptographic purposes.
+   Severity: Low   Confidence: High
+   CWE: CWE-330 (https://cwe.mitre.org/data/definitions/330.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random
+   Location: app\market_data\providers\simulated.py:35:19
+34	        elif self.regime == "sideways":
+35	            return random.uniform(-5, 5)
+36	        elif self.regime == "high_volatility":
+
+--------------------------------------------------
+>> Issue: [B311:blacklist] Standard pseudo-random generators are not suitable for security/cryptographic purposes.
+   Severity: Low   Confidence: High
+   CWE: CWE-330 (https://cwe.mitre.org/data/definitions/330.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random
+   Location: app\market_data\providers\simulated.py:37:19
+36	        elif self.regime == "high_volatility":
+37	            return random.uniform(-20, 20)
+38	        elif self.regime == "low_volatility":
+
+--------------------------------------------------
+>> Issue: [B311:blacklist] Standard pseudo-random generators are not suitable for security/cryptographic purposes.
+   Severity: Low   Confidence: High
+   CWE: CWE-330 (https://cwe.mitre.org/data/definitions/330.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random
+   Location: app\market_data\providers\simulated.py:39:19
+38	        elif self.regime == "low_volatility":
+39	            return random.uniform(-1, 1)
+40	        elif self.regime == "flash_crash":
+
+--------------------------------------------------
+>> Issue: [B311:blacklist] Standard pseudo-random generators are not suitable for security/cryptographic purposes.
+   Severity: Low   Confidence: High
+   CWE: CWE-330 (https://cwe.mitre.org/data/definitions/330.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random
+   Location: app\market_data\providers\simulated.py:41:19
+40	        elif self.regime == "flash_crash":
+41	            return random.uniform(-50, -5) # Heavy downward
+42	        elif self.regime == "pump_dump":
+
+--------------------------------------------------
+>> Issue: [B311:blacklist] Standard pseudo-random generators are not suitable for security/cryptographic purposes.
+   Severity: Low   Confidence: High
+   CWE: CWE-330 (https://cwe.mitre.org/data/definitions/330.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random
+   Location: app\market_data\providers\simulated.py:44:45
+43	            # 80% pump, 20% dump
+44	            return random.uniform(10, 50) if random.random() < 0.8 else random.uniform(-80, -20)
+45	        return random.uniform(-10, 10)
+
+--------------------------------------------------
+>> Issue: [B311:blacklist] Standard pseudo-random generators are not suitable for security/cryptographic purposes.
+   Severity: Low   Confidence: High
+   CWE: CWE-330 (https://cwe.mitre.org/data/definitions/330.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random
+   Location: app\market_data\providers\simulated.py:44:19
+43	            # 80% pump, 20% dump
+44	            return random.uniform(10, 50) if random.random() < 0.8 else random.uniform(-80, -20)
+45	        return random.uniform(-10, 10)
+
+--------------------------------------------------
+>> Issue: [B311:blacklist] Standard pseudo-random generators are not suitable for security/cryptographic purposes.
+   Severity: Low   Confidence: High
+   CWE: CWE-330 (https://cwe.mitre.org/data/definitions/330.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random
+   Location: app\market_data\providers\simulated.py:44:72
+43	            # 80% pump, 20% dump
+44	            return random.uniform(10, 50) if random.random() < 0.8 else random.uniform(-80, -20)
+45	        return random.uniform(-10, 10)
+
+--------------------------------------------------
+>> Issue: [B311:blacklist] Standard pseudo-random generators are not suitable for security/cryptographic purposes.
+   Severity: Low   Confidence: High
+   CWE: CWE-330 (https://cwe.mitre.org/data/definitions/330.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random
+   Location: app\market_data\providers\simulated.py:45:15
+44	            return random.uniform(10, 50) if random.random() < 0.8 else random.uniform(-80, -20)
+45	        return random.uniform(-10, 10)
+46	
+
+--------------------------------------------------
+>> Issue: [B311:blacklist] Standard pseudo-random generators are not suitable for security/cryptographic purposes.
+   Severity: Low   Confidence: High
+   CWE: CWE-330 (https://cwe.mitre.org/data/definitions/330.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random
+   Location: app\market_data\providers\simulated.py:64:22
+63	            "time": int(time.time()),
+64	            "volume": random.uniform(1, 100 if self.regime == "high_volatility" else 10)
+65	        }
+
+--------------------------------------------------
+>> Issue: [B311:blacklist] Standard pseudo-random generators are not suitable for security/cryptographic purposes.
+   Severity: Low   Confidence: High
+   CWE: CWE-330 (https://cwe.mitre.org/data/definitions/330.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random
+   Location: app\market_data\providers\simulated.py:84:41
+83	                "open": p,
+84	                "high": p + abs(delta) + random.uniform(0, 5),
+85	                "low": max(1.0, p - abs(delta) - random.uniform(0, 5)),
+
+--------------------------------------------------
+>> Issue: [B311:blacklist] Standard pseudo-random generators are not suitable for security/cryptographic purposes.
+   Severity: Low   Confidence: High
+   CWE: CWE-330 (https://cwe.mitre.org/data/definitions/330.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random
+   Location: app\market_data\providers\simulated.py:85:49
+84	                "high": p + abs(delta) + random.uniform(0, 5),
+85	                "low": max(1.0, p - abs(delta) - random.uniform(0, 5)),
+86	                "close": p + random.uniform(-2, 2),
+
+--------------------------------------------------
+>> Issue: [B311:blacklist] Standard pseudo-random generators are not suitable for security/cryptographic purposes.
+   Severity: Low   Confidence: High
+   CWE: CWE-330 (https://cwe.mitre.org/data/definitions/330.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random
+   Location: app\market_data\providers\simulated.py:86:29
+85	                "low": max(1.0, p - abs(delta) - random.uniform(0, 5)),
+86	                "close": p + random.uniform(-2, 2),
+87	                "tick_volume": int(random.uniform(10, 100))
+
+--------------------------------------------------
+>> Issue: [B311:blacklist] Standard pseudo-random generators are not suitable for security/cryptographic purposes.
+   Severity: Low   Confidence: High
+   CWE: CWE-330 (https://cwe.mitre.org/data/definitions/330.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random
+   Location: app\market_data\providers\simulated.py:87:35
+86	                "close": p + random.uniform(-2, 2),
+87	                "tick_volume": int(random.uniform(10, 100))
+88	            })
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: app\market_data\realtime\stream_manager.py:50:28
+49	                                await event_bus.publish("TickReceived", payload=ticker)
+50	                            except Exception:
+51	                                pass
+52	                    except asyncio.TimeoutError:
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: app\market_data\realtime\stream_manager.py:73:0
+72	    event_bus.subscribe("SymbolChanged", handle_symbol_changed)
+73	except Exception:
+74	    pass
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: app\market_intelligence\downloader.py:438:8
+437	            })
+438	        except Exception:
+439	            pass
+440	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: app\market_intelligence\features.py:150:12
+149	                await event_bus.publish("FeatureGenerationProgress", payload=result)
+150	            except Exception:
+151	                pass
+152	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: app\market_intelligence\features.py:586:8
+585	            })
+586	        except Exception:
+587	            pass
+588	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: app\market_intelligence\quality.py:125:8
+124	            await event_bus.publish("DataQualityUpdate", payload=report)
+125	        except Exception:
+126	            pass
+127	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: app\market_intelligence\sync_service.py:107:8
+106	            })
+107	        except Exception:
+108	            pass
+109	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: app\market_intelligence\sync_service.py:167:8
+166	            await event_bus.publish("DataSyncComplete", payload=summary)
+167	        except Exception:
+168	            pass
+169	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: app\memory\manager.py:77:8
+76	            await event_bus.publish("MemoryUpdated", {"key": key, "entry": value})
+77	        except Exception:
+78	            pass
+79	
+
+--------------------------------------------------
+>> Issue: [B311:blacklist] Standard pseudo-random generators are not suitable for security/cryptographic purposes.
+   Severity: Low   Confidence: High
+   CWE: CWE-330 (https://cwe.mitre.org/data/definitions/330.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random
+   Location: app\memory\vector\embeddings.py:44:14
+43	        import random
+44	        rng = random.Random(seed)
+45	        return [rng.random() for _ in range(self._dimension)]
+
+--------------------------------------------------
+>> Issue: [B405:blacklist] Using xml.etree.ElementTree to parse untrusted XML data is known to be vulnerable to XML attacks. Replace xml.etree.ElementTree with the equivalent defusedxml package, or make sure defusedxml.defuse_stdlib() is called.
+   Severity: Low   Confidence: High
+   CWE: CWE-20 (https://cwe.mitre.org/data/definitions/20.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b405-import-xml-etree
+   Location: app\news\providers\rss.py:56:20
+55	                        return
+56	                    import xml.etree.ElementTree as ET
+57	                    root = ET.fromstring(resp.text)
+
+--------------------------------------------------
+>> Issue: [B314:blacklist] Using xml.etree.ElementTree.fromstring to parse untrusted XML data is known to be vulnerable to XML attacks. Replace xml.etree.ElementTree.fromstring with its defusedxml equivalent function or make sure defusedxml.defuse_stdlib() is called
+   Severity: Medium   Confidence: High
+   CWE: CWE-20 (https://cwe.mitre.org/data/definitions/20.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b313-b320-xml-bad-elementtree
+   Location: app\news\providers\rss.py:57:27
+56	                    import xml.etree.ElementTree as ET
+57	                    root = ET.fromstring(resp.text)
+58	                    for item in root.iter("item"):
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: app\portfolio\manager.py:135:0
+134	    event_bus.subscribe("trade_executed", portfolio_manager._on_trade_executed)
+135	except Exception:
+136	    pass
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: app\strategies\indicators\market_structure.py:77:12
+76	                    wl = weekly_lows.loc[prev_week]
+77	            except Exception:
+78	                pass
+79	                
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: app\strategies\indicators\otc\currency_strength.py:380:8
+379	                eur_scores.append((_normalize_roc(roc, 0.20), 0.20))
+380	        except Exception:
+381	            pass
+382	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: app\strategies\indicators\otc\currency_strength.py:396:8
+395	                eur_scores.append((_normalize_roc(roc, 0.30), 0.20))
+396	        except Exception:
+397	            pass
+398	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: app\strategies\indicators\otc\currency_strength.py:412:8
+411	                eur_scores.append((_normalize_roc(roc, 0.25), 0.20))
+412	        except Exception:
+413	            pass
+414	
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: app\tasks\monitoring.py:35:8
+34	            active_strategies_count = len(strategy_manager._active_strategies)
+35	        except Exception:
+36	            pass
+37	            
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: app\tasks\monitoring.py:48:8
+47	                win_rate = (winning / trades_count) * 100
+48	        except Exception:
+49	            pass
+50	            
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html
+   Location: app\tasks\monitoring.py:68:8
+67	            event_bus.subscribe("SignalGenerated", self._on_signal_generated)
+68	        except Exception:
+69	            pass
+70	            
+
+--------------------------------------------------
+
+Code scanned:
+	Total lines of code: 20434
+	Total lines skipped (#nosec): 0
+	Total potential issues skipped due to specifically being disabled (e.g., #nosec BXXX): 0
+
+Run metrics:
+	Total issues (by severity):
+		Undefined: 0
+		Low: 80
+		Medium: 2
+		High: 1
+	Total issues (by confidence):
+		Undefined: 0
+		Low: 1
+		Medium: 0
+		High: 82
+Files skipped (0):

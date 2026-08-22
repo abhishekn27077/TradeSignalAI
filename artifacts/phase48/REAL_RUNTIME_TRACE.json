@@ -1,0 +1,95 @@
+{
+  "trace_timestamp_utc": "2026-08-21T07:08:00.475803+00:00",
+  "phase": "PHASE_48",
+  "sample_forecast_tracked": {
+    "time": "2026-08-14 05:00:00",
+    "asset": "EURUSD",
+    "direction": "BUY",
+    "confidence": 0.79,
+    "probability": 0.79,
+    "entry_price": 1.154068112373352,
+    "stop_loss": 1.1483,
+    "take_profit": 1.1656,
+    "risk_reward": 2.0,
+    "expected_move_pct": 1.0,
+    "decision": "NO_TRADE",
+    "rejection_reason": "HIGH_EVENT_RISK",
+    "prediction_id": "PRED-EURUSD-20260821070628-405afe",
+    "trace_id": "3fa93570-3d51-48b1-8bb0-be79891e8d4b",
+    "status": "FORECAST_CREATED"
+  },
+  "lineage_stages": [
+    {
+      "stage": 1,
+      "name": "Database Closed Candle Store",
+      "asset": "EURUSD",
+      "table": "historical_candles",
+      "database": "tradesignal.db",
+      "total_candles_in_store": 245774,
+      "data_freshness": "STALE (Last Closed Candle: 2026-08-14 05:00:00 UTC)"
+    },
+    {
+      "stage": 2,
+      "name": "8-Layer Multi-Model Evaluation",
+      "model_outputs": {},
+      "model_version": "3.2.0-frozen",
+      "validation_cohort": "PHASE43_SHADOW_V1"
+    },
+    {
+      "stage": 3,
+      "name": "Consensus Fusion & Risk Gating",
+      "direction": "BUY",
+      "probability": 0.79,
+      "confidence": 0.79,
+      "decision": "NO_TRADE",
+      "rejection_reason": "HIGH_EVENT_RISK",
+      "rule": "Honest NO_TRADE enforced when consensus < 0.65 or high event risk"
+    },
+    {
+      "stage": 4,
+      "name": "Shadow Ledger Immutable Recording",
+      "prediction_id": "PRED-EURUSD-20260821070628-405afe",
+      "input_hash": null,
+      "prediction_hash": null,
+      "status": "FORECAST_CREATED"
+    },
+    {
+      "stage": 5,
+      "name": "REST API Serialization",
+      "endpoints_verified": [
+        "/api/v1/live/today",
+        "/api/v1/live/yesterday",
+        "/api/v1/live/tomorrow",
+        "/api/v1/live/models",
+        "/api/v1/signals/h4-intelligence",
+        "/api/v1/journal/trades",
+        "/api/v1/runtime/diagnostics"
+      ],
+      "all_status_200": true
+    },
+    {
+      "stage": 6,
+      "name": "Frontend React Store & UI Components",
+      "components": [
+        "TradingDashboard.tsx",
+        "TodaysSignals.tsx",
+        "H4Forecasts.tsx",
+        "TomorrowForecast.tsx",
+        "DailyCommandCenter.tsx",
+        "Journal.tsx",
+        "LiveEdgeEvidence.tsx"
+      ],
+      "contract_support": "Supports both raw arrays and { success: true, ... } wrapped payloads"
+    }
+  ],
+  "summary": {
+    "assets_monitored": 9,
+    "today_forecasts_count": 9,
+    "h4_matrix_count": 9,
+    "tomorrow_projections_count": 9,
+    "yesterday_trades_count": 0,
+    "journal_trades_count": 0,
+    "phase47_record_found": false,
+    "total_ledger_records_in_db": 0
+  }
+}

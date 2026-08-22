@@ -1,0 +1,24 @@
+fastapi
+uvicorn[standard]
+pydantic
+pydantic-settings
+sqlalchemy
+asyncpg
+pytest
+python-jose[cryptography]
+passlib[bcrypt]
+redis
+httpx
+pandas
+numpy
+tvdatafeed
+# Additional dependencies based on project modules can be added below.
+aiosqlite
+scikit-learn
+xgboost
+torch
+torchvision
+torchaudio
+einops
+huggingface_hub
+safetensors

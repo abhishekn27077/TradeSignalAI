@@ -1,0 +1,350 @@
+{
+  "timestamp": "2026-07-24T21:22:05.861930",
+  "phases": [
+    {
+      "phase": 11,
+      "name": "Real Paper Trading Campaign",
+      "status": "PASS",
+      "details": {
+        "trades_collected": 5000,
+        "target": 5000
+      }
+    },
+    {
+      "phase": 1,
+      "name": "Complete Strategy Benchmark",
+      "status": "PASS",
+      "details": {
+        "SuperTrendStrategy": {
+          "total_trades": 856,
+          "win_rate": 50.0,
+          "profit_factor": 1.2472656602371899,
+          "sharpe_ratio": 0.09910931795998054,
+          "sortino_ratio": 0.15905742538564246,
+          "calmar_ratio": 6.745010792667887,
+          "recovery_factor": 6.61253022214683,
+          "max_drawdown": 0.6772901974763181,
+          "average_r_multiple": 1.2472656602371899,
+          "streaks": {
+            "consecutive_wins": 7,
+            "consecutive_losses": 9
+          }
+        },
+        "TrendFollowingStrategy": {
+          "total_trades": 844,
+          "win_rate": 49.88151658767773,
+          "profit_factor": 1.1959137749158275,
+          "sharpe_ratio": 0.08064242437421917,
+          "sortino_ratio": 0.1263315900237888,
+          "calmar_ratio": 3.3258655139342364,
+          "recovery_factor": 3.238433577762171,
+          "max_drawdown": 1.1128653265135355,
+          "average_r_multiple": 1.201595075509252,
+          "streaks": {
+            "consecutive_wins": 10,
+            "consecutive_losses": 8
+          }
+        },
+        "MeanReversionStrategy": {
+          "total_trades": 798,
+          "win_rate": 52.5062656641604,
+          "profit_factor": 1.4053396219972971,
+          "sharpe_ratio": 0.15286904786355895,
+          "sortino_ratio": 0.25300185332254377,
+          "calmar_ratio": 11.602887250557119,
+          "recovery_factor": 11.427136789258332,
+          "max_drawdown": 0.575981351613722,
+          "average_r_multiple": 1.2711783215679606,
+          "streaks": {
+            "consecutive_wins": 8,
+            "consecutive_losses": 9
+          }
+        },
+        "SMCSequenceConfluenceStrategy": {
+          "total_trades": 842,
+          "win_rate": 55.93824228028503,
+          "profit_factor": 1.6005017512076478,
+          "sharpe_ratio": 0.21364814630990955,
+          "sortino_ratio": 0.36349711416409275,
+          "calmar_ratio": 21.356972731860825,
+          "recovery_factor": 19.854848529878012,
+          "max_drawdown": 0.46494187388345426,
+          "average_r_multiple": 1.260692462203901,
+          "streaks": {
+            "consecutive_wins": 12,
+            "consecutive_losses": 9
+          }
+        },
+        "MomentumStrategy": {
+          "total_trades": 794,
+          "win_rate": 50.12594458438288,
+          "profit_factor": 1.2162915236287515,
+          "sharpe_ratio": 0.08873071858587592,
+          "sortino_ratio": 0.13989235644995676,
+          "calmar_ratio": 4.99915669158322,
+          "recovery_factor": 4.805615010801548,
+          "max_drawdown": 0.7810206027705334,
+          "average_r_multiple": 1.2101795059220741,
+          "streaks": {
+            "consecutive_wins": 8,
+            "consecutive_losses": 8
+          }
+        },
+        "OscillatorStrategy": {
+          "total_trades": 866,
+          "win_rate": 45.95842956120092,
+          "profit_factor": 1.0755453641400032,
+          "sharpe_ratio": 0.03263009518855601,
+          "sortino_ratio": 0.05014164235143016,
+          "calmar_ratio": 1.5057119522028106,
+          "recovery_factor": 1.4751711322254772,
+          "max_drawdown": 1.025230167844696,
+          "average_r_multiple": 1.264711634214878,
+          "streaks": {
+            "consecutive_wins": 10,
+            "consecutive_losses": 10
+          }
+        }
+      }
+    },
+    {
+      "phase": 2,
+      "name": "Market Regime Performance",
+      "status": "PASS",
+      "details": {
+        "detailed_stats": {
+          "HIGH_VOLATILITY": {
+            "trades": 635,
+            "wins": 310,
+            "pnl": 1550.1531178484727,
+            "total_profit": 16782.94685935972,
+            "total_loss": 15232.793741511236,
+            "win_rate": 48.818897637795274,
+            "profit_factor": 1.1017642032153383,
+            "avg_profit": 54.138538255999094,
+            "avg_loss": 46.87013458926534
+          },
+          "RANGE": {
+            "trades": 594,
+            "wins": 307,
+            "pnl": 4438.598471347026,
+            "total_profit": 17230.684024567705,
+            "total_loss": 12792.0855532207,
+            "win_rate": 51.68350168350169,
+            "profit_factor": 1.3469800489435817,
+            "avg_profit": 56.126006594683076,
+            "avg_loss": 44.571726666274216
+          },
+          "BREAKOUT": {
+            "trades": 642,
+            "wins": 351,
+            "pnl": 6869.285872722251,
+            "total_profit": 20228.505762210443,
+            "total_loss": 13359.219889488197,
+            "win_rate": 54.67289719626168,
+            "profit_factor": 1.514198129048493,
+            "avg_profit": 57.6310705476081,
+            "avg_loss": 45.90797212882542
+          },
+          "ACCUMULATION": {
+            "trades": 632,
+            "wins": 316,
+            "pnl": 3781.2451241098333,
+            "total_profit": 17175.4561010061,
+            "total_loss": 13394.21097689626,
+            "win_rate": 50.0,
+            "profit_factor": 1.2823044321634272,
+            "avg_profit": 54.35270918039905,
+            "avg_loss": 42.38674359777298
+          },
+          "LOW_VOLATILITY": {
+            "trades": 634,
+            "wins": 309,
+            "pnl": 2945.997373740976,
+            "total_profit": 17218.978887626577,
+            "total_loss": 14272.981513885605,
+            "win_rate": 48.738170347003155,
+            "profit_factor": 1.2064037826206762,
+            "avg_profit": 55.72485076901805,
+            "avg_loss": 43.91686619657109
+          },
+          "STRONG_BEARISH": {
+            "trades": 654,
+            "wins": 343,
+            "pnl": 5052.451376707889,
+            "total_profit": 18593.7353327984,
+            "total_loss": 13541.28395609052,
+            "win_rate": 52.44648318042814,
+            "profit_factor": 1.3731146465203115,
+            "avg_profit": 54.20914091194868,
+            "avg_loss": 43.54110596813672
+          },
+          "DISTRIBUTION": {
+            "trades": 601,
+            "wins": 290,
+            "pnl": 1824.7640797500867,
+            "total_profit": 15067.173264713037,
+            "total_loss": 13242.40918496295,
+            "win_rate": 48.25291181364393,
+            "profit_factor": 1.1377969865047024,
+            "avg_profit": 51.95576987832082,
+            "avg_loss": 42.580093842324594
+          },
+          "STRONG_BULLISH": {
+            "trades": 608,
+            "wins": 309,
+            "pnl": 3868.0179803379733,
+            "total_profit": 16909.760438325116,
+            "total_loss": 13041.742457987137,
+            "win_rate": 50.82236842105263,
+            "profit_factor": 1.2965875144980412,
+            "avg_profit": 54.72414381334989,
+            "avg_loss": 43.617867752465344
+          }
+        },
+        "best_regime": "BREAKOUT",
+        "worst_regime": "HIGH_VOLATILITY"
+      }
+    },
+    {
+      "phase": 3,
+      "name": "AI Consensus Evaluation",
+      "status": "PASS",
+      "details": {
+        "base_win_rate": 50.7,
+        "ai_win_rate": 69.87320837927233,
+        "alpha_improvement": 19.173208379272324,
+        "false_positives": 1093
+      }
+    },
+    {
+      "phase": 4,
+      "name": "Trade Quality Engine Validation",
+      "status": "PASS",
+      "details": {
+        "avg_score_winning_trades": 84.1546683514649,
+        "avg_score_losing_trades": 56.91474570352571
+      }
+    },
+    {
+      "phase": 5,
+      "name": "Risk Engine Validation",
+      "status": "PASS",
+      "details": {
+        "rejected_oversized": true,
+        "exposure_capped": true,
+        "capital_preservation_enforced": true
+      }
+    },
+    {
+      "phase": 6,
+      "name": "Walk Forward Optimization",
+      "status": "PASS",
+      "details": {
+        "windows_analyzed": 99,
+        "stability_score": 83.83838383838383,
+        "overfitted_windows": 16,
+        "is_robust": true
+      }
+    },
+    {
+      "phase": 7,
+      "name": "Monte Carlo Analysis",
+      "status": "PASS",
+      "details": {
+        "probability_of_ruin": 0.0,
+        "worst_expected_drawdown": 1.6312780552860549,
+        "expected_cagr_median": 1.3031134333691132,
+        "cagr_95_ci_lower": 1.227633445999606,
+        "cagr_95_ci_upper": 1.3783012958963743
+      }
+    },
+    {
+      "phase": 8,
+      "name": "Cross Asset Testing",
+      "status": "PASS",
+      "details": {
+        "BTC": {
+          "simulated_bars": 1000,
+          "volatility_modeled": true,
+          "final_price": 87943.26935757071
+        },
+        "ETH": {
+          "simulated_bars": 1000,
+          "volatility_modeled": true,
+          "final_price": 1287.184681280334
+        },
+        "SOL": {
+          "simulated_bars": 1000,
+          "volatility_modeled": true,
+          "final_price": 69.43457348753476
+        },
+        "EURUSD": {
+          "simulated_bars": 1000,
+          "volatility_modeled": true,
+          "final_price": 1.1912721700828184
+        },
+        "GBPUSD": {
+          "simulated_bars": 1000,
+          "volatility_modeled": true,
+          "final_price": 1.2263392175165593
+        },
+        "XAUUSD": {
+          "simulated_bars": 1000,
+          "volatility_modeled": true,
+          "final_price": 2831.1136644550056
+        },
+        "NASDAQ": {
+          "simulated_bars": 1000,
+          "volatility_modeled": true,
+          "final_price": 28829.671234646205
+        },
+        "SP500": {
+          "simulated_bars": 1000,
+          "volatility_modeled": true,
+          "final_price": 7314.7967782277
+        }
+      }
+    },
+    {
+      "phase": 9,
+      "name": "Trade Replay Engine",
+      "status": "PASS"
+    },
+    {
+      "phase": 10,
+      "name": "Memory Learning Validation",
+      "status": "PASS",
+      "details": {
+        "vector_memory_written": true,
+        "reflections_generated": true
+      }
+    },
+    {
+      "phase": 12,
+      "name": "Performance Dashboard Generation",
+      "status": "PASS"
+    },
+    {
+      "phase": 13,
+      "name": "Strategy Optimizer",
+      "status": "PASS",
+      "details": {
+        "actionable_insights": [
+          "Increase weight/leverage for SMCSequenceConfluenceStrategy (Strong 55.93824228028503% win rate).",
+          "High Profit Factor on SMCSequenceConfluenceStrategy (1.60). Expand position sizing."
+        ],
+        "recommended_stop_loss_adj": "Keep current",
+        "recommended_take_profit_adj": "Keep current"
+      }
+    },
+    {
+      "phase": 14,
+      "name": "Future Forecast Module Interface",
+      "status": "PASS",
+      "details": {
+        "ForecastModel_Base_Class": "app.forecast.base.ForecastModel"
+      }
+    }
+  ]
+}

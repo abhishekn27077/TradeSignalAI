@@ -1,0 +1,276 @@
+@import "tailwindcss";
+
+/* ========================================================================== */
+/* TRADESIGNALAI-v2 — TACTICAL DARK DESIGN SYSTEM                            */
+/* ========================================================================== */
+
+@theme {
+  /* ── Backgrounds ──────────────────────────────────────────────────────── */
+  --color-trading-dark: #0D1117;
+  --color-trading-surface: #161B22;
+  --color-trading-elevated: #21262D;
+  --color-trading-hover: #292E36;
+
+  /* ── Borders ──────────────────────────────────────────────────────────── */
+  --color-panel-border: #30363D;
+  --color-panel-border-light: #3D444D;
+
+  /* ── Text ─────────────────────────────────────────────────────────────── */
+  --color-text-primary: #E6EDF3;
+  --color-text-secondary: #8B949E;
+  --color-text-muted: #6E7681;
+
+  /* ── Accent ───────────────────────────────────────────────────────────── */
+  --color-accent-green: #00FF41;
+  --color-accent-emerald: #10B981;
+  --color-accent-blue: #58A6FF;
+  --color-accent-cyan: #00B4D8;
+  --color-accent-gold: #D4A843;
+
+  /* ── Semantic ─────────────────────────────────────────────────────────── */
+  --color-profit: #00C853;
+  --color-loss: #FF3B30;
+  --color-warning: #FFB020;
+  --color-info: #58A6FF;
+  --color-neutral: #8B949E;
+
+  /* ── Glass / Glow ─────────────────────────────────────────────────────── */
+  --color-glass-surface: rgba(22, 27, 34, 0.85);
+  --color-glow-green: rgba(0, 255, 65, 0.15);
+  --color-glow-blue: rgba(88, 166, 255, 0.15);
+  --color-glow-red: rgba(255, 59, 48, 0.15);
+
+  /* ── Typography ───────────────────────────────────────────────────────── */
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Roboto Mono', ui-monospace, monospace;
+
+  /* ── Spacing Scale ────────────────────────────────────────────────────── */
+  --spacing-panel: 12px;
+  --spacing-widget: 16px;
+  --spacing-section: 24px;
+
+  /* ── Border Radius ────────────────────────────────────────────────────── */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+
+  /* ── Z-Index Scale ────────────────────────────────────────────────────── */
+  --z-base: 0;
+  --z-panel: 10;
+  --z-toolbar: 20;
+  --z-sidebar: 30;
+  --z-modal: 50;
+  --z-toast: 60;
+
+  /* ── Shadows ──────────────────────────────────────────────────────────── */
+  --shadow-panel: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-elevated: 0 4px 12px rgba(0, 0, 0, 0.5);
+  --shadow-glow-green: 0 0 12px rgba(0, 255, 65, 0.2);
+}
+
+/* ========================================================================== */
+/* BASE RESETS                                                                */
+/* ========================================================================== */
+
+@layer base {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-panel-border) transparent;
+  }
+
+  html {
+    font-size: 13px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--color-trading-dark);
+    color: var(--color-text-primary);
+    font-family: var(--font-sans);
+    line-height: 1.5;
+    overflow: hidden;
+  }
+
+  /* Force monospace for all numeric data */
+  [data-mono] {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+}
+
+/* ========================================================================== */
+/* UTILITY CLASSES                                                            */
+/* ========================================================================== */
+
+@layer utilities {
+  /* Price flash animations */
+  .flash-green {
+    animation: flashGreen 350ms ease-out;
+  }
+  .flash-red {
+    animation: flashRed 350ms ease-out;
+  }
+
+  /* Panel glass surface */
+  .glass-panel {
+    background: var(--color-glass-surface);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--color-panel-border);
+    border-radius: var(--radius-lg);
+  }
+
+  /* Glow ring for active AI agent */
+  .glow-ring-green {
+    box-shadow: var(--shadow-glow-green);
+  }
+
+  /* Scrollbar hidden */
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Status dot indicators */
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+  .status-dot-online { background-color: var(--color-profit); }
+  .status-dot-offline { background-color: var(--color-loss); }
+  .status-dot-warning { background-color: var(--color-warning); }
+}
+
+/* ========================================================================== */
+/* KEYFRAMES                                                                  */
+/* ========================================================================== */
+
+@keyframes flashGreen {
+  0% { background-color: rgba(0, 200, 83, 0.3); }
+  100% { background-color: transparent; }
+}
+
+@keyframes flashRed {
+  0% { background-color: rgba(255, 59, 48, 0.3); }
+  100% { background-color: transparent; }
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ========================================================================== */
+/* SIGNAL TERMINAL STYLES                                                     */
+/* ========================================================================== */
+
+@layer utilities {
+  /* New signal pulse */
+  .signal-pulse {
+    animation: signalPulse 2s ease-in-out infinite;
+  }
+
+  /* Direction badges */
+  .badge-buy {
+    background: rgba(0, 200, 83, 0.12);
+    color: var(--color-profit);
+    border: 1px solid rgba(0, 200, 83, 0.25);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+  }
+  .badge-sell {
+    background: rgba(255, 59, 48, 0.12);
+    color: var(--color-loss);
+    border: 1px solid rgba(255, 59, 48, 0.25);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+  }
+
+  /* Confidence bar gradient */
+  .confidence-bar {
+    background: linear-gradient(90deg,
+      var(--color-loss) 0%,
+      var(--color-warning) 40%,
+      var(--color-accent-emerald) 70%,
+      var(--color-profit) 100%
+    );
+    border-radius: 4px;
+  }
+
+  /* Countdown mono styling */
+  .countdown-mono {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.08em;
+  }
+
+  /* Slide-over panel */
+  .slide-panel {
+    transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .slide-panel-enter {
+    transform: translateX(100%);
+  }
+  .slide-panel-active {
+    transform: translateX(0);
+  }
+
+  /* Hero signal card glow */
+  .hero-signal-buy {
+    box-shadow: 0 0 24px rgba(0, 200, 83, 0.08), inset 0 1px 0 rgba(0, 200, 83, 0.1);
+  }
+  .hero-signal-sell {
+    box-shadow: 0 0 24px rgba(255, 59, 48, 0.08), inset 0 1px 0 rgba(255, 59, 48, 0.1);
+  }
+
+  /* Sidebar sub-menu */
+  .sidebar-submenu {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 200ms ease-out;
+  }
+  .sidebar-submenu-open {
+    max-height: 200px;
+  }
+}
+
+@keyframes signalPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 255, 65, 0.15); }
+  50% { box-shadow: 0 0 0 6px rgba(0, 255, 65, 0); }
+}
+
+/* ========================================================================== */
+/* REACT GRID LAYOUT OVERRIDES                                                */
+/* ========================================================================== */
+
+.react-grid-item.react-grid-placeholder {
+  background-color: var(--color-accent-blue) !important;
+  opacity: 0.15 !important;
+  border-radius: var(--radius-lg) !important;
+}
+
+.react-grid-item > .react-resizable-handle::after {
+  border-color: var(--color-text-muted) !important;
+}

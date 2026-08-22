@@ -1,0 +1,28 @@
+{
+  "passed": [
+    "/system/health",
+    "/agents/status",
+    "/strategies/active",
+    "/signals/live",
+    "/news/latest",
+    "/backtest/history",
+    "/portfolio/summary",
+    "/brokers/status",
+    "/forecast/heatmap/current"
+  ],
+  "failed": [],
+  "unreachable": [
+    "/market/symbols",
+    "/paper/account",
+    "/journal/entries",
+    "/memory/status",
+    "/risk/metrics",
+    "/execution/status",
+    "/analytics/summary",
+    "/forecast/scanners/status",
+    "/forecast/outlook",
+    "/research/reports",
+    "/decision/logs",
+    "/validation/reports"
+  ]
+}

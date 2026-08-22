@@ -1,0 +1,191 @@
+{
+    "BTCUSD": {
+        "confidence_calibration": {},
+        "historical_similarity_ablation": {
+            "with_similarity": {
+                "win_rate": 47.05,
+                "profit_factor": 0.9
+            }
+        },
+        "day_time_patterns": {
+            "bullish_windows": [
+                {
+                    "day": "Tuesday",
+                    "hour": 20,
+                    "avg_move_pct": 0.469,
+                    "samples": 104
+                },
+                {
+                    "day": "Wednesday",
+                    "hour": 0,
+                    "avg_move_pct": 0.43,
+                    "samples": 104
+                },
+                {
+                    "day": "Wednesday",
+                    "hour": 4,
+                    "avg_move_pct": 0.361,
+                    "samples": 104
+                }
+            ],
+            "bearish_windows": [
+                {
+                    "day": "Wednesday",
+                    "hour": 20,
+                    "avg_move_pct": -0.604,
+                    "samples": 104
+                },
+                {
+                    "day": "Thursday",
+                    "hour": 0,
+                    "avg_move_pct": -0.575,
+                    "samples": 105
+                },
+                {
+                    "day": "Thursday",
+                    "hour": 8,
+                    "avg_move_pct": -0.553,
+                    "samples": 105
+                }
+            ]
+        },
+        "friday_monday_gaps": {
+            "sample_count": 104,
+            "avg_gap_pct": 0.037,
+            "median_gap_pct": 0.288,
+            "gap_up_freq": 52.88,
+            "gap_down_freq": 47.12
+        },
+        "random_baseline": {
+            "win_rate": 45.0,
+            "avg_return_pct": -0.363,
+            "std_dev_pct": 2.201
+        }
+    },
+    "EURUSD": {
+        "confidence_calibration": {},
+        "historical_similarity_ablation": {
+            "with_similarity": {
+                "win_rate": 43.92,
+                "profit_factor": 0.67
+            }
+        },
+        "day_time_patterns": {
+            "bullish_windows": [
+                {
+                    "day": "Thursday",
+                    "hour": 16,
+                    "avg_move_pct": 0.041,
+                    "samples": 143
+                },
+                {
+                    "day": "Monday",
+                    "hour": 0,
+                    "avg_move_pct": 0.034,
+                    "samples": 143
+                },
+                {
+                    "day": "Tuesday",
+                    "hour": 8,
+                    "avg_move_pct": 0.032,
+                    "samples": 146
+                }
+            ],
+            "bearish_windows": [
+                {
+                    "day": "Tuesday",
+                    "hour": 20,
+                    "avg_move_pct": -0.018,
+                    "samples": 146
+                },
+                {
+                    "day": "Monday",
+                    "hour": 8,
+                    "avg_move_pct": -0.012,
+                    "samples": 143
+                },
+                {
+                    "day": "Monday",
+                    "hour": 12,
+                    "avg_move_pct": -0.011,
+                    "samples": 143
+                }
+            ]
+        },
+        "friday_monday_gaps": {
+            "sample_count": 145,
+            "avg_gap_pct": -0.018,
+            "median_gap_pct": 0.0,
+            "gap_up_freq": 43.45,
+            "gap_down_freq": 49.66
+        },
+        "random_baseline": {
+            "win_rate": 39.0,
+            "avg_return_pct": -0.097,
+            "std_dev_pct": 0.373
+        }
+    },
+    "SPX500": {
+        "confidence_calibration": {},
+        "historical_similarity_ablation": {
+            "with_similarity": {
+                "win_rate": 47.75,
+                "profit_factor": 0.94
+            }
+        },
+        "day_time_patterns": {
+            "bullish_windows": [
+                {
+                    "day": "Sunday",
+                    "hour": 16,
+                    "avg_move_pct": 0.241,
+                    "samples": 118
+                },
+                {
+                    "day": "Sunday",
+                    "hour": 20,
+                    "avg_move_pct": 0.194,
+                    "samples": 120
+                },
+                {
+                    "day": "Friday",
+                    "hour": 16,
+                    "avg_move_pct": 0.18,
+                    "samples": 116
+                }
+            ],
+            "bearish_windows": [
+                {
+                    "day": "Thursday",
+                    "hour": 4,
+                    "avg_move_pct": -0.152,
+                    "samples": 119
+                },
+                {
+                    "day": "Thursday",
+                    "hour": 0,
+                    "avg_move_pct": -0.121,
+                    "samples": 119
+                },
+                {
+                    "day": "Wednesday",
+                    "hour": 20,
+                    "avg_move_pct": -0.114,
+                    "samples": 119
+                }
+            ]
+        },
+        "friday_monday_gaps": {
+            "sample_count": 112,
+            "avg_gap_pct": 0.013,
+            "median_gap_pct": 0.112,
+            "gap_up_freq": 65.18,
+            "gap_down_freq": 33.93
+        },
+        "random_baseline": {
+            "win_rate": 46.0,
+            "avg_return_pct": -0.089,
+            "std_dev_pct": 0.845
+        }
+    }
+}

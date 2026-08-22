@@ -1,0 +1,66 @@
+{
+    "quant_only": {
+        "returns": [
+            0.0,
+            0.0,
+            -0.0,
+            -0.0,
+            -0.0,
+            -0.0,
+            0.0,
+            0.0,
+            0.0,
+            -0.0
+        ],
+        "signals": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    "intelligence_enhanced": {
+        "returns": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "signals": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    "metrics": {
+        "quant_only": {
+            "cumulative_return": 0.0,
+            "sharpe_ratio": 0.0,
+            "win_rate": 0.0
+        },
+        "intelligence_enhanced": {
+            "cumulative_return": 0.0,
+            "sharpe_ratio": 0.0,
+            "win_rate": 0.0
+        }
+    }
+}

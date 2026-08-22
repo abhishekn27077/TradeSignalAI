@@ -1,0 +1,2 @@
+# PHASE34_FRIDAY_MONDAY_REPORT
+**Verdict:** INSUFFICIENT_DATA: Sample size too small.

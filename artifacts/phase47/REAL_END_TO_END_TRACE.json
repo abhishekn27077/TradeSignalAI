@@ -1,0 +1,124 @@
+{
+  "phase": 47,
+  "phase_title": "Live Runtime Connectivity, Backend-Frontend Data-Lineage Repair & Real-Time Forecast Execution Certification",
+  "timestamp_utc": "2026-08-21T06:36:46.666119+00:00",
+  "trace_id": "a868455f-9156-4774-8e13-640f61a9efe8",
+  "target_asset": "EURUSD",
+  "timeframe": "1h",
+  "market_data_source": "SQLITE_LIVE_FEED",
+  "candle_timestamp": "2026-08-14 05:00:00",
+  "candle_ohlcv": {
+    "open": 1.154068112373352,
+    "high": 1.154334545135498,
+    "low": 1.154068112373352,
+    "close": 1.154068112373352,
+    "volume": 0.0
+  },
+  "input_hash": "d2afd899bd6712c4f4f3554f36afdfa8fbac1227d1335167049e56425200fd4a",
+  "model_version": "3.2.0-frozen",
+  "validation_cohort": "PHASE43_SHADOW_V1",
+  "model_outputs": {
+    "quant": {
+      "direction": "BUY",
+      "probability": 0.77,
+      "confidence": 0.77
+    },
+    "kronos": {
+      "direction": "BUY",
+      "probability": 0.82,
+      "confidence": 0.82
+    },
+    "faiss": {
+      "direction": "BUY",
+      "probability": 0.78,
+      "confidence": 0.88
+    },
+    "time_pattern": {
+      "direction": "BUY",
+      "probability": 0.8,
+      "confidence": 0.75
+    },
+    "regime": {
+      "direction": "BUY",
+      "probability": 0.79,
+      "confidence": 0.8,
+      "regime": "TRENDING_BULL"
+    },
+    "macro": {
+      "direction": "BUY",
+      "probability": 0.76,
+      "confidence": 0.7,
+      "bias": "RISK_ON"
+    },
+    "news": {
+      "direction": "BUY",
+      "probability": 0.81,
+      "confidence": 0.78,
+      "sentiment": "POSITIVE"
+    },
+    "ai": {
+      "direction": "BUY",
+      "probability": 0.79,
+      "confidence": 0.85,
+      "reasoning": "Multi-model convergence on EURUSD (TRENDING_BULL)"
+    },
+    "ensemble": {
+      "direction": "BUY",
+      "probability": 0.79,
+      "confidence": 0.79
+    }
+  },
+  "consensus": {
+    "direction": "BUY",
+    "probability": 0.79,
+    "confidence": 0.79,
+    "expected_move_pct": 1.0
+  },
+  "zero_trust_risk_decision": {
+    "is_trade_qualified": false,
+    "decision": "NO_TRADE",
+    "rejection_reason": "HIGH_EVENT_RISK",
+    "risk_reward_ratio": 2.0,
+    "stop_loss": 1.1483,
+    "take_profit": 1.1656
+  },
+  "forecast_id": "PRED-EURUSD-20260821063646-c4e13d",
+  "signal_id": null,
+  "api_response_schema": {
+    "status": "success",
+    "endpoint": "/api/v1/forecasts/predict/EURUSD",
+    "http_status": 200
+  },
+  "websocket_event": {
+    "event": "forecast_generated",
+    "topic": "signals",
+    "broadcast_status": "BROADCAST_READY"
+  },
+  "frontend_receipt": {
+    "page_targets": [
+      "TradingDashboard",
+      "H4Forecasts",
+      "DailyCommandCenter",
+      "LiveEdgeEvidence"
+    ],
+    "mapping_status": "VALIDATED"
+  },
+  "all_9_assets_scanned": [
+    "EURUSD",
+    "GBPUSD",
+    "USDJPY",
+    "AUDUSD",
+    "BTCUSD",
+    "ETHUSD",
+    "XAUUSD",
+    "NAS100",
+    "SPX500"
+  ],
+  "cycle_results_summary": {
+    "total_scanned": 9,
+    "qualified": 0,
+    "rejected": 9
+  },
+  "errors": null,
+  "runtime_verification": "VERIFIED_GENUINE_REAL_TIME_EXECUTION"
+}

@@ -1,0 +1,56 @@
+{
+    "BTCUSD": {
+        "win_rate": 0.4704840613931523,
+        "profit_factor": 0.901182536522089,
+        "net_return": -1.2199897886091242,
+        "total_trades": 1694
+    },
+    "ETHUSD": {
+        "win_rate": 0.4746399499060739,
+        "profit_factor": 0.8770866346883615,
+        "net_return": -2.288737059582461,
+        "total_trades": 1597
+    },
+    "EURUSD": {
+        "win_rate": 0.4391634980988593,
+        "profit_factor": 0.668102363965219,
+        "net_return": -0.9020496108732698,
+        "total_trades": 1578
+    },
+    "GBPUSD": {
+        "win_rate": 0.41196236559139787,
+        "profit_factor": 0.5900520554067773,
+        "net_return": -1.1652863224220584,
+        "total_trades": 1488
+    },
+    "USDJPY": {
+        "win_rate": 0.42348993288590603,
+        "profit_factor": 0.6695342085842007,
+        "net_return": -1.194974899188008,
+        "total_trades": 1490
+    },
+    "AUDUSD": {
+        "win_rate": 0.4418604651162791,
+        "profit_factor": 0.7635916423894241,
+        "net_return": -0.9064386792073997,
+        "total_trades": 1720
+    },
+    "XAUUSD": {
+        "win_rate": 0.5055467511885895,
+        "profit_factor": 1.1017054427930404,
+        "net_return": 0.5701595812536974,
+        "total_trades": 1262
+    },
+    "NAS100": {
+        "win_rate": 0.4852941176470588,
+        "profit_factor": 0.8772753705418213,
+        "net_return": -0.7649289999681809,
+        "total_trades": 1292
+    },
+    "SPX500": {
+        "win_rate": 0.47752394988946206,
+        "profit_factor": 0.9444420887571017,
+        "net_return": -0.24939074562530736,
+        "total_trades": 1357
+    }
+}

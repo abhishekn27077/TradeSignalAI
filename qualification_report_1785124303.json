@@ -1,0 +1,26 @@
+{
+    "timestamp": "2026-07-27T09:21:43.962899",
+    "mode": "synthetic",
+    "overall_score": 66.67,
+    "integration_score": 0,
+    "reliability_score": 100,
+    "performance_score": 100.0,
+    "status": "FAIL",
+    "metrics": {
+        "trades_completed": 0,
+        "signals_generated": 0,
+        "orders_filled": 0,
+        "orders_rejected": 0,
+        "journal_entries": 0,
+        "memory_records": 0,
+        "cpu_percent": 69.9,
+        "ram_mb": 150.37109375,
+        "db_size_mb": 0.2109375,
+        "ws_latency_ms": 0.0,
+        "api_latency_ms": 0.0
+    },
+    "warnings": [],
+    "failed_components": [
+        "Integration Pipeline"
+    ]
+}
