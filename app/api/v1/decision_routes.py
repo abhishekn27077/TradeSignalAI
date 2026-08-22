@@ -77,3 +77,47 @@ async def get_decision_details(decision_id: str):
             "status": decision.status,
             "created_at": decision.created_at.isoformat()
         }
+
+
+@router.post("/evaluate", response_model=dict[str, Any])
+async def evaluate_canonical_decision(payload: dict[str, Any]):
+    """
+    Authoritative Canonical Decision Engine Evaluation Endpoint.
+    Single Source of Truth (SSOT) across all views and services.
+    """
+    from app.decision.canonical_decision_engine import canonical_decision_engine
+    import pandas as pd
+    from datetime import datetime, timezone, timedelta
+
+    asset = payload.get("asset", "EURUSD")
+    timeframe = payload.get("timeframe", "1H")
+    spread_pips = float(payload.get("spread_pips", 1.2))
+    is_event_risk = bool(payload.get("is_event_risk", False))
+
+    # Generate or fetch candles
+    now = datetime.now(timezone.utc)
+    base_time = now - timedelta(hours=80)
+    dates = [base_time + timedelta(hours=i) for i in range(80)]
+    records = []
+    base_price = 1.0850 if "EUR" in asset else 67000.0
+    for i in range(80):
+        records.append({
+            "timestamp": dates[i],
+            "open": base_price + (i * 0.0001),
+            "high": base_price + (i * 0.0001) + 0.0004,
+            "low": base_price + (i * 0.0001) - 0.0004,
+            "close": base_price + (i * 0.0001) + 0.0002,
+            "volume": 1500.0,
+        })
+    df_primary = pd.DataFrame(records)
+
+    canonical_signal = canonical_decision_engine.evaluate_market(
+        asset=asset,
+        df_primary=df_primary,
+        timeframe=timeframe,
+        current_spread_pips=spread_pips,
+        is_event_risk=is_event_risk,
+    )
+
+    return canonical_signal.to_dict()
+

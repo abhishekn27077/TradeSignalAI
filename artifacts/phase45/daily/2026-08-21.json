@@ -1,20 +1,57 @@
 {
   "date": "2026-08-21",
-  "created_at": "2026-08-22T12:56:35.157085+00:00",
+  "created_at": "2026-08-22T14:22:27.952275+00:00",
   "today_journal": {
     "date": "2026-08-22",
-    "date_ist_formatted": "Saturday, 22 August 2026 06:26 PM IST",
+    "date_ist_formatted": "Saturday, 22 August 2026 07:52 PM IST",
     "summary": {
-      "today_forecasts": 0,
-      "qualified_trades": 0,
-      "no_trade_count": 0,
-      "open_shadow_count": 8,
+      "today_forecasts": 2,
+      "qualified_trades": 1,
+      "no_trade_count": 1,
+      "open_shadow_count": 9,
       "resolved_count": 2,
       "wins": 1,
       "losses": 0,
       "net_r": 1.81
     },
-    "forecasts": []
+    "forecasts": [
+      {
+        "time": "2026-08-22T13:00:00+00:00",
+        "time_ist_formatted": "Saturday, 22 August 2026 07:52 PM IST",
+        "asset": "BTCUSD",
+        "direction": "SELL",
+        "confidence": 0.62,
+        "probability": 0.62,
+        "entry_price": 77294.96875,
+        "stop_loss": 77681.4436,
+        "take_profit": 76522.0191,
+        "risk_reward": 2.0,
+        "expected_move_pct": 1.0,
+        "decision": "NO_TRADE",
+        "rejection_reason": "LOW_CONSENSUS",
+        "prediction_id": "PRED-BTCUSD-20260822141427-22e07e",
+        "trace_id": "7d2f41c3-1676-4ac1-a3c5-2714d6e320a2",
+        "status": "FORECAST_CREATED"
+      },
+      {
+        "time": "2026-08-22T13:00:00+00:00",
+        "time_ist_formatted": "Saturday, 22 August 2026 07:52 PM IST",
+        "asset": "ETHUSD",
+        "direction": "BUY",
+        "confidence": 0.73,
+        "probability": 0.73,
+        "entry_price": 2429.639892578125,
+        "stop_loss": 2417.4917,
+        "take_profit": 2453.9363,
+        "risk_reward": 2.0,
+        "expected_move_pct": 1.0,
+        "decision": "TAKE_TRADE",
+        "rejection_reason": null,
+        "prediction_id": "PRED-ETHUSD-20260822141427-b57331",
+        "trace_id": "5a0d6ce3-8d86-47ba-9ac9-7ff7882b3a99",
+        "status": "PAPER_OPEN"
+      }
+    ]
   },
   "yesterday_journal": {
     "date": "2026-08-21",
@@ -220,8 +257,9 @@
   },
   "tomorrow_forecasts": {
     "target_date": "2026-08-23",
-    "generation_time": "2026-08-22T12:56:35.496818+00:00",
+    "generation_time": "2026-08-22T14:22:27.956227+00:00",
     "total_assets": 9,
+    "source": "FALLBACK_SYNTHETIC",
     "forecasts": [
       {
         "asset": "EURUSD",
@@ -242,7 +280,10 @@
         "ai_explanation": "Tomorrow forward projection based on TRENDING_BULL continuation, 8/8 model convergence, and neutral MEDIUM event exposure.",
         "input_hash": "2b5c47c338b1a28602b394bbdb59019ba6f3fdb8dbeb383a500f9a3bf1c7f55c",
         "prediction_hash": "be7ba272a5c76749b01a40968aaf74c9179119df3016250ffef6320f4b5d5af4",
-        "forecast_created_at": "2026-08-22T12:56:35.496818+00:00"
+        "forecast_created_at": "2026-08-22T14:22:27.956227+00:00",
+        "source": "FALLBACK_SYNTHETIC",
+        "is_synthetic": true,
+        "status": "FALLBACK"
       },
       {
         "asset": "GBPUSD",
@@ -263,7 +304,10 @@
         "ai_explanation": "Tomorrow forward projection based on TRENDING_BEAR continuation, 7/8 model convergence, and neutral LOW event exposure.",
         "input_hash": "9ded60e2e435d321319a7d762c7fa6999adfdc7fdc43d88acae19ef4d055451a",
         "prediction_hash": "a084ba380363f7d18dc0310778b44b7d331f417f970a0eae22f3ac1661d36be2",
-        "forecast_created_at": "2026-08-22T12:56:35.496818+00:00"
+        "forecast_created_at": "2026-08-22T14:22:27.956227+00:00",
+        "source": "FALLBACK_SYNTHETIC",
+        "is_synthetic": true,
+        "status": "FALLBACK"
       },
       {
         "asset": "USDJPY",
@@ -284,7 +328,10 @@
         "ai_explanation": "Tomorrow forward projection based on TRENDING_BEAR continuation, 7/8 model convergence, and neutral LOW event exposure.",
         "input_hash": "676f39f0e71b143b158491edbe3128b1b7b5de5695fbd516d22ccc880b523db2",
         "prediction_hash": "478d8f1470fc53fa8c8dff2440a9cc6bd1fea74d463cf2e0b0feab105b80fa86",
-        "forecast_created_at": "2026-08-22T12:56:35.496818+00:00"
+        "forecast_created_at": "2026-08-22T14:22:27.956227+00:00",
+        "source": "FALLBACK_SYNTHETIC",
+        "is_synthetic": true,
+        "status": "FALLBACK"
       },
       {
         "asset": "AUDUSD",
@@ -305,7 +352,10 @@
         "ai_explanation": "Tomorrow forward projection based on TRENDING_BEAR continuation, 8/8 model convergence, and neutral LOW event exposure.",
         "input_hash": "310e4d309de7e0e5e757c851db8b88c1d17c2c46f9f37180667e3e989aa345e2",
         "prediction_hash": "a518121c4b32136fd6839e217886a7ea27accd8245434b8c81e36c2440bea4db",
-        "forecast_created_at": "2026-08-22T12:56:35.496818+00:00"
+        "forecast_created_at": "2026-08-22T14:22:27.956227+00:00",
+        "source": "FALLBACK_SYNTHETIC",
+        "is_synthetic": true,
+        "status": "FALLBACK"
       },
       {
         "asset": "BTCUSD",
@@ -326,7 +376,10 @@
         "ai_explanation": "Tomorrow forward projection based on TRENDING_BULL continuation, 8/8 model convergence, and neutral LOW event exposure.",
         "input_hash": "4cc9346c779636b158f4e9c5f0633a4ff56e3871bcc3b096c821e64e5b0c22ff",
         "prediction_hash": "9503d7d249904c12f6e51d1e2966c615e1a1af860cbed2b3353a6ea4de21295b",
-        "forecast_created_at": "2026-08-22T12:56:35.496818+00:00"
+        "forecast_created_at": "2026-08-22T14:22:27.956227+00:00",
+        "source": "FALLBACK_SYNTHETIC",
+        "is_synthetic": true,
+        "status": "FALLBACK"
       },
       {
         "asset": "ETHUSD",
@@ -347,7 +400,10 @@
         "ai_explanation": "Tomorrow forward projection based on TRENDING_BULL continuation, 8/8 model convergence, and neutral LOW event exposure.",
         "input_hash": "31cd61ae3041c38fd3b4221dc7d29f2c50a38fcf328f7701bcb1c9676d946235",
         "prediction_hash": "a331fa1ec17c98d62322e04edc72fd589e47358650c1ea33b3b1b84d3c78a2d7",
-        "forecast_created_at": "2026-08-22T12:56:35.496818+00:00"
+        "forecast_created_at": "2026-08-22T14:22:27.956227+00:00",
+        "source": "FALLBACK_SYNTHETIC",
+        "is_synthetic": true,
+        "status": "FALLBACK"
       },
       {
         "asset": "XAUUSD",
@@ -368,7 +424,10 @@
         "ai_explanation": "Tomorrow forward projection based on TRENDING_BULL continuation, 8/8 model convergence, and neutral MEDIUM event exposure.",
         "input_hash": "e9f723221be21c4c99a5b070e5e71dd68e7dca1f73e09234dfed1d224f1e2d7e",
         "prediction_hash": "5a0a74eae72df458bb69d07e8df086dbae92c5a10f1b093a8a4a740b2d4b9049",
-        "forecast_created_at": "2026-08-22T12:56:35.496818+00:00"
+        "forecast_created_at": "2026-08-22T14:22:27.956227+00:00",
+        "source": "FALLBACK_SYNTHETIC",
+        "is_synthetic": true,
+        "status": "FALLBACK"
       },
       {
         "asset": "NAS100",
@@ -389,7 +448,10 @@
         "ai_explanation": "Tomorrow forward projection based on TRENDING_BEAR continuation, 8/8 model convergence, and neutral LOW event exposure.",
         "input_hash": "4627836c7cd334561a838cc5dad9616a4de90900aef7d26abea3ff6bda221808",
         "prediction_hash": "82ef52a4ec52cce850f0fb575d02baa2cba038c338fb4976b0bee0439b3ce425",
-        "forecast_created_at": "2026-08-22T12:56:35.496818+00:00"
+        "forecast_created_at": "2026-08-22T14:22:27.956227+00:00",
+        "source": "FALLBACK_SYNTHETIC",
+        "is_synthetic": true,
+        "status": "FALLBACK"
       },
       {
         "asset": "SPX500",
@@ -410,7 +472,10 @@
         "ai_explanation": "Tomorrow forward projection based on TRENDING_BULL continuation, 6/8 model convergence, and neutral LOW event exposure.",
         "input_hash": "3b5d8459ae88563b4fc26fdbe94fd8a386dfdc18459b2595cdc910bbbdce39e6",
         "prediction_hash": "c2e9011985de131550d9d7758abfedb486eb549403c3c5f2967941f68f400692",
-        "forecast_created_at": "2026-08-22T12:56:35.496818+00:00"
+        "forecast_created_at": "2026-08-22T14:22:27.956227+00:00",
+        "source": "FALLBACK_SYNTHETIC",
+        "is_synthetic": true,
+        "status": "FALLBACK"
       }
     ]
   },

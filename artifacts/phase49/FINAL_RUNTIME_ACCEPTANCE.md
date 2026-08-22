@@ -1,14 +1,14 @@
 # Phase 49 — Final Runtime Acceptance Test
 
-**Execution Time (UTC):** 2026-08-22T13:38:26.486332+00:00
-**Execution Time (IST):** Saturday, 22 August 2026 07:08 PM IST
-**Verdict:** ✅ ALL TESTS PASSED
+**Execution Time (UTC):** 2026-08-22T14:26:01.731398+00:00
+**Execution Time (IST):** Saturday, 22 August 2026 07:56 PM IST
+**Verdict:** ❌ FAILURES DETECTED
 
 | Metric | Value |
 |--------|-------|
 | Total Tests | 32 |
-| Passed | 32 |
-| Failed | 0 |
+| Passed | 30 |
+| Failed | 2 |
 
 ---
 
@@ -16,9 +16,9 @@
 
 ### ✅ A1: Record current UTC and IST time
 
-- **utc:** `2026-08-22T13:38:08.088264+00:00`
-- **ist:** `2026-08-22T19:08:08.088268+05:30`
-- **ist_formatted:** `Saturday, 22 August 2026 07:08 PM IST`
+- **utc:** `2026-08-22T14:25:48.476701+00:00`
+- **ist:** `2026-08-22T19:55:48.476708+05:30`
+- **ist_formatted:** `Saturday, 22 August 2026 07:55 PM IST`
 
 ### ✅ A2: Inspect latest stored closed candle per asset
 
@@ -27,16 +27,16 @@
   ```json
   {
   "EURUSD": {
-    "timestamp": "2026-08-21T17:00:00+01:00",
-    "close": 1.1686338186264038
+    "timestamp": "2026-08-21T22:00:00+01:00",
+    "close": 1.1678149700164795
   },
   "GBPUSD": {
-    "timestamp": "2026-08-21T17:00:00+01:00",
-    "close": 1.3641633987426758
+    "timestamp": "2026-08-21T22:00:00+01:00",
+    "close": 1.3647964000701904
   },
   "USDJPY": {
-    "timestamp": "2026-08-21T17:00:00+01:00",
-    "close": 158.947998046875
+    "timestamp": "2026-08-21T23:00:00+01:00",
+    "close": 158.94000244140625
   }
 }
   ```
@@ -52,16 +52,16 @@
   ```json
   {
   "EURUSD": {
-    "timestamp": "2026-08-21T17:00:00+01:00",
-    "close": 1.1686338186264038
+    "timestamp": "2026-08-21T22:00:00+01:00",
+    "close": 1.1678149700164795
   },
   "GBPUSD": {
-    "timestamp": "2026-08-21T17:00:00+01:00",
-    "close": 1.3641633987426758
+    "timestamp": "2026-08-21T22:00:00+01:00",
+    "close": 1.3647964000701904
   },
   "USDJPY": {
-    "timestamp": "2026-08-21T17:00:00+01:00",
-    "close": 158.947998046875
+    "timestamp": "2026-08-21T23:00:00+01:00",
+    "close": 158.94000244140625
   }
 }
   ```
@@ -73,20 +73,20 @@
   [
   {
     "asset": "EURUSD",
-    "before_ts": "2026-08-21T17:00:00+01:00",
-    "after_ts": "2026-08-21T17:00:00+01:00",
+    "before_ts": "2026-08-21T22:00:00+01:00",
+    "after_ts": "2026-08-21T22:00:00+01:00",
     "updated_or_same": true
   },
   {
     "asset": "GBPUSD",
-    "before_ts": "2026-08-21T17:00:00+01:00",
-    "after_ts": "2026-08-21T17:00:00+01:00",
+    "before_ts": "2026-08-21T22:00:00+01:00",
+    "after_ts": "2026-08-21T22:00:00+01:00",
     "updated_or_same": true
   },
   {
     "asset": "USDJPY",
-    "before_ts": "2026-08-21T17:00:00+01:00",
-    "after_ts": "2026-08-21T17:00:00+01:00",
+    "before_ts": "2026-08-21T23:00:00+01:00",
+    "after_ts": "2026-08-21T23:00:00+01:00",
     "updated_or_same": true
   }
 ]
@@ -94,7 +94,7 @@
 
 ### ✅ A6: Newly available candles inserted into SQLite
 
-- **total_candle_rows:** `245882`
+- **total_candle_rows:** `245934`
 
 ### ✅ A7: Duplicates are NOT created
 
@@ -117,20 +117,20 @@
   [
   {
     "asset": "EURUSD",
-    "forecast_candle_ts": "2026-08-21T17:00:00+01:00",
-    "db_latest_ts": "2026-08-21T17:00:00+01:00",
+    "forecast_candle_ts": "2026-08-21T22:00:00+01:00",
+    "db_latest_ts": "2026-08-21T22:00:00+01:00",
     "match": true
   },
   {
     "asset": "GBPUSD",
-    "forecast_candle_ts": "2026-08-21T17:00:00+01:00",
-    "db_latest_ts": "2026-08-21T17:00:00+01:00",
+    "forecast_candle_ts": "2026-08-21T22:00:00+01:00",
+    "db_latest_ts": "2026-08-21T22:00:00+01:00",
     "match": true
   },
   {
     "asset": "USDJPY",
-    "forecast_candle_ts": "2026-08-21T17:00:00+01:00",
-    "db_latest_ts": "2026-08-21T17:00:00+01:00",
+    "forecast_candle_ts": "2026-08-21T23:00:00+01:00",
+    "db_latest_ts": "2026-08-21T23:00:00+01:00",
     "match": true
   }
 ]
@@ -138,18 +138,49 @@
 
 ## TEST B — Future Signal Only
 
-### ✅ B1: All current signals have target_time > current_time
+### ❌ B1: All current signals have target_time > current_time
 
-- **current_signals_count:** `0`
+- **current_signals_count:** `9`
 - **evidence:**
   ```json
-  []
+  [
+  {
+    "asset": "EURUSD",
+    "candle_ts": "2026-08-21T22:00:00+01:00",
+    "expiry_utc": "2026-08-22T00:00:00+01:00",
+    "is_future": false
+  },
+  {
+    "asset": "GBPUSD",
+    "candle_ts": "2026-08-21T22:00:00+01:00",
+    "expiry_utc": "2026-08-22T00:00:00+01:00",
+    "is_future": false
+  },
+  {
+    "asset": "USDJPY",
+    "candle_ts": "2026-08-21T23:00:00+01:00",
+    "expiry_utc": "2026-08-22T01:00:00+01:00",
+    "is_future": false
+  },
+  {
+    "asset": "AUDUSD",
+    "candle_ts": "2026-08-21T22:00:00+01:00",
+    "expiry_utc": "2026-08-22T00:00:00+01:00",
+    "is_future": false
+  },
+  {
+    "asset": "BTCUSD",
+    "candle_ts": "2026-08-22T13:00:00+00:00",
+    "expiry_utc": "2026-08-22T15:00:00+00:00",
+    "is_future": true
+  }
+]
   ```
 
 ### ✅ B2: Expired signals (target <= current) are rejected
 
-- **test_target_utc:** `2026-08-22T10:38:18.353361+00:00`
-- **current_utc:** `2026-08-22T13:38:18.353361+00:00`
+- **test_target_utc:** `2026-08-22T11:25:56.266082+00:00`
+- **current_utc:** `2026-08-22T14:25:56.266082+00:00`
 - **is_expired_result:** `True`
 
 ### ✅ B3: Past forecasts available in historical/ledger views
@@ -163,9 +194,9 @@
 
 - **simulated_time_ist:** `02:00 PM IST`
 - **forecasts_generated:** `9`
-- **sample_prediction_id:** `PRED-EURUSD-20260822133818-5ec562`
-- **sample_direction:** `SELL`
-- **sample_confidence:** `0.73`
+- **sample_prediction_id:** `PRED-EURUSD-20260822142556-79706d`
+- **sample_direction:** `BUY`
+- **sample_confidence:** `0.66`
 
 ### ✅ C2: Forecast persisted in shadow ledger
 
@@ -175,17 +206,17 @@
 
 - **simulated_restart_ist:** `05:00 PM IST`
 - **new_forecasts_generated:** `9`
-- **old_direction:** `SELL`
-- **new_direction:** `SELL`
-- **old_confidence:** `0.73`
-- **new_confidence:** `0.73`
+- **old_direction:** `BUY`
+- **new_direction:** `BUY`
+- **old_confidence:** `0.66`
+- **new_confidence:** `0.66`
 - **direction_may_change:** `True`
 - **old_forecast_in_history:** `True`
 - **note:** `Old forecast remains in immutable ledger; new cycle uses current market state`
 
 ### ✅ C4: Previous forecast remains in immutable history
 
-- **old_prediction_id:** `PRED-EURUSD-20260822133818-5ec562`
+- **old_prediction_id:** `PRED-EURUSD-20260822142556-79706d`
 - **found_in_ledger:** `True`
 - **total_predictions_now:** `9`
 
@@ -193,13 +224,13 @@
 
 ### ✅ D1: Advancing time beyond forecast target marks it expired
 
-- **simulated_past_target:** `2026-08-22T08:38:18.353361+00:00`
+- **simulated_past_target:** `2026-08-22T09:25:56.266082+00:00`
 - **is_expired:** `True`
 
-### ✅ D2: Today's Signals does NOT contain expired forecast
+### ❌ D2: Today's Signals does NOT contain expired forecast
 
-- **today_forecast_count:** `0`
-- **all_are_future:** `True`
+- **today_forecast_count:** `9`
+- **all_are_future:** `False`
 
 ### ✅ D3: Signal History (ledger) contains past forecasts
 
@@ -236,11 +267,11 @@
 
 ### ✅ E5: Journal response includes date_ist_formatted field
 
-- **date_ist_formatted:** `Saturday, 22 August 2026 07:08 PM IST`
+- **date_ist_formatted:** `Saturday, 22 August 2026 07:56 PM IST`
 
 ### ✅ E6: Forecast rows include time_ist_formatted field
 
-- **sample:** `No forecasts to check`
+- **sample:** `Saturday, 22 August 2026 07:56 PM IST`
 
 ## TEST F — No Hardcoded 6 PM
 
@@ -268,8 +299,8 @@
 
 ### ✅ G1: is_data_stale correctly detects old data
 
-- **test_candle_time:** `2026-08-22T10:38:18.353361+00:00`
-- **current_time:** `2026-08-22T13:38:18.353361+00:00`
+- **test_candle_time:** `2026-08-22T11:25:56.266082+00:00`
+- **current_time:** `2026-08-22T14:25:56.266082+00:00`
 - **age_seconds:** `10800.0`
 - **is_stale:** `True`
 
@@ -289,23 +320,23 @@
 ### ✅ H1: End-to-end lineage: all timestamps traceable
 
 - **asset:** `EURUSD`
-- **1_provider_candle_timestamp:** `2026-08-21T17:00:00+01:00`
-- **2_db_candle_timestamp:** `2026-08-21T17:00:00+01:00`
-- **3_feature_timestamp:** `2026-08-21T17:00:00+01:00`
-- **4_model_evaluation_timestamp:** `2026-08-22T13:38:18.047910+00:00`
-- **5_forecast_generation_timestamp:** `2026-08-22T13:38:18.047910+00:00`
-- **6_target_forecast_timestamp:** `Saturday, 22 August 2026 07:08 PM IST`
+- **1_provider_candle_timestamp:** `2026-08-21T22:00:00+01:00`
+- **2_db_candle_timestamp:** `2026-08-21T22:00:00+01:00`
+- **3_feature_timestamp:** `2026-08-21T22:00:00+01:00`
+- **4_model_evaluation_timestamp:** `2026-08-22T14:25:56.180206+00:00`
+- **5_forecast_generation_timestamp:** `2026-08-22T14:25:56.180206+00:00`
+- **6_target_forecast_timestamp:** `Saturday, 22 August 2026 07:55 PM IST`
 - **7_current_ui_signal:**
   ```json
   {
-  "prediction_id": "PRED-EURUSD-20260822133818-5ec562",
-  "direction": "SELL",
-  "confidence": 0.73,
-  "entry_price": 1.1686338186264038,
-  "time_ist_formatted": "Saturday, 22 August 2026 07:08 PM IST"
+  "prediction_id": "PRED-EURUSD-20260822142556-79706d",
+  "direction": "BUY",
+  "confidence": 0.66,
+  "entry_price": 1.1678149700164795,
+  "time_ist_formatted": "Saturday, 22 August 2026 07:55 PM IST"
 }
   ```
 
 ---
 
-*Generated by Phase 49 Final Runtime Acceptance Test at Saturday, 22 August 2026 07:08 PM IST*
+*Generated by Phase 49 Final Runtime Acceptance Test at Saturday, 22 August 2026 07:56 PM IST*

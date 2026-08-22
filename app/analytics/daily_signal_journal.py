@@ -60,13 +60,12 @@ class DailySignalJournal:
         rows = []
         for f in forecasts:
             # Check expiration using MarketClockService
+            is_expired = False
             candle_ts_str = str(f.get("candle_timestamp"))
             try:
                 candle_ts = datetime.fromisoformat(candle_ts_str.replace("Z", "+00:00"))
-                # Assuming 1H timeframe for these forecasts; they expire at next candle close (2 hours from candle_ts)
                 expiry = candle_ts + timedelta(hours=2)
-                if market_clock.is_target_time_expired(expiry):
-                    continue
+                is_expired = market_clock.is_target_time_expired(expiry)
             except Exception:
                 pass
                 
@@ -87,7 +86,8 @@ class DailySignalJournal:
                 "rejection_reason": f.get("rejection_reason"),
                 "prediction_id": f["prediction_id"],
                 "trace_id": f.get("trace_id"),
-                "status": f.get("status", "FORECAST_CREATED"),
+                "status": "EXPIRED" if is_expired else f.get("status", "FORECAST_CREATED"),
+                "is_expired": is_expired,
             })
 
         return {
@@ -243,12 +243,16 @@ class DailySignalJournal:
                 "input_hash": input_hash,
                 "prediction_hash": pred_hash,
                 "forecast_created_at": now.isoformat(),
+                "source": "FALLBACK_SYNTHETIC",
+                "is_synthetic": True,
+                "status": "FALLBACK"
             })
 
         return {
             "target_date": tomorrow_date,
             "generation_time": now.isoformat(),
             "total_assets": len(cards),
+            "source": "FALLBACK_SYNTHETIC",
             "forecasts": cards,
         }
 
