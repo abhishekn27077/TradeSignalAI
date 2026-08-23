@@ -48,12 +48,21 @@ const RiskBadge: React.FC<{ level: string }> = ({ level }) => {
 
 const QualBadge: React.FC<{ qualified: boolean; reason?: string }> = ({ qualified, reason }) => {
   if (qualified) {
-    return <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-semibold">
-      <Zap className="w-3 h-3" /> TRADE SIGNAL
-    </span>;
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-semibold">
+        <Zap className="w-3 h-3" /> TRADE SIGNAL
+      </span>
+    );
+  }
+  if (reason === 'MARKET_CLOSED') {
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/30 text-xs font-medium" title="Market is currently closed. Actionable trading disabled.">
+        <Clock className="w-3 h-3" /> FORECAST ONLY (MARKET CLOSED)
+      </span>
+    );
   }
   return (
-    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-700/50 text-slate-400 border border-slate-600/30 text-xs" title={reason || ''}>
+    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-700/50 text-slate-400 border border-slate-600/30 text-xs" title={reason || 'Gated by Risk Engine'}>
       FORECAST ONLY
     </span>
   );

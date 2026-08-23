@@ -47,41 +47,34 @@ export const TodaysSignals: React.FC = () => {
   const [selected, setSelected] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const [marketStatuses, setMarketStatuses] = useState<any[]>([]);
+  const [todayForecasts, setTodayForecasts] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState<'SIGNALS' | 'FORECASTS'>('SIGNALS');
+
   const loadData = async () => {
     setLoading(true);
     setError(null);
     try {
-      const [tData, yData, liveToday, nextRes, actRes] = await Promise.all([
+      const [tData, yData, liveToday, nextRes, actRes, mktRes] = await Promise.all([
         api.signals.today().catch(() => null),
         api.signals.yesterday().catch(() => null),
         fetch('/api/v1/live/today').then((r) => (r.ok ? r.json() : null)).catch(() => null),
         fetch('/api/v1/signals/next-setup').then((r) => (r.ok ? r.json() : null)).catch(() => null),
         fetch('/api/v1/signals/actionable?include_expired=true').then((r) => (r.ok ? r.json() : null)).catch(() => null),
+        fetch('/api/v1/market/status').then((r) => (r.ok ? r.json() : null)).catch(() => null),
       ]);
 
-      let tSignals = Array.isArray(tData) ? tData : ((tData as any)?.signals || []);
-
-      if (tSignals.length === 0 && liveToday?.forecasts?.length > 0) {
-        tSignals = liveToday.forecasts.map((f: any) => ({
-          signal_id: f.prediction_id || `fc-${f.asset}`,
-          asset: f.asset,
-          symbol: f.asset,
-          timeframe: 'H1',
-          direction: f.direction,
-          confidence: f.confidence,
-          entry_price: f.entry_price,
-          stop_loss: f.stop_loss,
-          take_profit_1: f.take_profit,
-          risk_reward: f.risk_reward,
-          trade_quality: f.decision === 'TAKE_TRADE' ? 'QUALIFIED' : 'FORECAST_ONLY',
-          status: f.decision,
-          signal_state: f.rejection_reason || 'FORECAST_PRODUCED',
-          created_at: f.time,
-        }));
-      }
-
+      const tSignals = Array.isArray(tData) ? tData : ((tData as any)?.signals || []);
       setSignals(tSignals);
       setYesterdaySignals(Array.isArray(yData) ? yData : ((yData as any)?.signals || []));
+
+      if (liveToday?.forecasts) {
+        setTodayForecasts(liveToday.forecasts);
+      }
+
+      if (mktRes?.statuses) {
+        setMarketStatuses(mktRes.statuses);
+      }
 
       if (nextRes?.has_setup && nextRes?.next_setup) {
         setNextSetup(nextRes.next_setup);
@@ -134,9 +127,11 @@ export const TodaysSignals: React.FC = () => {
   const currentDataset =
     activeTab === 'today'
       ? signals
-      : activeTab === 'yesterday'
-      ? yesterdaySignals
-      : actionableSignals;
+      : activeTab === 'actionable'
+      ? actionableSignals
+      : activeTab === 'forecasts'
+      ? todayForecasts
+      : yesterdaySignals;
 
   // Filter + Sort
   const filtered = currentDataset
@@ -382,9 +377,11 @@ export const TodaysSignals: React.FC = () => {
             <Zap className="w-4 h-4 text-accent-gold" />
             <h1 className="text-sm font-bold text-text-primary">
               {activeTab === 'today'
-                ? "Today's Signals"
+                ? "Today's Qualified Signals"
                 : activeTab === 'actionable'
                 ? 'Actionable Trade Timing'
+                : activeTab === 'forecasts'
+                ? "Today's Analytical Forecasts"
                 : "Yesterday's Results"}
             </h1>
             <span className="text-[10px] bg-trading-elevated text-text-muted px-2 py-0.5 rounded-full font-mono">
@@ -402,7 +399,17 @@ export const TodaysSignals: React.FC = () => {
                   : 'text-text-muted hover:text-text-primary'
               }`}
             >
-              Today's Signals ({signals.length})
+              Qualified Signals ({signals.length})
+            </button>
+            <button
+              onClick={() => setActiveTab('forecasts')}
+              className={`px-3 py-1 text-[11px] font-medium rounded-md transition-colors ${
+                activeTab === 'forecasts'
+                  ? 'bg-purple-500/15 text-purple-400 font-semibold'
+                  : 'text-text-muted hover:text-text-primary'
+              }`}
+            >
+              Analytical Forecasts ({todayForecasts.length})
             </button>
             <button
               onClick={() => setActiveTab('actionable')}

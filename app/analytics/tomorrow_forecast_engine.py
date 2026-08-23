@@ -198,8 +198,17 @@ class TomorrowForecastEngine:
         # ── Scenario Analysis ───────────────────────────────────────────────
         scenarios = self._generate_event_scenarios(asset, upcoming_events)
 
+        # ── Market Session & Gating ─────────────────────────────────────────
+        from app.core.market_session import market_session_service
+        market_status = market_session_service.get_market_status(asset, data_cutoff)
+        is_market_open = bool(market_status.get("is_market_open", False))
+
         # ── Trade Signal Qualification ──────────────────────────────────────
-        is_qualified, decision, reason = self._qualify_trade_signal(consensus, asset_event_risk)
+        is_qualified, decision, reason = self._qualify_trade_signal(
+            consensus=consensus,
+            event_risk=asset_event_risk,
+            is_market_open=is_market_open,
+        )
 
         # ── Input Hash for Reproducibility ──────────────────────────────────
         input_data = {
@@ -211,6 +220,7 @@ class TomorrowForecastEngine:
             "faiss": faiss,
             "time_pattern": time_pattern,
             "regime": regime,
+            "market_open": is_market_open,
         }
         input_hash = hashlib.sha256(
             json.dumps(input_data, sort_keys=True, default=str).encode()
@@ -236,6 +246,12 @@ class TomorrowForecastEngine:
             "expected_move_pct": consensus.get("expected_move_pct"),
             "risk_reward_ratio": consensus.get("risk_reward_ratio"),
             "market_regime": regime.get("regime", "UNKNOWN"),
+            # Market status & session gating
+            "is_market_open": is_market_open,
+            "market_status": "OPEN" if is_market_open else "CLOSED",
+            "market_session": market_status.get("current_session", "CLOSED"),
+            "next_open_utc": market_status.get("next_open_utc"),
+            "status": "QUALIFIED" if is_qualified else ("FORECAST_ONLY (MARKET_CLOSED)" if not is_market_open else "FORECAST_ONLY"),
             # Model breakdown
             "quant_prediction": quant,
             "kronos_prediction": kronos,
@@ -490,12 +506,15 @@ class TomorrowForecastEngine:
     # ── Trade Signal Qualification ──────────────────────────────────────────
 
     def _qualify_trade_signal(
-        self, consensus: dict, event_risk: str
+        self, consensus: dict, event_risk: str, is_market_open: bool = True
     ) -> tuple[bool, str, Optional[str]]:
         """
         Determine if a forecast qualifies as an actionable trade signal.
         Returns (is_qualified, decision, reason).
         """
+        if not is_market_open:
+            return False, "NO_TRADE", "MARKET_CLOSED"
+
         confidence = consensus.get("confidence", 0)
         rr = consensus.get("risk_reward_ratio")
         models = consensus.get("models_contributing", 0)

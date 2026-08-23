@@ -149,6 +149,35 @@ class ShadowLedgerEngine:
         self._paper_trades.append(order)
         return order
 
+    def spawn_paper_trade(
+        self,
+        prediction_id: str,
+        asset: str,
+        direction: str,
+        entry_price: float,
+        stop_loss: float,
+        take_profit: float,
+        risk_reward: float = 2.0,
+        confidence: float = 0.70,
+        validation_cohort: str = "PHASE43_SHADOW_V1",
+        model_version: str = "3.2.0-frozen",
+    ) -> dict[str, Any]:
+        """Directly spawn a paper order for simulation and tests."""
+        pred = {
+            "prediction_id": prediction_id,
+            "asset": asset,
+            "direction": direction,
+            "entry_price": entry_price,
+            "stop_loss": stop_loss,
+            "take_profit": take_profit,
+            "risk_reward": risk_reward,
+            "confidence": confidence,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "validation_cohort": validation_cohort,
+            "model_version": model_version,
+        }
+        return self._spawn_paper_order(pred)
+
     def resolve_paper_trade(
         self,
         trade_id: str,
@@ -216,6 +245,28 @@ class ShadowLedgerEngine:
         trade["net_r"] = round(trade["gross_r"] - total_cost_r, 2)
         trade["outcome"] = "TIME_EXIT"
         trade["resolved_at"] = datetime.now(timezone.utc).isoformat()
+        return trade
+
+    def resolve_trade_manual(
+        self,
+        trade_id: str,
+        exit_price: float,
+        exit_time: str,
+        status: str,
+        gross_r: float,
+        net_r: float,
+    ) -> Optional[dict[str, Any]]:
+        """Manually updates a trade after external offline reconciliation."""
+        trade = next((t for t in self._paper_trades if t["trade_id"] == trade_id), None)
+        if not trade:
+            return None
+        trade["status"] = status
+        trade["outcome"] = status
+        trade["exit_price"] = exit_price
+        trade["exit_time"] = exit_time
+        trade["gross_r"] = gross_r
+        trade["net_r"] = net_r
+        trade["resolved_at"] = exit_time
         return trade
 
     def get_all_predictions(self, limit: int = 50) -> list[dict[str, Any]]:

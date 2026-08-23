@@ -201,16 +201,24 @@ class LiveForecastScheduler:
         sl = round(close_p - pip_dist if direction == "BUY" else close_p + pip_dist, 4)
         tp = round(close_p + (pip_dist * 2.0) if direction == "BUY" else close_p - (pip_dist * 2.0), 4)
 
+        # Market open & session check
+        from app.core.market_session import market_session_service
+        now_utc = datetime.now(timezone.utc)
+        market_status = market_session_service.get_market_status(asset, now_utc)
+        is_market_open = bool(market_status.get("is_market_open", False))
+
         # Economic event check
         events = self.cal_engine.get_upcoming_events("today")
         high_risk_event = any(e.get("importance") == "HIGH" for e in events) if events else False
 
-        # Zero-Trust qualification
-        is_qualified = (ensemble_prob >= 0.65) and (not high_risk_event) and (not shadow_validation_engine.is_paused)
+        # Zero-Trust qualification (market must be open, no high event risk, not paused, consensus >= 0.65)
+        is_qualified = is_market_open and (ensemble_prob >= 0.65) and (not high_risk_event) and (not shadow_validation_engine.is_paused)
         
         rejection_reason = None
         if not is_qualified:
-            if shadow_validation_engine.is_paused:
+            if not is_market_open:
+                rejection_reason = "MARKET_CLOSED"
+            elif shadow_validation_engine.is_paused:
                 rejection_reason = "VALIDATION_PAUSED"
             elif high_risk_event:
                 rejection_reason = "HIGH_EVENT_RISK"
@@ -233,6 +241,10 @@ class LiveForecastScheduler:
             "take_profit": tp,
             "risk_reward": 2.0,
             "expected_move_pct": expected_move_pct,
+            "is_market_open": is_market_open,
+            "market_status": "OPEN" if is_market_open else "CLOSED",
+            "market_session": market_status.get("current_session", "CLOSED"),
+            "next_open_utc": market_status.get("next_open_utc"),
             "is_trade_qualified": is_qualified,
             "rejection_reason": rejection_reason,
             "model_version": model_ver,

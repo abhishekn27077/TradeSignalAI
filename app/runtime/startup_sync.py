@@ -111,11 +111,11 @@ class StartupSyncService:
         
         # 2. Recover offline gaps and resolve pending paper trades
         try:
-            from app.runtime.offline_gap_recovery import offline_gap_recovery_engine
-            gap_res = offline_gap_recovery_engine.recover_and_resolve_all()
-            logger.info(f"Phase 50 offline gap recovery complete: {gap_res.get('trades_resolved', 0)} paper trades resolved.")
+            from app.runtime.trade_reconciliation_service import trade_reconciliation_service
+            boot_res = trade_reconciliation_service.execute_bootstrap_sequence()
+            logger.info(f"Bootstrap sequence complete: {boot_res['trade_recovery']['trades_closed_during_recovery']} paper trades reconciled.")
         except Exception as e:
-            logger.error(f"Error during offline gap recovery: {e}")
+            logger.error(f"Error during trade reconciliation bootstrap: {e}")
 
         # 3. Recalculate forecasts based on the newly inserted data
         await live_forecast_scheduler.run_candle_scan_cycle()

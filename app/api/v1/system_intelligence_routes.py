@@ -200,3 +200,19 @@ def get_signal_performance():
     }
 
 
+# 10. Bootstrap & Trade Reconciliation
+@router.post("/bootstrap", summary="Execute Full Application Bootstrap & Offline Trade Reconciliation")
+def execute_system_bootstrap():
+    from app.runtime.trade_reconciliation_service import trade_reconciliation_service
+    report = trade_reconciliation_service.execute_bootstrap_sequence()
+    return {"success": True, "report": report}
+
+
+@router.get("/bootstrap-status", summary="Get Current System Bootstrap & Market Session Status")
+def get_system_bootstrap_status():
+    from app.runtime.trade_reconciliation_service import trade_reconciliation_service
+    report = trade_reconciliation_service.get_last_bootstrap_report()
+    return {"success": True, "report": report}
+
+
+

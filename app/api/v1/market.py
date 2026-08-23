@@ -58,4 +58,39 @@ async def get_candle_clock(timeframe: str = Path(...)):
         return {"success": False, "message": str(ve)}
     except Exception as e:
         logger.warning(f"CandleClock error: {e}")
-        return {"success": False, "message": "Failed to calculate candle clock"}
+        return {"success": False, "message": str(e)}
+
+
+@router.get("/status", summary="Get Live Market Status for All Assets")
+async def get_all_market_status():
+    """
+    Returns real-time open/closed status, current trading session,
+    next open/close timestamps, and session reasons across all 9 assets.
+    """
+    try:
+        from app.core.market_session import market_session_service
+        statuses = market_session_service.get_all_market_statuses()
+        open_count = sum(1 for s in statuses if s["is_market_open"])
+        closed_count = sum(1 for s in statuses if not s["is_market_open"])
+        return {
+            "success": True,
+            "total_assets": len(statuses),
+            "open_count": open_count,
+            "closed_count": closed_count,
+            "statuses": statuses,
+        }
+    except Exception as e:
+        logger.error(f"Error fetching market statuses: {e}")
+        return {"success": False, "error": str(e), "statuses": []}
+
+
+@router.get("/status/{symbol:path}", summary="Get Live Market Status for Specific Asset")
+async def get_symbol_market_status(symbol: str = Path(..., min_length=1)):
+    """Returns market open/closed status for a single symbol."""
+    try:
+        from app.core.market_session import market_session_service
+        status = market_session_service.get_market_status(symbol)
+        return {"success": True, "data": status}
+    except Exception as e:
+        logger.error(f"Error fetching status for {symbol}: {e}")
+        return {"success": False, "error": str(e)}

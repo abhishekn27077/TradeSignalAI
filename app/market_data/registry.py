@@ -80,8 +80,17 @@ class AssetRegistry:
         Returns only symbols that are actively supported for real-data certification to avoid API rate limits.
         """
         validation_symbols = ["BTCUSD", "ETHUSD", "EURUSD", "USDJPY"]
-        # Ensure they actually exist in the registry and are enabled
         return [sym for sym in validation_symbols if sym in self._assets and self._assets[sym].enabled]
+
+    def is_market_open(self, symbol: str, dt: Optional[Any] = None) -> bool:
+        """Determines if the market is open for trading using MarketSessionService."""
+        from app.core.market_session import market_session_service
+        return market_session_service.is_market_open(symbol, dt)
+
+    def get_market_status(self, symbol: str, dt: Optional[Any] = None) -> Dict[str, Any]:
+        """Gets detailed market status for the symbol."""
+        from app.core.market_session import market_session_service
+        return market_session_service.get_market_status(symbol, dt)
 
 
 asset_registry = AssetRegistry()
