@@ -151,10 +151,11 @@ from app.api.v1.live_command_routes import router as phase45_live_router
 
 api_v1_router.include_router(phase45_live_router, tags=["Phase 45 Live Daily Command Center"])
 
-# Phase 46: Forward-Edge Statistical Validation & Live Performance Governance
-from app.api.v1.evidence_routes import router as phase46_evidence_router
+# Phase 46/53: Forward-Edge Statistical Validation & Live Performance Governance
+from app.api.v1.evidence_routes import router as phase46_evidence_router, integrity_router as phase53_integrity_router
 
 api_v1_router.include_router(phase46_evidence_router, tags=["Phase 46 Live Statistical Evidence"])
+api_v1_router.include_router(phase53_integrity_router, tags=["Phase 53 Forward Integrity Governance"])
 
 # Phase 47: Unified Runtime Diagnostics & Error Observability
 from app.api.v1.runtime_diagnostics import router as phase47_diagnostics_router
