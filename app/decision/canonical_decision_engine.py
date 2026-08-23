@@ -104,7 +104,7 @@ class CanonicalDecisionEngine:
 
     def __init__(self):
         self.pipeline = master_quant_pipeline
-        self.config_hash = hashlib.sha256(b"TRADESIGNALAI_V3_CANONICAL_CONFIG_V52").hexdigest()[:16]
+        self.config_hash = "79a4f8e12b79310d"
 
     def evaluate_market(
         self,
