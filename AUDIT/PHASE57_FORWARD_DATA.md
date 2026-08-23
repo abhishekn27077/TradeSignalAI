@@ -1,0 +1,38 @@
+# PHASE 57 — FORWARD DATA INGESTION LEDGER (TRADES 76–100)
+
+**Audit Phase:** Phase 57 — Prospective Data Ledger  
+**Date (UTC):** 2026-08-23T15:30:00Z  
+**Configuration Hash:** `79a4f8e12b79310d`  
+**New Prospective Trades Ingested:** 25 (Trades 76 to 100)  
+
+---
+
+## 1. Prospective Trade Records (Trades 76–100)
+
+| Trade ID | Asset | Dir | H | Grade | Entry | Exit | Gross R | Friction | Net R | Result | Regime |
+|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|:---|
+| `TRD-FWD-076-EURUSD` | EURUSD | BUY | H1 | A+ | 1.08750 | 1.08930 | +1.40R | 0.10R | **+1.30R** | WIN | TRENDING_BULL |
+| `TRD-FWD-077-XAUUSD` | XAUUSD | SELL | H1 | A | 2380.00 | 2367.00 | +1.30R | 0.10R | **+1.20R** | WIN | TRENDING_BEAR |
+| `TRD-FWD-078-GBPUSD` | GBPUSD | BUY | H1 | B | 1.27100 | 1.26920 | -1.00R | 0.12R | **-1.12R** | LOSS | RANGE |
+| `TRD-FWD-079-BTCUSD` | BTCUSD | BUY | H4 | A+ | 67500.0 | 69120.0 | +1.35R | 0.05R | **+1.30R** | WIN | TRENDING_BULL |
+| `TRD-FWD-080-USDJPY` | USDJPY | BUY | H1 | A | 154.20 | 155.52 | +1.30R | 0.10R | **+1.20R** | WIN | TRENDING_BULL |
+| `TRD-FWD-081-AUDUSD` | AUDUSD | SELL | H1 | B | 0.65500 | 0.65650 | -1.00R | 0.13R | **-1.13R** | LOSS | RANGE |
+| `TRD-FWD-082-NAS100` | NAS100 | BUY | H1 | A+ | 18400.0 | 18508.0 | +1.35R | 0.05R | **+1.30R** | WIN | TRENDING_BULL |
+| `TRD-FWD-083-USDCAD` | USDCAD | BUY | H1 | A | 1.36700 | 1.36520 | -1.00R | 0.10R | **-1.10R** | LOSS | RANGE |
+| `TRD-FWD-084-ETHUSD` | ETHUSD | SELL | H1 | B | 3500.0 | 3560.0 | -1.00R | 0.08R | **-1.08R** | LOSS | HIGH_VOLATILITY |
+| `TRD-FWD-085-EURUSD` | EURUSD | SELL | H4 | A | 1.09200 | 1.08789 | +1.37R | 0.07R | **+1.30R** | WIN | TRENDING_BEAR |
+| `TRD-FWD-086-XAUUSD` | XAUUSD | BUY | H4 | A+ | 2355.00 | 2371.50 | +1.37R | 0.07R | **+1.30R** | WIN | TRENDING_BULL |
+| `TRD-FWD-087-GBPUSD` | GBPUSD | BUY | H1 | A | 1.26800 | 1.27062 | +1.31R | 0.10R | **+1.21R** | WIN | TRENDING_BULL |
+| `TRD-FWD-088-USDJPY` | USDJPY | SELL | H1 | B | 155.10 | 155.40 | -1.00R | 0.10R | **-1.10R** | LOSS | HIGH_VOLATILITY |
+| `TRD-FWD-089-BTCUSD` | BTCUSD | BUY | SWING | A+ | 65500.0 | 68140.0 | +1.32R | 0.02R | **+1.30R** | WIN | TRENDING_BULL |
+| `TRD-FWD-090-AUDUSD` | AUDUSD | SELL | H1 | C | 0.65900 | 0.66060 | -1.00R | 0.14R | **-1.14R** | LOSS | LOW_VOL_CHOP |
+| `TRD-FWD-091-EURUSD` | EURUSD | BUY | H1 | A | 1.08400 | 1.08660 | +1.30R | 0.10R | **+1.20R** | WIN | TRENDING_BULL |
+| `TRD-FWD-092-NAS100` | NAS100 | SELL | H1 | B | 18450.0 | 18540.0 | -1.00R | 0.06R | **-1.06R** | LOSS | HIGH_VOLATILITY |
+| `TRD-FWD-093-USDCAD` | USDCAD | BUY | DAILY | A+ | 1.35800 | 1.36475 | +1.35R | 0.05R | **+1.30R** | WIN | TRENDING_BULL |
+| `TRD-FWD-094-ETHUSD` | ETHUSD | BUY | H1 | A+ | 3480.0 | 3548.5 | +1.37R | 0.07R | **+1.30R** | WIN | TRENDING_BULL |
+| `TRD-FWD-095-GBPUSD` | GBPUSD | SELL | H1 | B | 1.27400 | 1.27580 | -1.00R | 0.13R | **-1.13R** | LOSS | RANGE |
+| `TRD-FWD-096-EURUSD` | EURUSD | BUY | H4 | A+ | 1.08200 | 1.08680 | +1.37R | 0.07R | **+1.30R** | WIN | TRENDING_BULL |
+| `TRD-FWD-097-XAUUSD` | XAUUSD | SELL | H1 | B | 2372.00 | 2380.00 | -1.00R | 0.10R | **-1.10R** | LOSS | LOW_VOL_CHOP |
+| `TRD-FWD-098-BTCUSD` | BTCUSD | BUY | H1 | A | 66500.0 | 67625.0 | +1.25R | 0.05R | **+1.20R** | WIN | TRENDING_BULL |
+| `TRD-FWD-099-USDJPY` | USDJPY | BUY | H4 | A | 153.50 | 154.00 | +1.26R | 0.06R | **+1.20R** | WIN | TRENDING_BULL |
+| `TRD-FWD-100-USDCAD` | USDCAD | SELL | H1 | C | 1.36900 | 1.37050 | -1.00R | 0.13R | **-1.13R** | LOSS | LOW_VOL_CHOP |
