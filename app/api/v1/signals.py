@@ -781,3 +781,74 @@ async def get_signal_ai_consensus(signal_id: str):
     except Exception as e:
         logger.error(f"Error fetching AI consensus: {e}")
         return {"success": False, "error": str(e)}
+
+
+# ============================================================
+# Phase 58 Authoritative Forward Ledger & Telemetry Endpoints
+# ============================================================
+@router.get("/latest", summary="Get Latest Point-in-Time Signal Record")
+async def get_latest_signal_record():
+    """Returns the latest signal record from the authoritative Signal Truth Ledger."""
+    from app.analytics.signal_truth_ledger import signal_truth_ledger
+    latest = signal_truth_ledger.get_latest_signal()
+    if not latest:
+        return {"success": False, "error": "NO_SIGNALS_RECORDED"}
+    return {"success": True, "signal": latest.to_dict()}
+
+
+@router.get("/active", summary="Get Active Unresolved Signals")
+async def get_active_unresolved_signals():
+    """Returns the list of active signals currently pending causal resolution."""
+    from app.analytics.forward_resolution_engine import forward_resolution_engine
+    pending = forward_resolution_engine.get_pending_signals()
+    return {
+        "success": True,
+        "count": len(pending),
+        "unresolved_signals": [asdict(p) if hasattr(p, '__dataclass_fields__') else p for p in pending],
+    }
+
+
+@router.get("/statistics", summary="Get Signal Truth Ledger Statistics")
+async def get_signal_ledger_statistics():
+    """Returns summary counts of BUY, SELL, NO_TRADE, and reason codes."""
+    from app.analytics.signal_truth_ledger import signal_truth_ledger
+    return {"success": True, "statistics": signal_truth_ledger.get_summary_statistics()}
+
+
+@router.get("/latency", summary="Get Granular Signal Latency Metrics")
+async def get_signal_latency_metrics():
+    """Returns p50, p90, p95, p99 latencies for Plane A signal path."""
+    from app.analytics.signal_telemetry import signal_telemetry
+    return {"success": True, "latency": signal_telemetry.get_latency_metrics()}
+
+
+@router.get("/{signal_id}/trace", summary="Get Complete Point-in-Time Cryptographic Trace")
+async def get_signal_trace(signal_id: str):
+    """Returns complete cryptographic hashes and snapshots for a specific signal."""
+    from app.analytics.signal_truth_ledger import signal_truth_ledger
+    for rec in signal_truth_ledger.records:
+        if rec.signal_id == signal_id:
+            return {
+                "success": True,
+                "signal_id": rec.signal_id,
+                "config_hash": rec.config_hash,
+                "data_snapshot_hash": rec.data_snapshot_hash,
+                "feature_snapshot_hash": rec.feature_snapshot_hash,
+                "record_hash": rec.compute_record_hash(),
+                "causality_status": rec.causality_status,
+            }
+    return {"success": False, "error": f"SIGNAL_NOT_FOUND: {signal_id}"}
+
+
+@router.get("/{signal_id}/resolution", summary="Get Resolution Status for Signal")
+async def get_signal_resolution_status(signal_id: str):
+    """Returns the resolution state for a specific signal."""
+    from app.analytics.forward_resolution_engine import forward_resolution_engine
+    for res in forward_resolution_engine._resolved_history:
+        if res.get("signal_id") == signal_id:
+            return {"success": True, "status": "RESOLVED", "resolution": res}
+    for unres in forward_resolution_engine.get_pending_signals():
+        if unres.signal_id == signal_id:
+            return {"success": True, "status": "PENDING_RESOLUTION", "due_at": unres.resolution_due_at}
+    return {"success": False, "error": f"SIGNAL_NOT_FOUND: {signal_id}"}
+

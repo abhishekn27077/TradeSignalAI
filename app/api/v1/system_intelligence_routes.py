@@ -188,3 +188,15 @@ async def run_master_quant_pipeline(req: PipelineRunRequest):
         "explainability": result.explainability,
     }
 
+
+# 9. Phase 58 Signal Performance & Telemetry
+@router.get("/signal-performance", summary="Get Granular Signal Path Latency & SLA Performance")
+def get_signal_performance():
+    from app.analytics.signal_telemetry import signal_telemetry, signal_starvation_monitor
+    return {
+        "success": True,
+        "latency_metrics": signal_telemetry.get_latency_metrics(),
+        "starvation_status": signal_starvation_monitor.check_starvation_status(),
+    }
+
+
