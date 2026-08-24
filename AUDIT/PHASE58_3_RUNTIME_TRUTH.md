@@ -2,8 +2,8 @@
 
 **Project:** TradeSignalAI-v3  
 **Frozen Configuration Hash:** `79a4f8e12b79310d`  
-**Git Checkpoint:** `phase-58.3-runtime-truth-verified`  
-**Commit:** `fb7a54b`  
+**Git Checkpoint:** `phase-58.3-runtime-verified`  
+**Commit:** `3be52ba`  
 **Certification Status:** `RUNTIME_VERIFIED`  
 **Real-Money Broker Execution:** `STRICTLY_DISABLED`  
 **Test Suite Status:** `185/185 Passed (100%)`  

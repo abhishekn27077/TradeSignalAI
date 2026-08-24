@@ -219,12 +219,18 @@ class LiveForecastScheduler:
         events = self.cal_engine.get_upcoming_events("today")
         high_risk_event = any(e.get("importance") == "HIGH" for e in events) if events else False
 
-        # Zero-Trust qualification (market must be open, no high event risk, not paused, consensus >= 0.65)
-        is_qualified = is_market_open and (ensemble_prob >= 0.65) and (not high_risk_event) and (not shadow_validation_engine.is_paused)
+        # Stale data freshness check (candles older than 48 hours cannot generate live trade signals)
+        now_curr = datetime.now(timezone.utc)
+        is_stale = (now_curr - eval_dt).total_seconds() > 172800 if candle_ts_str else False
+
+        # Zero-Trust qualification (market must be open, no high event risk, not paused, not stale, consensus >= 0.65)
+        is_qualified = is_market_open and (ensemble_prob >= 0.65) and (not high_risk_event) and (not shadow_validation_engine.is_paused) and (not is_stale)
         
         rejection_reason = None
         if not is_qualified:
-            if not is_market_open:
+            if is_stale:
+                rejection_reason = "STALE_DATA"
+            elif not is_market_open:
                 rejection_reason = "MARKET_CLOSED"
             elif shadow_validation_engine.is_paused:
                 rejection_reason = "VALIDATION_PAUSED"

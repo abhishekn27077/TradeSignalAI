@@ -92,6 +92,21 @@ class TradeReconciliationService:
         if not candles or trade.get("status") != "PAPER_OPEN":
             return None
 
+        # Deduplicate and sort candidate candles chronologically to guarantee deterministic replay
+        seen_ts = set()
+        ordered_candles = []
+        for c in candles:
+            ts = c.get("timestamp")
+            if ts is not None and ts in seen_ts:
+                continue
+            if ts is not None:
+                seen_ts.add(ts)
+            ordered_candles.append(c)
+
+        ordered_candles.sort(key=lambda x: str(x.get("timestamp", "")))
+        if not ordered_candles:
+            return None
+
         trade_record = dict(trade)
         asset = trade_record.get("asset", "EURUSD")
         direction = trade_record.get("direction", "BUY").upper()
@@ -111,10 +126,10 @@ class TradeReconciliationService:
         max_adv = 0.0
         outcome = None
         exit_price = entry_price
-        exit_time = candles[-1].get("timestamp") or datetime.now(timezone.utc).isoformat()
+        exit_time = ordered_candles[-1].get("timestamp") or datetime.now(timezone.utc).isoformat()
         bars_held = 0
 
-        for bar in candles:
+        for bar in ordered_candles:
             bars_held += 1
             high = float(bar.get("high", entry_price))
             low = float(bar.get("low", entry_price))
