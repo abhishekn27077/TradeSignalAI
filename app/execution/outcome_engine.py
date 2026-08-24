@@ -133,7 +133,7 @@ class OutcomeEngine:
         rates = await market_service.get_rates(symbol, timeframe, count=50)
         if not rates:
             return OutcomeResult(
-                outcome=OUTCOME_UNRESOLVED if now < expiry_time else OUTCOME_EXPIRED,
+                outcome=OUTCOME_UNRESOLVED,
                 exit_price=None,
                 exit_time=None if now < expiry_time else expiry_time,
                 exit_time_ist=None if now < expiry_time else ISTConverter.to_ist_string(expiry_time),
@@ -148,7 +148,7 @@ class OutcomeEngine:
             )
 
         df = pd.DataFrame(rates)
-        df['timestamp'] = pd.to_datetime(df['timestamp'], utc=True)
+        df['timestamp'] = pd.to_datetime(df['timestamp'], format='ISO8601', utc=True)
 
         # Use only candles AFTER signal_time
         signal_ts = pd.Timestamp(signal_time)

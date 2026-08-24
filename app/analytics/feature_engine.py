@@ -75,7 +75,7 @@ class FeatureEngine:
         for col in ['VWAP', 'MFI_14', 'CMF_20', 'OBV', 'Liquidity_proxy']:
             df[col] = df[col].fillna(0)
             
-        df.loc[df['VWAP'] == 0, 'VWAP'] = df['close']
+        df['VWAP'] = np.where(df['VWAP'] == 0, df['close'], df['VWAP'])
 
         # 5. Market Structure & Institutional Features
         # Fair Value Gaps (FVG)

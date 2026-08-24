@@ -16,11 +16,12 @@ export const SystemPage: React.FC = () => {
     const fetchAll = async () => {
       await refreshSystemHealth();
       try {
-        const [healthData, brokerStatus] = await Promise.all([
+        const [healthData, brokerStatus, runtimeTruth] = await Promise.all([
           api.health.status(),
           api.brokers.status().catch(() => null),
+          fetch('/api/v1/system-intelligence/runtime-truth').then(r => r.ok ? r.json() : null).catch(() => null),
         ]);
-        setDetailed({ healthData, brokerStatus });
+        setDetailed({ healthData, brokerStatus, runtimeTruth });
       } catch {}
     };
     fetchAll();
@@ -90,6 +91,41 @@ export const SystemPage: React.FC = () => {
                 <span className={v === 'ok' ? 'text-profit' : 'text-loss'}>{String(v)}</span>
               </div>
             ))}
+          </div>
+        </Card>
+      )}
+
+      {detailed?.runtimeTruth && (
+        <Card title="Phase 59 Canonical Runtime Truth & Fingerprint" subtitle="Absolute verified backend process identity" noPadding>
+          <div className="p-3 text-[11px] font-mono text-text-secondary space-y-2 bg-slate-950/60 rounded-lg">
+            <div className="flex justify-between border-b border-panel-border/30 pb-1">
+              <span className="text-text-muted">Canonical Phase:</span>
+              <span className="font-bold text-accent-cyan">{detailed.runtimeTruth.phase} ({detailed.runtimeTruth.engine_version})</span>
+            </div>
+            <div className="flex justify-between border-b border-panel-border/30 pb-1">
+              <span className="text-text-muted">Git Commit / Branch:</span>
+              <span className="font-bold text-text-primary">{detailed.runtimeTruth.git_commit} ({detailed.runtimeTruth.git_branch})</span>
+            </div>
+            <div className="flex justify-between border-b border-panel-border/30 pb-1">
+              <span className="text-text-muted">Config Hash:</span>
+              <span className="font-bold text-accent-gold">{detailed.runtimeTruth.config_hash}</span>
+            </div>
+            <div className="flex justify-between border-b border-panel-border/30 pb-1">
+              <span className="text-text-muted">Backend PID / Executable:</span>
+              <span className="font-bold text-text-primary">{detailed.runtimeTruth.backend_pid} ({detailed.runtimeTruth.python_executable})</span>
+            </div>
+            <div className="flex justify-between border-b border-panel-border/30 pb-1">
+              <span className="text-text-muted">Execution Mode:</span>
+              <span className="font-bold text-emerald-400">{detailed.runtimeTruth.execution_mode} (Real Money: STRICTLY DISABLED)</span>
+            </div>
+            <div className="flex justify-between border-b border-panel-border/30 pb-1">
+              <span className="text-text-muted">State ID:</span>
+              <span className="font-bold text-text-muted">{detailed.runtimeTruth.canonical_state_id}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-text-muted">Market Data Timestamp:</span>
+              <span className="font-bold text-text-primary">{detailed.runtimeTruth.market_data_timestamp}</span>
+            </div>
           </div>
         </Card>
       )}

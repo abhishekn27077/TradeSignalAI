@@ -26,7 +26,7 @@ async def test_faiss_leakage():
         
     rates = await market_service.get_rates(symbol, timeframe, count=100)
     df = pd.DataFrame(rates)
-    df['timestamp'] = pd.to_datetime(df['timestamp'])
+    df['timestamp'] = pd.to_datetime(df['timestamp'], format='ISO8601', utc=True)
     
     # We will simulate a query exactly 30 days ago
     query_timestamp = df['timestamp'].iloc[-1] - timedelta(days=30)

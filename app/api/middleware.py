@@ -22,6 +22,31 @@ class CorrelationIdMiddleware(BaseHTTPMiddleware):
         response.headers["X-Correlation-ID"] = correlation_id
         return response
 
+class CanonicalFingerprintMiddleware(BaseHTTPMiddleware):
+    """
+    Phase 59: Appends canonical response fingerprint headers to every API response:
+    - X-Canonical-Engine-Version
+    - X-Git-Commit
+    - X-Config-Hash
+    - X-Canonical-State-ID
+    - X-Generated-At
+    - X-Market-Data-Timestamp
+    """
+    async def dispatch(self, request: Request, call_next) -> Response:
+        response = await call_next(request)
+        try:
+            from app.core.canonical_signal_service import canonical_signal_service, CONFIG_HASH
+            meta = canonical_signal_service.get_canonical_runtime_metadata()
+            response.headers["X-Canonical-Engine-Version"] = str(meta.get("runtime_phase", "PHASE 59"))
+            response.headers["X-Git-Commit"] = str(meta.get("git_commit", "94af80a"))
+            response.headers["X-Config-Hash"] = str(CONFIG_HASH)
+            response.headers["X-Canonical-State-ID"] = str(meta.get("canonical_state_id", "STATE-59-INIT"))
+            response.headers["X-Generated-At"] = str(meta.get("last_ui_sync_at", ""))
+            response.headers["X-Market-Data-Timestamp"] = str(meta.get("last_market_data_at", ""))
+        except Exception:
+            pass
+        return response
+
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next) -> Response:
         response = await call_next(request)

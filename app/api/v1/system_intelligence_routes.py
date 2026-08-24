@@ -215,7 +215,34 @@ def get_system_bootstrap_status():
     return {"success": True, "report": report}
 
 
-# 11. Phase 58.5 Canonical Runtime Intelligence
+# 11. Phase 59 Canonical Runtime Intelligence & Runtime Truth
+@router.get("/runtime-truth", summary="Get Absolute Runtime Truth and Process Identification")
+def get_runtime_truth():
+    from app.core.canonical_signal_service import canonical_signal_service
+    meta = canonical_signal_service.get_canonical_runtime_metadata()
+    return {
+        "engine": meta["engine"],
+        "phase": meta["phase"],
+        "engine_version": meta["engine_version"],
+        "git_commit": meta["git_commit"],
+        "git_branch": meta["git_branch"],
+        "config_hash": meta["config_hash"],
+        "backend_pid": meta["backend_pid"],
+        "backend_working_directory": meta["backend_working_directory"],
+        "python_executable": meta["python_executable"],
+        "database_identifier": meta["database_identifier"],
+        "frontend_build_id": meta["frontend_build_id"],
+        "api_version": meta["api_version"],
+        "execution_mode": meta["execution_mode"],
+        "real_money_enabled": meta["real_money_enabled"],
+        "broker_execution_enabled": meta["broker_execution_enabled"],
+        "server_start_time": meta["server_start_time"],
+        "market_data_timestamp": meta["market_data_timestamp"],
+        "canonical_engine_version": meta["canonical_engine_version"],
+        "canonical_state_id": meta["canonical_state_id"]
+    }
+
+
 @router.get("/canonical-runtime", summary="Get Canonical Runtime Metadata and Observability Identifiers")
 def get_canonical_runtime():
     from app.core.canonical_signal_service import canonical_signal_service
@@ -226,3 +253,4 @@ def get_canonical_runtime():
 def get_canonical_signals():
     from app.core.canonical_signal_service import canonical_signal_service
     return {"success": True, "data": canonical_signal_service.get_all_canonical_asset_states()}
+

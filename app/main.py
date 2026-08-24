@@ -9,6 +9,7 @@ from fastapi.middleware.gzip import GZipMiddleware
 
 from app.api.middleware import (
     CorrelationIdMiddleware,
+    CanonicalFingerprintMiddleware,
     RateLimitMiddleware,
     RequestLoggingMiddleware,
     SecurityHeadersMiddleware,
@@ -155,9 +156,9 @@ async def lifespan(app: FastAPI):
     from app.runtime.live_forecast_scheduler import live_forecast_scheduler
     from app.runtime.shadow_outcome_worker import shadow_outcome_worker
     
-    # Run Phase 49 stateless startup sequence (Fetch fresh data & Recalculate forecasts)
+    # Run Phase 49 stateless startup sequence in background
     from app.runtime.startup_sync import startup_sync
-    await startup_sync.execute_startup_sequence()
+    asyncio.create_task(startup_sync.execute_startup_sequence())
 
     tasks.append(asyncio.create_task(live_forecast_scheduler.start()))
     tasks.append(asyncio.create_task(shadow_outcome_worker.start()))
@@ -232,6 +233,7 @@ def create_app() -> FastAPI:
     )
     app.add_middleware(RequestLoggingMiddleware)
     app.add_middleware(CorrelationIdMiddleware)
+    app.add_middleware(CanonicalFingerprintMiddleware)
 
     app.add_exception_handler(Exception, global_exception_handler)
 

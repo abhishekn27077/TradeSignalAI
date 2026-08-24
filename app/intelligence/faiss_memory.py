@@ -45,7 +45,7 @@ class FAISSMemoryEngine:
 
         df = pd.DataFrame(rates)
         if 'timestamp' in df.columns:
-            df['timestamp'] = pd.to_datetime(df['timestamp'])
+            df['timestamp'] = pd.to_datetime(df['timestamp'], format='ISO8601', utc=True)
             df.set_index('timestamp', inplace=True)
 
         for drop_col in ('symbol', 'timeframe'):

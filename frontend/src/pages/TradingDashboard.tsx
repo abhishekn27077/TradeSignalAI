@@ -119,20 +119,20 @@ export const TradingDashboard: React.FC = () => {
           setIntelData(intel);
       }
 
-      // Compute Phase 41 10-stat Intelligence Grid
-      const rej = diag?.rejection_summary || {};
+      // Compute Canonical Phase 59 Intelligence Grid
       const fcList = todayFc?.forecasts || [];
+      const summary = todayFc?.summary || {};
       const highConf = fcList.filter((f: any) => (f.confidence || 0) >= 0.70).length;
 
       setPhase41Stats({
-        assets_analyzed: diag?.total_assets_scanned || fcList.length || 9,
-        forecasts_count: fcList.length || 9,
+        assets_analyzed: summary.today_forecasts || fcList.length || 9,
+        forecasts_count: summary.today_forecasts || fcList.length || 9,
         high_confidence_count: highConf,
-        actionable_signals: diag?.trade_signals_emitted || 0,
-        no_trade_forecasts: diag?.no_trade_forecasts || fcList.length || 9,
-        event_blocks: rej.HIGH_EVENT_RISK || 0,
-        rr_blocks: rej.RR_BELOW_MINIMUM || 0,
-        risk_blocks: rej.CONSENSUS_BELOW_THRESHOLD || 0,
+        actionable_signals: summary.qualified_trades || 0,
+        no_trade_forecasts: summary.no_trade_count || 0,
+        event_blocks: summary.event_blocks || 0,
+        rr_blocks: summary.rr_blocks || 0,
+        risk_blocks: summary.no_trade_count || 0,
         data_quality_pct: dh?.overall_quality_score_pct || 99.6,
         model_health_status: mh?.overall_status || 'HEALTHY',
         today_forecasts: fcList,
