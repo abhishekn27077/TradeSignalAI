@@ -201,10 +201,18 @@ class LiveForecastScheduler:
         sl = round(close_p - pip_dist if direction == "BUY" else close_p + pip_dist, 4)
         tp = round(close_p + (pip_dist * 2.0) if direction == "BUY" else close_p - (pip_dist * 2.0), 4)
 
-        # Market open & session check
+        # Market open & session check (evaluated at candle timestamp for point-in-time accuracy)
         from app.core.market_session import market_session_service
-        now_utc = datetime.now(timezone.utc)
-        market_status = market_session_service.get_market_status(asset, now_utc)
+        candle_ts_str = str(candle.get("timestamp", ""))
+        eval_dt = datetime.now(timezone.utc)
+        if candle_ts_str:
+            try:
+                parsed_dt = datetime.fromisoformat(candle_ts_str.replace("Z", "+00:00"))
+                eval_dt = parsed_dt if parsed_dt.tzinfo else parsed_dt.replace(tzinfo=timezone.utc)
+            except Exception:
+                eval_dt = datetime.now(timezone.utc)
+
+        market_status = market_session_service.get_market_status(asset, eval_dt)
         is_market_open = bool(market_status.get("is_market_open", False))
 
         # Economic event check

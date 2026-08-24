@@ -28,7 +28,7 @@ const toIST = (ts: any): string => {
   return d.toLocaleTimeString('en-IN', { timeZone: IST_TZ, hour12: false });
 };
 
-type ViewTab = 'today' | 'yesterday' | 'actionable';
+type ViewTab = 'today' | 'forecasts' | 'actionable' | 'yesterday';
 type SortKey = 'time' | 'asset' | 'confidence' | 'direction';
 
 export const TodaysSignals: React.FC = () => {
@@ -49,7 +49,6 @@ export const TodaysSignals: React.FC = () => {
 
   const [marketStatuses, setMarketStatuses] = useState<any[]>([]);
   const [todayForecasts, setTodayForecasts] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'SIGNALS' | 'FORECASTS'>('SIGNALS');
 
   const loadData = async () => {
     setLoading(true);
