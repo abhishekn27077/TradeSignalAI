@@ -91,15 +91,15 @@ export const DailyCommandCenter: React.FC = () => {
             <div className="flex items-center gap-3">
               <span className="px-3 py-1 bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-semibold rounded-full flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
-                PHASE 45 AUTONOMOUS FORWARD ACCUMULATION
+                PHASE 58.5 CANONICAL FORWARD ACCUMULATION
               </span>
-              <span className="text-slate-400 text-xs font-mono">COHORT: {liveStatus?.validation_cohort || 'PHASE43_SHADOW_V1'}</span>
+              <span className="text-slate-400 text-xs font-mono">COHORT: {liveStatus?.validation_cohort || 'PHASE_58_5_CANONICAL_COHORT'}</span>
             </div>
             <h1 className="text-2xl font-bold text-white mt-2 flex items-center gap-2">
-              Daily Forecast Command Center & Evidence Journal
+              Canonical Forecast Command Center & Evidence Journal
             </h1>
             <p className="text-slate-400 text-sm mt-1 max-w-3xl">
-              Continuous live shadow forecasting, closed candle consensus verification, zero-trust execution, and daily immutable performance tracking across all 9 core assets.
+              Unified live shadow forecasting, closed candle consensus verification, zero-trust execution, and canonical performance tracking across all 9 core assets.
             </p>
           </div>
           <div className="flex items-center gap-3">

@@ -45,161 +45,28 @@ async def get_h4_intelligence():
     """
     Returns the real-time H4 multi-model intelligence scan breakdown across all monitored assets:
     Asset | Price | Regime | Quant | Kronos | FAISS | Time Pattern | Consensus | Risk | Final
-    Separates candidates from validated signals.
+    Driven by the single authoritative CanonicalSignalService (Phase 58.5).
     """
     try:
-        import pandas as pd
-        from datetime import datetime, timezone
-        from app.market_data.providers.manager import market_provider_manager
-        from app.analytics.consensus_engine import ConsensusEngine
-        from app.analytics.feature_engine import FeatureEngine
-        from app.market_intelligence.pattern_engine import market_memory
+        from app.core.canonical_signal_service import canonical_signal_service
         from app.core.timing import CandleClock
-        from app.strategies.strategy_engine.regime_detector import MarketRegimeDetector
-        from app.database.manager import db_manager
-        from app.database.models.signal import SignalLifecycleModel
 
-        symbols = ["BTCUSD", "ETHUSD", "EURUSD", "GBPUSD", "USDJPY", "AUDUSD", "XAUUSD", "NAS100", "SPX500"]
-        regime_detector = MarketRegimeDetector()
-        consensus_engine = ConsensusEngine()
-        
         status_clock = CandleClock.get_candle_status("H4")
-        matrix = []
-        candidates = []
-        validated_signals = []
-        rejected = []
-
-        # 1. Fetch any active canonical H4 signals already in the database
-        if db_manager.get_session():
-            from sqlalchemy import select
-            async with db_manager.get_session()() as db:
-                stmt = select(SignalLifecycleModel).where(
-                    SignalLifecycleModel.timeframe.in_(["4H", "H4"]),
-                    SignalLifecycleModel.status.in_(["ACTIVE", "PENDING"])
-                ).order_by(SignalLifecycleModel.created_at.desc())
-                res = await db.execute(stmt)
-                db_active_h4 = res.scalars().all()
-                for s in db_active_h4:
-                    validated_signals.append({
-                        c.name: getattr(s, c.name) for c in s.__table__.columns
-                    })
-
-        for sym in symbols:
-            try:
-                rates = await market_provider_manager.get_rates(sym, "4H", count=100)
-                if not rates or len(rates) < 10:
-                    item = {
-                        "asset": sym,
-                        "price": "UNAVAILABLE",
-                        "regime": "UNKNOWN",
-                        "quant": "UNAVAILABLE",
-                        "kronos": "UNAVAILABLE",
-                        "faiss": "UNAVAILABLE",
-                        "time_pattern": "INSUFFICIENT_HISTORICAL_SAMPLE",
-                        "consensus": "UNAVAILABLE",
-                        "confidence_pct": 0.0,
-                        "risk": "NO_TRADE",
-                        "risk_reason": "DATA_UNAVAILABLE",
-                        "final": "NO_VALID_SETUP",
-                        "status": "REJECTED"
-                    }
-                    matrix.append(item)
-                    rejected.append(item)
-                    continue
-
-                df = pd.DataFrame(rates)
-                df = FeatureEngine.add_all_features(df)
-                latest_close = float(df['close'].iloc[-1]) if 'close' in df else float(rates[-1].get('close', 0.0))
-                
-                # Detect Regime
-                regime = regime_detector.detect_regime(df)
-                
-                # Consensus breakdown
-                c_res = consensus_engine.generate_consensus(sym, "4H", df)
-                breakdown = c_res.get("breakdown", {})
-                kronos_val = breakdown.get("kronos", 0.0)
-                kronos_dir = "BULLISH" if kronos_val > 0.001 else "BEARISH" if kronos_val < -0.001 else "NEUTRAL"
-                
-                quant_sig = c_res.get("signal", "NEUTRAL")
-                agreement_pct = c_res.get("agreement_percentage", 0.0)
-                norm_agree = agreement_pct / 100.0 if agreement_pct > 1.0 else agreement_pct
-                conf_score = c_res.get("confidence_score", 0.0)
-                norm_conf = conf_score / 100.0 if conf_score > 1.0 else conf_score
-                
-                # Zero-Trust: Direction is only valid if agreement >= 75% AND confidence >= 65%
-                is_valid_consensus = (norm_agree >= 0.75 and norm_conf >= 0.65 and quant_sig in ["BUY", "SELL", "BULLISH", "BEARISH"])
-                consensus_dir = ("BUY" if quant_sig in ["BUY", "BULLISH"] else "SELL" if quant_sig in ["SELL", "BEARISH"] else "NEUTRAL") if is_valid_consensus else "NEUTRAL"
-                
-                # FAISS check
-                latest_feats = df.drop(columns=['Future_Return_5', 'close'], errors='ignore').iloc[-1].to_dict()
-                mem_res = market_memory.find_similar_patterns(sym, "4H", latest_feats, k=50)
-                faiss_status = "VALID" if "error" not in mem_res and mem_res.get("k_matches", 0) >= 10 else "UNAVAILABLE"
-                
-                # Time pattern
-                time_pattern_status = "INSUFFICIENT_HISTORICAL_SAMPLE"
-                
-                # Risk decision
-                if is_valid_consensus:
-                    risk_decision = "TAKE_NOW"
-                    risk_reason = "CONFIRMED_CONSENSUS_BREAKOUT"
-                    final_state = "VALIDATED"
-                    cand_status = "VALIDATED"
-                else:
-                    risk_decision = "NO_TRADE"
-                    risk_reason = "CONSENSUS_BELOW_THRESHOLD" if norm_conf < 0.65 else ("LOW_AGREEMENT" if norm_agree < 0.75 else "NO_VALID_SETUP")
-                    final_state = "NO_VALID_SETUP"
-                    cand_status = "REJECTED"
-
-                row = {
-                    "asset": sym,
-                    "price": round(latest_close, 5 if latest_close < 10 else 2),
-                    "regime": regime,
-                    "quant": f"{quant_sig} ({norm_agree*100:.0f}%)",
-                    "kronos": f"{kronos_dir} ({kronos_val:+.4f})",
-                    "faiss": faiss_status,
-                    "time_pattern": time_pattern_status,
-                    "consensus": consensus_dir,
-                    "confidence_pct": round(norm_conf * 100.0, 1),
-                    "risk": risk_decision,
-                    "risk_reason": risk_reason,
-                    "final": final_state,
-                    "status": cand_status
-                }
-                matrix.append(row)
-                candidates.append(row)
-                if cand_status == "REJECTED":
-                    rejected.append(row)
-
-            except Exception as e:
-                err_row = {
-                    "asset": sym,
-                    "price": "ERROR",
-                    "regime": "ERROR",
-                    "quant": "ERROR",
-                    "kronos": "ERROR",
-                    "faiss": "ERROR",
-                    "time_pattern": "ERROR",
-                    "consensus": "ERROR",
-                    "confidence_pct": 0.0,
-                    "risk": "NO_TRADE",
-                    "risk_reason": str(e),
-                    "final": "PIPELINE_ERROR",
-                    "status": "REJECTED"
-                }
-                matrix.append(err_row)
-                rejected.append(err_row)
-
+        result = canonical_signal_service.get_h4_intelligence_matrix()
+        result["candle_boundary"] = status_clock
+        result["next_evaluation"] = status_clock.get("current_candle_close_ist") if status_clock else "—"
+        return result
+    except Exception as e:
+        logger.error(f"H4 intelligence matrix error: {e}")
         return {
-            "success": True,
-            "assets_scanned": len(symbols),
-            "valid_setups": len(validated_signals),
-            "scan_timestamp": datetime.now(timezone.utc).isoformat(),
-            "next_evaluation": status_clock.get("current_candle_close_ist") if status_clock else "—",
-            "candle_boundary": status_clock,
-            "candidates": candidates,
-            "validated_signals": validated_signals,
-            "rejected": rejected,
-            "matrix": matrix
+            "success": False,
+            "assets_scanned": 0,
+            "valid_setups": 0,
+            "error": str(e),
+            "candidates": [],
+            "validated_signals": [],
+            "rejected": [],
+            "matrix": []
         }
     except Exception as e:
         logger.error(f"H4 intelligence matrix error: {e}")

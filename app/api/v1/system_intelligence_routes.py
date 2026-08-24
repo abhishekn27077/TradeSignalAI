@@ -215,4 +215,14 @@ def get_system_bootstrap_status():
     return {"success": True, "report": report}
 
 
+# 11. Phase 58.5 Canonical Runtime Intelligence
+@router.get("/canonical-runtime", summary="Get Canonical Runtime Metadata and Observability Identifiers")
+def get_canonical_runtime():
+    from app.core.canonical_signal_service import canonical_signal_service
+    return {"success": True, "data": canonical_signal_service.get_canonical_runtime_metadata()}
 
+
+@router.get("/canonical-signals", summary="Get Canonical Multi-Model Signals Across All 9 Monitored Assets")
+def get_canonical_signals():
+    from app.core.canonical_signal_service import canonical_signal_service
+    return {"success": True, "data": canonical_signal_service.get_all_canonical_asset_states()}

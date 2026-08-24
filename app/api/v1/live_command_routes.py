@@ -1,7 +1,7 @@
 """
-Phase 45 — Live Daily Command Center & Forward Forecasting API Routes.
+Phase 58.5 — Canonical Live Daily Command Center & Evidence Journal API Routes.
 
-Exposes 10 REST endpoints:
+Exposes REST endpoints:
   - GET /api/v1/live/today
   - GET /api/v1/live/yesterday
   - GET /api/v1/live/tomorrow
@@ -16,19 +16,20 @@ Exposes 10 REST endpoints:
 from fastapi import APIRouter
 from typing import Dict, Any
 
+from app.core.canonical_signal_service import canonical_signal_service
 from app.analytics.daily_signal_journal import daily_signal_journal
 from app.runtime.live_forecast_scheduler import live_forecast_scheduler
 from app.runtime.shadow_outcome_worker import shadow_outcome_worker
 from app.analytics.shadow_ledger_engine import shadow_ledger_engine
 from app.analytics.shadow_validation_engine import shadow_validation_engine
 
-router = APIRouter(prefix="/live", tags=["Phase 45 — Live Daily Command Center"])
+router = APIRouter(prefix="/live", tags=["Phase 58.5 — Canonical Live Daily Command Center"])
 
 
 @router.get("/today")
 async def get_today_journal() -> Dict[str, Any]:
     """Returns today's signal journal with real-time forecasts, decisions, and rejection reasons."""
-    return daily_signal_journal.get_today_journal()
+    return canonical_signal_service.get_today_journal()
 
 
 @router.get("/yesterday")
@@ -97,16 +98,30 @@ async def get_daily_review() -> Dict[str, Any]:
 @router.get("/status")
 async def get_live_status() -> Dict[str, Any]:
     """Returns autonomous scheduler, outcome worker, and validation cohort status."""
+    meta = canonical_signal_service.get_canonical_runtime_metadata()
     scheduler_status = live_forecast_scheduler.get_status()
     worker_status = shadow_outcome_worker.get_status()
-    cohort_meta = shadow_validation_engine.get_cohort_metadata()
 
     return {
         "system_status": "LIVE" if not shadow_validation_engine.is_paused else "PAUSED",
+        "runtime_phase": meta["runtime_phase"],
+        "runtime_status": meta["runtime_status"],
+        "git_commit": meta["git_commit"],
+        "config_hash": meta["config_hash"],
+        "execution_mode": meta["execution_mode"],
+        "real_money_status": meta["real_money_status"],
         "scheduler": scheduler_status,
         "outcome_worker": worker_status,
-        "validation_cohort": cohort_meta.get("validation_cohort", "PHASE43_SHADOW_V1"),
-        "model_version": cohort_meta.get("model_version", "3.2.0-frozen"),
+        "validation_cohort": "PHASE_58_5_CANONICAL_COHORT",
+        "model_version": "3.2.0-frozen",
         "zero_trust_active": True,
+        "timestamps": {
+            "last_market_data_at": meta["last_market_data_at"],
+            "last_forecast_at": meta["last_forecast_at"],
+            "last_consensus_at": meta["last_consensus_at"],
+            "last_qualification_at": meta["last_qualification_at"],
+            "last_ui_sync_at": meta["last_ui_sync_at"],
+        },
         "real_money_execution": "DISABLED_SAFETY_ENFORCED",
     }
+
