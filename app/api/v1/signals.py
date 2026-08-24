@@ -188,6 +188,7 @@ async def get_today_signals():
                         continue
                     row = {c.name: getattr(s, c.name) for c in s.__table__.columns}
                     row["time_ist_formatted"] = market_clock.format_ist(s.created_at)
+                    row["signal_scope"] = "HISTORICAL"
                     for k, v in row.items():
                         if hasattr(v, 'isoformat'):
                             row[k] = v.isoformat()
@@ -196,9 +197,9 @@ async def get_today_signals():
         except Exception as e:
             logger.warning(f"Failed to fetch today's signals: {e}")
             
-        return {"success": True, "signals": signals, "count": len(signals)}
+        return {"success": True, "signal_scope": "HISTORICAL", "signals": signals, "count": len(signals)}
     except Exception as e:
-        return {"success": False, "signals": [], "message": str(e)}
+        return {"success": False, "signal_scope": "HISTORICAL", "signals": [], "message": str(e)}
 
 @router.get("/yesterday", summary="Get Yesterday's Signals and Results (IST)")
 async def get_yesterday_signals():
@@ -221,6 +222,7 @@ async def get_yesterday_signals():
                 for s in db_signals:
                     row = {c.name: getattr(s, c.name) for c in s.__table__.columns}
                     row["time_ist_formatted"] = market_clock.format_ist(s.created_at)
+                    row["signal_scope"] = "HISTORICAL"
                     for k, v in row.items():
                         if hasattr(v, 'isoformat'):
                             row[k] = v.isoformat()
@@ -229,9 +231,9 @@ async def get_yesterday_signals():
         except Exception as e:
             logger.warning(f"Failed to fetch yesterday's signals: {e}")
             
-        return {"success": True, "signals": signals, "count": len(signals)}
+        return {"success": True, "signal_scope": "HISTORICAL", "signals": signals, "count": len(signals)}
     except Exception as e:
-        return {"success": False, "signals": [], "message": str(e)}
+        return {"success": False, "signal_scope": "HISTORICAL", "signals": [], "message": str(e)}
 
 @router.get("/active", summary="Get Active Signals")
 async def get_active_signals():

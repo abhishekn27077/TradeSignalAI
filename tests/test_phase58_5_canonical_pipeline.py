@@ -36,9 +36,9 @@ def client():
 # ── 1. Canonical Runtime Identity ─────────────────────────────────────────────
 
 def test_canonical_runtime_identity():
-    """Verify runtime identity is canonical Phase 58.5 / 59 with config hash 79a4f8e12b79310d."""
+    """Verify runtime identity is canonical with config hash 79a4f8e12b79310d."""
     meta = canonical_signal_service.get_canonical_runtime_metadata()
-    assert meta["runtime_phase"] in ["PHASE 58.5", "PHASE 59"]
+    assert meta["runtime_phase"] in ["PHASE 58.5", "PHASE 59", "PHASE 60"]
     assert meta["config_hash"] == "79a4f8e12b79310d"
     assert meta["runtime_status"] == "CANONICAL_LIVE_SYNCHRONIZED"
     assert meta["real_money_status"] == "STRICTLY_DISABLED"
@@ -52,7 +52,7 @@ def test_canonical_runtime_api_endpoint(client):
     assert res.status_code == 200
     data = res.json()
     assert data["success"] is True
-    assert data["data"]["runtime_phase"] in ["PHASE 58.5", "PHASE 59"]
+    assert data["data"]["runtime_phase"] in ["PHASE 58.5", "PHASE 59", "PHASE 60"]
     assert data["data"]["config_hash"] == "79a4f8e12b79310d"
     assert data["data"]["real_money_status"] == "STRICTLY_DISABLED"
 
@@ -187,12 +187,12 @@ def test_multi_page_state_consistency(client):
 # ── 9. Historical Phase Isolation ─────────────────────────────────────────────
 
 def test_historical_phase_isolation(client):
-    """Verify live status endpoints return Phase 58.5/59 canonical cohort and no legacy phase pollution."""
+    """Verify live status endpoints return canonical cohort and no legacy phase pollution."""
     res = client.get("/api/v1/live/status")
     assert res.status_code == 200
     data = res.json()
     
-    assert data["runtime_phase"] in ["PHASE 58.5", "PHASE 59"]
+    assert data["runtime_phase"] in ["PHASE 58.5", "PHASE 59", "PHASE 60"]
     assert data["config_hash"] == "79a4f8e12b79310d"
     assert "CANONICAL_COHORT" in data["validation_cohort"]
     assert data["system_status"] == "LIVE"

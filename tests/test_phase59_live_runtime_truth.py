@@ -41,9 +41,9 @@ def test_runtime_truth_endpoint(client):
     data = res.json()
 
     assert data["engine"] == "TradeSignalAI"
-    assert data["phase"] == "59"
-    assert data["engine_version"] == "59.0.0-canonical"
-    assert data["canonical_engine_version"] == "59.0.0-canonical"
+    assert data["phase"] in ["59", "60"]
+    assert data["engine_version"] in ["59.0.0-canonical", "60.0.0-canonical"]
+    assert data["canonical_engine_version"] in ["59.0.0-canonical", "60.0.0-canonical"]
     assert data["config_hash"] == CONFIG_HASH
     assert isinstance(data["backend_pid"], int)
     assert data["backend_pid"] > 0
@@ -52,7 +52,7 @@ def test_runtime_truth_endpoint(client):
     assert data["execution_mode"] == "DEMO"
     assert data["real_money_enabled"] is False
     assert data["broker_execution_enabled"] is False
-    assert data["canonical_state_id"].startswith("STATE-59-")
+    assert data["canonical_state_id"].startswith(("STATE-59-", "SNAP-"))
 
 
 # ── 2. Response Fingerprint Headers ──────────────────────────────────────────
@@ -71,7 +71,7 @@ def test_canonical_response_fingerprint_headers(client):
     assert "X-Market-Data-Timestamp" in headers
 
     assert headers["X-Config-Hash"] == CONFIG_HASH
-    assert headers["X-Canonical-State-ID"].startswith("STATE-59-")
+    assert headers["X-Canonical-State-ID"].startswith(("STATE-59-", "SNAP-"))
 
 
 # ── 3. FAISS Explicit Unavailable Semantics ──────────────────────────────────
@@ -128,7 +128,7 @@ def test_canonical_signal_schema_completeness():
         for k in required_keys:
             assert k in st, f"Missing key '{k}' in canonical state for {st.get('asset')}"
         assert st["config_hash"] == CONFIG_HASH
-        assert st["engine_version"] == "59.0.0-canonical"
+        assert st["engine_version"] in ["59.0.0-canonical", "60.0.0-canonical"]
         assert st["timeframe"] == "4H"
         assert st["risk_reward"] >= 1.5
 
@@ -158,7 +158,7 @@ def test_cross_page_consistency_9_assets(client):
     sys_res = client.get("/api/v1/system-intelligence/canonical-signals").json()
 
     assert h4_res["success"] is True
-    assert daily_res["runtime_version"] == "PHASE 59"
+    assert daily_res["runtime_version"] in ["PHASE 59", "PHASE 60"]
     assert sys_res["success"] is True
 
     for asset in CORE_ASSETS:

@@ -239,7 +239,10 @@ def get_runtime_truth():
         "server_start_time": meta["server_start_time"],
         "market_data_timestamp": meta["market_data_timestamp"],
         "canonical_engine_version": meta["canonical_engine_version"],
-        "canonical_state_id": meta["canonical_state_id"]
+        "canonical_state_id": meta["canonical_state_id"],
+        "snapshot_id": meta.get("snapshot_id", meta["canonical_state_id"]),
+        "canonical_snapshot_id": meta.get("snapshot_id", meta["canonical_state_id"]),
+        "data_sequence": meta.get("data_sequence", 1),
     }
 
 

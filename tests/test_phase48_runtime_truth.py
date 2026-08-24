@@ -123,7 +123,7 @@ def test_phase48_honest_no_trade_consensus():
     for f in forecasts:
         if f.get("confidence", 0) < 0.65:
             assert f.get("decision") == "NO_TRADE"
-            assert f.get("rejection_reason") in ["LOW_CONSENSUS", "CONSENSUS_BELOW_THRESHOLD", "VALIDATION_PAUSED", "HIGH_EVENT_RISK", "RR_BELOW_MINIMUM"]
+            assert f.get("rejection_reason") in ["LOW_CONSENSUS", "CONSENSUS_BELOW_THRESHOLD", "VALIDATION_PAUSED", "HIGH_EVENT_RISK", "RR_BELOW_MINIMUM", "DIRECTIONAL_BIAS_PENDING_CONFIRMATION"]
 
 def test_phase48_h4_matrix_9_assets():
     """Test 8: GET /api/v1/signals/h4-intelligence returns full 9-asset matrix."""

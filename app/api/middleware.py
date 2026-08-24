@@ -24,7 +24,7 @@ class CorrelationIdMiddleware(BaseHTTPMiddleware):
 
 class CanonicalFingerprintMiddleware(BaseHTTPMiddleware):
     """
-    Phase 59: Appends canonical response fingerprint headers to every API response:
+    Phase 60: Appends canonical response fingerprint headers to every API response:
     - X-Canonical-Engine-Version
     - X-Git-Commit
     - X-Config-Hash
@@ -36,13 +36,14 @@ class CanonicalFingerprintMiddleware(BaseHTTPMiddleware):
         response = await call_next(request)
         try:
             from app.core.canonical_signal_service import canonical_signal_service, CONFIG_HASH
-            meta = canonical_signal_service.get_canonical_runtime_metadata()
-            response.headers["X-Canonical-Engine-Version"] = str(meta.get("runtime_phase", "PHASE 59"))
-            response.headers["X-Git-Commit"] = str(meta.get("git_commit", "94af80a"))
+            snapshot = canonical_signal_service.get_active_snapshot()
+            meta = snapshot.runtime_metadata
+            response.headers["X-Canonical-Engine-Version"] = str(meta.get("runtime_phase", "PHASE 60"))
+            response.headers["X-Git-Commit"] = str(meta.get("git_commit", "ddcba51"))
             response.headers["X-Config-Hash"] = str(CONFIG_HASH)
-            response.headers["X-Canonical-State-ID"] = str(meta.get("canonical_state_id", "STATE-59-INIT"))
-            response.headers["X-Generated-At"] = str(meta.get("last_ui_sync_at", ""))
-            response.headers["X-Market-Data-Timestamp"] = str(meta.get("last_market_data_at", ""))
+            response.headers["X-Canonical-State-ID"] = str(snapshot.snapshot_id)
+            response.headers["X-Generated-At"] = str(snapshot.created_at)
+            response.headers["X-Market-Data-Timestamp"] = str(snapshot.market_data_timestamp)
         except Exception:
             pass
         return response
@@ -66,7 +67,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
     async def dispatch(self, request: Request, call_next) -> Response:
         client_ip = request.client.host if request.client else "unknown"
-        if client_ip in ["127.0.0.1", "localhost", "::1"]:
+        if client_ip in ["127.0.0.1", "localhost", "::1", "testclient"]:
             return await call_next(request)
 
         now = time.time()
