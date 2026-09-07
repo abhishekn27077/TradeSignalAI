@@ -242,6 +242,7 @@ def get_runtime_truth():
         "canonical_state_id": meta["canonical_state_id"],
         "snapshot_id": meta.get("snapshot_id", meta["canonical_state_id"]),
         "canonical_snapshot_id": meta.get("snapshot_id", meta["canonical_state_id"]),
+        "snapshot_content_hash": meta.get("snapshot_content_hash", ""),
         "data_sequence": meta.get("data_sequence", 1),
     }
 

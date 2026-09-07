@@ -30,9 +30,15 @@ export const SignalsPage: React.FC = () => {
     setLoading(true);
     try {
       const data = await api.signals.live();
-      setLiveSignals(data || []);
+      const safeData = Array.isArray(data)
+        ? data
+        : (Array.isArray((data as any)?.live_signals)
+            ? (data as any).live_signals
+            : (Array.isArray((data as any)?.live_qualified_signals) ? (data as any).live_qualified_signals : []));
+      setLiveSignals(safeData);
     } catch (err) {
       console.error('Failed to load live signals:', err);
+      setLiveSignals([]);
     } finally {
       setLoading(false);
     }
@@ -51,7 +57,7 @@ export const SignalsPage: React.FC = () => {
   }, [liveSignals]);
 
   return (
-    <div className="h-full flex flex-col gap-3 p-3 overflow-hidden bg-trading-dark">
+    <div className="h-full flex flex-col gap-3 p-3 overflow-y-auto bg-trading-dark min-h-full pb-16">
       <div className="flex items-center justify-between shrink-0">
         <h1 className="text-sm font-semibold text-text-primary flex items-center gap-2">
           <Activity className="w-4 h-4 text-accent-blue" /> Live Signal Panel

@@ -8,6 +8,19 @@ class SystemHealthCenter:
         """
         Gathers system metrics.
         """
+        try:
+            mem = psutil.virtual_memory().percent
+        except Exception:
+            mem = 0.0
+        try:
+            cpu = psutil.cpu_percent(interval=None)
+        except Exception:
+            cpu = 0.0
+        try:
+            disk = psutil.disk_usage('.').percent
+        except Exception:
+            disk = 0.0
+
         return {
             "status": "healthy",
             "backend": "online",
@@ -18,9 +31,9 @@ class SystemHealthCenter:
             "decision_engine": "online",
             "websocket": "active",
             "api_latency_ms": 45,
-            "memory_usage_pct": psutil.virtual_memory().percent,
-            "cpu_usage_pct": psutil.cpu_percent(interval=0.1),
-            "storage_usage_pct": psutil.disk_usage('/').percent
+            "memory_usage_pct": mem,
+            "cpu_usage_pct": cpu,
+            "storage_usage_pct": disk
         }
 
 system_health = SystemHealthCenter()

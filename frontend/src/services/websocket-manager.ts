@@ -41,6 +41,7 @@ class WebSocketManager {
       this.reconnectDelay = 3000;  // reset backoff on successful connection
       this.resubscribeAll();
       this.startHeartbeat();
+      this.emit('connection_state', { connected: true });
     };
 
     this.ws.onmessage = (event) => {
@@ -66,6 +67,7 @@ class WebSocketManager {
     this.ws.onclose = () => {
       this._isConnected = false;
       this.stopHeartbeat();
+      this.emit('connection_state', { connected: false });
       if (!this.intentionalClose) {
         this.scheduleReconnect();
       }
@@ -74,6 +76,13 @@ class WebSocketManager {
     this.ws.onerror = () => {
       this.ws?.close();
     };
+  }
+
+  emit(event: string, data: unknown) {
+    const handlers = this.handlers.get(event);
+    if (handlers) {
+      handlers.forEach((h) => h(data));
+    }
   }
 
   disconnect() {

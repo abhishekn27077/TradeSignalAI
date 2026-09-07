@@ -29,57 +29,64 @@ from app.strategies.Backtesting import (
 router = APIRouter(prefix="/analysis", tags=["Phase 51 Market Intelligence & Analysis"])
 
 
-def _load_asset_candles(asset: str, timeframe: str = "1H", limit: int = 100) -> pd.DataFrame:
-    """Helper to load OHLCV data from database or generate deterministic historical simulation."""
+def _load_asset_candles(asset: str, timeframe: str = "1H", limit: int = 150) -> pd.DataFrame:
+    """Loads authentic OHLCV candlestick data from historical_candles in SQLite."""
+    import sqlite3
     try:
-        from app.database.models.historical_candle import HistoricalCandle
-        with get_db_session() as db:
-            candles = db.query(HistoricalCandle).filter(
-                HistoricalCandle.symbol == asset,
-                HistoricalCandle.timeframe == timeframe
-            ).order_by(HistoricalCandle.timestamp.desc()).limit(limit).all()
+        conn = sqlite3.connect("tradesignal.db")
+        cur = conn.cursor()
+        tf_variants = [timeframe, timeframe.lower(), timeframe.upper()]
+        cur.execute(
+            """
+            SELECT timestamp, open, high, low, close, volume
+            FROM historical_candles
+            WHERE symbol = ? AND timeframe IN (?, ?, ?)
+            ORDER BY timestamp DESC LIMIT ?
+            """,
+            (asset.upper(), tf_variants[0], tf_variants[1], tf_variants[2], limit),
+        )
+        rows = cur.fetchall()
+        conn.close()
 
-            if candles and len(candles) >= 15:
-                candles = sorted(candles, key=lambda c: c.timestamp)
-                return pd.DataFrame([{
-                    "timestamp": c.timestamp,
-                    "open": float(c.open),
-                    "high": float(c.high),
-                    "low": float(c.low),
-                    "close": float(c.close),
-                    "volume": float(c.volume) if c.volume else 1000.0
-                } for c in candles])
-    except Exception:
+        if rows and len(rows) >= 15:
+            rows = list(reversed(rows))
+            df = pd.DataFrame(
+                [
+                    {
+                        "timestamp": pd.to_datetime(r[0]),
+                        "open": float(r[1]),
+                        "high": float(r[2]),
+                        "low": float(r[3]),
+                        "close": float(r[4]),
+                        "volume": float(r[5]) if r[5] else 1000.0,
+                    }
+                    for r in rows
+                ]
+            )
+            df.set_index("timestamp", inplace=True)
+            return df
+    except Exception as e:
         pass
 
-    # Fallback to realistic deterministic series for analysis if DB is offline or cold
-    n = max(30, limit)
-    base_time = MarketClockService.get_current_utc() - pd.Timedelta(hours=n)
-    dates = [base_time + pd.Timedelta(hours=i) for i in range(n)]
-
-    # Dynamic seed based on asset symbol
-    seed = sum([ord(c) for c in asset])
-    np.random.seed(seed)
-    base_price = 2000.0 if "XAU" in asset else (60000.0 if "BTC" in asset else 1.0800)
-    walk = np.cumsum(np.random.normal(0.0002, 0.001, n)) * base_price
-    closes = base_price + walk
-    highs = closes + np.abs(np.random.normal(0, 0.0015 * base_price, n))
-    lows = closes - np.abs(np.random.normal(0, 0.0015 * base_price, n))
-    opens = closes + np.random.normal(0, 0.0005 * base_price, n)
-
-    return pd.DataFrame({
-        "timestamp": dates,
-        "open": opens,
-        "high": highs,
-        "low": lows,
-        "close": closes,
-        "volume": np.random.uniform(500, 2500, n)
-    })
+    return pd.DataFrame()
 
 
 @router.get("/structure/{asset}")
+@router.get("/structure/{asset}")
 async def get_market_structure(asset: str, timeframe: str = "1H"):
     df = _load_asset_candles(asset, timeframe)
+    if df.empty or len(df) < 15:
+        return {
+            "asset": asset,
+            "timeframe": timeframe,
+            "status": "INSUFFICIENT_DATA",
+            "strength": {"trend": "RANGE", "score": 0.0, "state": "NO_TRADE", "reason": "INSUFFICIENT_HISTORICAL_BARS"},
+            "recent_swings": [],
+            "bos_events": [],
+            "choch_events": [],
+            "msb_events": [],
+        }
+
     detector = SwingDetector(left_len=3, right_len=3)
     bos_engine = BOSEngine(swing_len=3)
     choch_engine = CHoCHEngine(swing_len=3)
@@ -95,6 +102,7 @@ async def get_market_structure(asset: str, timeframe: str = "1H"):
     return {
         "asset": asset,
         "timeframe": timeframe,
+        "status": "VALID",
         "strength": strength,
         "recent_swings": [s.to_dict() for s in swings[-6:]],
         "bos_events": [b.to_dict() for b in bos[-4:]],
@@ -106,6 +114,16 @@ async def get_market_structure(asset: str, timeframe: str = "1H"):
 @router.get("/smart-money/{asset}")
 async def get_smart_money_concepts(asset: str, timeframe: str = "1H"):
     df = _load_asset_candles(asset, timeframe)
+    if df.empty or len(df) < 15:
+        return {
+            "asset": asset,
+            "timeframe": timeframe,
+            "status": "INSUFFICIENT_DATA",
+            "dealing_range": {"zone": "EQUILIBRIUM", "discount_pct": 50.0},
+            "order_blocks": [],
+            "fair_value_gaps": [],
+        }
+
     ob_engine = OrderBlockEngine(swing_len=3)
     fvg_engine = FVGEngine()
     range_engine = PremiumDiscountEngine(swing_len=3)
@@ -117,6 +135,7 @@ async def get_smart_money_concepts(asset: str, timeframe: str = "1H"):
     return {
         "asset": asset,
         "timeframe": timeframe,
+        "status": "VALID",
         "dealing_range": dealing_range.to_dict(),
         "order_blocks": [ob.to_dict() for ob in obs[-6:]],
         "fair_value_gaps": [f.to_dict() for f in fvgs[-6:]],
@@ -126,6 +145,15 @@ async def get_smart_money_concepts(asset: str, timeframe: str = "1H"):
 @router.get("/liquidity/{asset}")
 async def get_liquidity_pools(asset: str, timeframe: str = "1H"):
     df = _load_asset_candles(asset, timeframe)
+    if df.empty or len(df) < 15:
+        return {
+            "asset": asset,
+            "timeframe": timeframe,
+            "status": "INSUFFICIENT_DATA",
+            "liquidity_pools": [],
+            "liquidity_sweeps": [],
+        }
+
     liq_engine = LiquidityEngine(swing_len=3)
     sweep_detector = LiquiditySweepDetector()
 
@@ -135,6 +163,7 @@ async def get_liquidity_pools(asset: str, timeframe: str = "1H"):
     return {
         "asset": asset,
         "timeframe": timeframe,
+        "status": "VALID",
         "liquidity_pools": [p.to_dict() for p in pools[-8:]],
         "liquidity_sweeps": [s.to_dict() for s in sweeps[-6:]],
     }
@@ -143,6 +172,17 @@ async def get_liquidity_pools(asset: str, timeframe: str = "1H"):
 @router.get("/sessions/{asset}")
 async def get_sessions_and_killzones(asset: str, timeframe: str = "1H"):
     df = _load_asset_candles(asset, timeframe)
+    if df.empty or len(df) < 15:
+        return {
+            "asset": asset,
+            "timeframe": timeframe,
+            "status": "INSUFFICIENT_DATA",
+            "is_killzone": False,
+            "current_session": "OUT_OF_SESSION",
+            "asian_high_swept": False,
+            "asian_low_swept": False,
+        }
+
     engine = SessionEngine()
     profile = engine.evaluate_session(df)
     return profile.to_dict()
@@ -151,6 +191,9 @@ async def get_sessions_and_killzones(asset: str, timeframe: str = "1H"):
 @router.get("/technical/{asset}")
 async def get_technical_evidence(asset: str, timeframe: str = "1H"):
     df = _load_asset_candles(asset, timeframe)
+    if df.empty or len(df) < 15:
+        return {"status": "INSUFFICIENT_DATA", "evidence": {}}
+
     engine = TechnicalEvidenceEngine()
     evidence = engine.evaluate_evidence(df, asset=asset, timeframe=timeframe)
     return {k: v.to_dict() for k, v in evidence.items()}
@@ -159,6 +202,9 @@ async def get_technical_evidence(asset: str, timeframe: str = "1H"):
 @router.get("/regime/{asset}")
 async def get_market_regime(asset: str, timeframe: str = "1H"):
     df = _load_asset_candles(asset, timeframe)
+    if df.empty or len(df) < 15:
+        return {"status": "INSUFFICIENT_DATA", "regime": "UNKNOWN", "confidence": 0.0}
+
     classifier = RegimeClassifier()
     regime = classifier.classify_regime(df, asset=asset, timeframe=timeframe)
     return regime.to_dict()
@@ -167,6 +213,17 @@ async def get_market_regime(asset: str, timeframe: str = "1H"):
 @router.get("/confluence/{asset}")
 async def get_confluence_score(asset: str, timeframe: str = "1H"):
     df = _load_asset_candles(asset, timeframe)
+    if df.empty or len(df) < 15:
+        return {
+            "asset": asset,
+            "timeframe": timeframe,
+            "status": "INSUFFICIENT_DATA",
+            "total_score": 0.0,
+            "rating": "NO_TRADE",
+            "decision": "NO_TRADE",
+            "reason": "INSUFFICIENT_HISTORICAL_BARS",
+        }
+
     struct_engine = StructureStrengthEngine(swing_len=3)
     regime_engine = RegimeClassifier()
     confluence_engine = ConfluenceEngine()
@@ -199,6 +256,25 @@ async def get_confluence_score(asset: str, timeframe: str = "1H"):
 async def get_full_market_intelligence(asset: str, timeframe: str = "1H"):
     """Unified endpoint powering the Frontend Market Intelligence Panel."""
     df = _load_asset_candles(asset, timeframe)
+    if df.empty or len(df) < 15:
+        return {
+            "asset": asset,
+            "timeframe": timeframe,
+            "status": "INSUFFICIENT_DATA",
+            "confluence": {
+                "total_score": 0.0,
+                "rating": "NO_TRADE",
+                "decision": "NO_TRADE",
+                "reason": "INSUFFICIENT_HISTORICAL_BARS (Need >= 15 bars)",
+            },
+            "regime": {"regime": "UNKNOWN", "confidence": 0.0},
+            "strategy": {"selected_strategy": "NONE", "status": "INSUFFICIENT_DATA"},
+            "dealing_range": {"zone": "EQUILIBRIUM"},
+            "session": {"is_killzone": False, "current_session": "OUT_OF_SESSION"},
+            "structure": {"trend": "RANGE", "score": 0.0, "state": "NO_TRADE"},
+            "timestamp_ist": MarketClockService.format_ist(MarketClockService.get_current_utc()),
+        }
+
     struct_engine = StructureStrengthEngine(swing_len=3)
     regime_engine = RegimeClassifier()
     range_engine = PremiumDiscountEngine(swing_len=3)
@@ -241,6 +317,7 @@ async def get_full_market_intelligence(asset: str, timeframe: str = "1H"):
     return {
         "asset": asset,
         "timeframe": timeframe,
+        "status": "VALID",
         "confluence": confluence.to_dict(),
         "regime": regime_res.to_dict(),
         "strategy": routed.to_dict(),

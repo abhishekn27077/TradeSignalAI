@@ -94,12 +94,28 @@ class ExecutionCoordinator:
             }
             
         from app.execution.failsafe import failsafe_manager
-        
-        # We simulate a basic account state for the failsafe check
+
+        # Read real account state for failsafe checks (not hardcoded zeros)
+        try:
+            from app.paper_trading.account_manager import account_manager
+            accounts = list(account_manager.accounts.values())
+            if accounts:
+                acc = accounts[0]
+                initial_balance = 100000.0  # matches paper executor default
+                daily_loss_pct = max(0.0, (initial_balance - acc.balance) / initial_balance * 100)
+                max_equity = max(initial_balance, acc.equity)
+                drawdown_pct = ((max_equity - acc.equity) / max_equity * 100) if max_equity > 0 else 0.0
+                broker_connected = True  # paper broker is always "connected"
+            else:
+                daily_loss_pct, drawdown_pct, broker_connected = 0.0, 0.0, True
+        except Exception:
+            daily_loss_pct, drawdown_pct, broker_connected = 0.0, 0.0, True
+
         account_state = {
-            "daily_loss_pct": 0.0,
-            "drawdown_pct": 0.0,
-            "broker_connected": True
+            "daily_loss_pct": daily_loss_pct,
+            "drawdown_pct": drawdown_pct,
+            "broker_connected": broker_connected,
+            "equity": acc.equity if accounts else 100000.0,
         }
         
         can_execute, failsafe_reason = failsafe_manager.evaluate_failsafes(account_state, trade_proposal)

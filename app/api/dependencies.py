@@ -14,18 +14,32 @@ async def get_db(session: AsyncSession = Depends(get_db_session)) -> AsyncSessio
     return session
 
 async def get_current_user(token: str = Depends(oauth2_scheme)):
+    """Require a valid JWT token. Returns None (401) if no valid token is present."""
     if not token:
-        # Fallback or allow anonymous? No, we should return anonymous for optional routes
-        # But for required routes, we need a RoleChecker
-        return {"user_id": "anonymous", "role": "viewer"}
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated: missing token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     try:
         from app.auth.security import verify_token
         user = verify_token(token)
-        if user:
-            return user
+        if user is None or user.get("user_id") == "anonymous":
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid or expired token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        return user
+    except HTTPException:
+        raise
     except Exception as e:
         logger.debug(f"Token verification failed: {e}")
-    return {"user_id": "anonymous", "role": "viewer"}
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token verification error",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
 def require_role(allowed_roles: list[str]):
     async def role_checker(user: dict = Depends(get_current_user)):

@@ -72,7 +72,9 @@ class StartupSyncService:
         try:
             import os
             if os.path.exists("tradesignal.db"):
-                conn = sqlite3.connect("tradesignal.db")
+                conn = sqlite3.connect("tradesignal.db", timeout=30.0, check_same_thread=False)
+                conn.execute("PRAGMA journal_mode=WAL;")
+                conn.execute("PRAGMA busy_timeout=30000;")
                 cur = conn.cursor()
                 for r in rates:
                     cur.execute(

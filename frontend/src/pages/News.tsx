@@ -23,7 +23,7 @@ export const NewsPage: React.FC = () => {
   const displayNews = storeNews;
 
   return (
-    <div className="h-full flex flex-col gap-3 p-3 overflow-hidden bg-trading-dark">
+    <div className="h-full flex flex-col gap-3 p-3 overflow-y-auto bg-trading-dark min-h-full pb-16">
       <div className="flex items-center justify-between shrink-0">
         <h1 className="text-sm font-semibold text-text-primary flex items-center gap-2">
           <Newspaper className="w-4 h-4 text-accent-blue" /> Market Intelligence

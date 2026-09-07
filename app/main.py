@@ -109,6 +109,29 @@ async def lifespan(app: FastAPI):
     await data_sync_service.ensure_symbols_registered()
     # asyncio.create_task(data_sync_service.start())
 
+    # Phase 60+: Live Market Data Refresher — fetch fresh candles at startup,
+    # then refresh every 5 minutes in the background so models never run on stale data.
+    from app.market_data.live_refresher import refresh_all_async
+
+    async def _live_data_refresh_loop():
+        # Initial refresh at startup
+        try:
+            result = await refresh_all_async()
+            logger.info(f"Startup live data refresh: {result['total_updated']} candles updated")
+        except Exception as e:
+            logger.warning(f"Startup live data refresh failed: {e}")
+        # Then refresh every 5 minutes
+        while True:
+            await asyncio.sleep(300)
+            try:
+                result = await refresh_all_async()
+                if result["total_updated"] > 0:
+                    logger.info(f"Periodic live data refresh: {result['total_updated']} candles updated")
+            except Exception as e:
+                logger.debug(f"Periodic live data refresh failed: {e}")
+
+    asyncio.create_task(_live_data_refresh_loop())
+
     # Initialize Forecast Engine Registry
     from app.forecast_engine.registry.manager import model_registry
     await model_registry.ensure_default_providers()

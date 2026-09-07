@@ -26,7 +26,9 @@ const mainNav: NavItem[] = [
   {
     id: 'signals-group', label: 'Signals', icon: <Zap className="w-4 h-4" />,
     children: [
-      { id: 'todays-signals', label: "Today's Signals", icon: <Zap className="w-3.5 h-3.5" /> },
+      { id: 'trade-terminal', label: 'Trade Signal Terminal (P69A)', icon: <Zap className="w-3.5 h-3.5 text-cyan-400" /> },
+      { id: 'signal-feed-schedule', label: 'Signal Feed & Schedule (P64)', icon: <Radio className="w-3.5 h-3.5" /> },
+      { id: 'todays-signals', label: "Today's Signals", icon: <Clock className="w-3.5 h-3.5" /> },
       { id: 'market-structure', label: 'Smart Money & Structure (P51)', icon: <Layers className="w-3.5 h-3.5" /> },
       { id: 'h4-forecasts-new', label: 'H4 Forecasts', icon: <Clock className="w-3.5 h-3.5" /> },
       { id: 'swing-signals', label: 'Swing Signals', icon: <TrendingUp className="w-3.5 h-3.5" /> },

@@ -144,17 +144,23 @@ class TestOutcomeEngine:
     async def test_unresolved_when_not_expired(self):
         now = datetime.now(timezone.utc)
         future_expiry = now + timedelta(hours=2)
-        result = await self.engine.resolve(
-            symbol="BTCUSD",
-            timeframe="H4",
-            direction="BUY",
-            entry_price=100.0,
-            stop_loss=95.0,
-            take_profit=110.0,
-            signal_time=now - timedelta(hours=1),
-            expiry_time=future_expiry,
-        )
-        assert result.outcome == OUTCOME_UNRESOLVED
+        candles = [_make_candle(now - timedelta(minutes=30), high=100.5, low=99.5, close=100.0)]
+        with patch(
+            "app.execution.outcome_engine.market_service.get_rates",
+            new_callable=AsyncMock,
+            return_value=candles,
+        ):
+            result = await self.engine.resolve(
+                symbol="BTCUSD",
+                timeframe="H4",
+                direction="BUY",
+                entry_price=100.0,
+                stop_loss=95.0,
+                take_profit=110.0,
+                signal_time=now - timedelta(hours=1),
+                expiry_time=future_expiry,
+            )
+            assert result.outcome == OUTCOME_UNRESOLVED
 
     @pytest.mark.asyncio
     async def test_data_unavailable(self):

@@ -148,7 +148,17 @@ export const api = {
     getById: (signalId: string) =>
       request<ApiResponse>(`/signals/${encodeURIComponent(signalId)}`).then(r => extractData<any>(r, 'signal')),
     live: () =>
-      request<ApiResponse>('/signals/live').then(r => extractData<any[]>(r, 'live_signals')),
+      request<ApiResponse>('/signals/live').then(r => {
+        if (Array.isArray(r)) return r;
+        if (r && typeof r === 'object') {
+          const obj = r as Record<string, any>;
+          if (Array.isArray(obj.live_signals)) return obj.live_signals;
+          if (Array.isArray(obj.live_qualified_signals)) return obj.live_qualified_signals;
+          if (Array.isArray(obj.signals)) return obj.signals;
+          if (Array.isArray(obj.data)) return obj.data;
+        }
+        return [];
+      }),
     today: () =>
       request<ApiResponse>('/signals/today').then(r => extractData<any[]>(r, 'signals')),
     upcoming: () =>

@@ -1,0 +1,21 @@
+title = "TradeSignalAI-v3 Gitleaks Configuration"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Global allowlist for harmless placeholders and test mocks"
+paths = [
+    '''^\.env\.example$''',
+    '''^\.env\.template$''',
+    '''^tests/test_security_hardening\.py$''',
+    '''^tests/test_phase60_security_audit\.py$''',
+    '''^docs/SECURITY_SECRET_HARDENING_REPORT\.md$'''
+]
+regexes = [
+    '''(?i)your_[a-zA-Z0-9_]+_here''',
+    '''(?i)test_secret_key''',
+    '''(?i)dummy_[a-zA-Z0-9_]+''',
+    '''\[REDACTED\]''',
+    '''\[REDACTED_[A-Z_]+\]'''
+]

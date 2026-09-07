@@ -144,15 +144,34 @@ def test_response_fingerprint_header_integrity(client):
 # ── 5. Market Data Freshness & Stale Gate ─────────────────────────────────────
 
 def test_market_data_freshness_enforcement():
-    """Verify market data age < 120s is FRESH, and stale data gates to NO_TRADE."""
+    """Verify market data freshness is computed from real candle age.
+
+    Freshness is timeframe-aware: hourly candles are FRESH if < 2h old.
+    The old '< 120s' assertion only passed because age_seconds was hardcoded
+    to 0.5 (fake). Now real age is computed from the newest candle timestamp.
+    """
     snapshot = canonical_signal_service.get_active_snapshot()
     for sym, st in snapshot.asset_states.items():
         freshness = st["data_freshness"]
-        assert freshness["status"] == "FRESH"
-        assert freshness["age_seconds"] < 120.0
+        assert freshness["status"] in ("FRESH", "STALE", "INVALID")
+        assert freshness["age_seconds"] >= 0.0
+        # Consistency: FRESH hourly data must be < 2h old
+        if freshness["status"] == "FRESH":
+            assert freshness["age_seconds"] < 7200.0
 
 
-# ── 6. Explicit FAISS UNAVAILABLE Semantics ──────────────────────────────────
+# ── 6. Invalid Market Data Rejection ─────────────────────────────────────────
+
+def test_invalid_market_data_rejection():
+    """Verify invalid prices (<= 0, NaN, Inf) gate directly to NO_TRADE."""
+    res_zero = canonical_signal_service.evaluate_adversarial_scenario("BTCUSD", market_data_override={"price": 0.0})
+    assert res_zero["data_freshness"]["status"] == "INVALID"
+    assert res_zero["decision"] == "NO_TRADE"
+    assert res_zero["is_trade_signal_qualified"] is False
+    assert "INVALID_MARKET_DATA" in res_zero["reason_codes"]
+
+
+# ── 7. Explicit FAISS UNAVAILABLE Semantics ──────────────────────────────────
 
 def test_faiss_explicit_unavailable_semantics():
     """CRITICAL: FAISS UNAVAILABLE must NEVER be converted to NEUTRAL 0% or dilute consensus."""

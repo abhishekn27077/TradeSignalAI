@@ -43,11 +43,29 @@ from app.api.v1.actionable_routes import router as phase50_actionable_router
 from app.api.v1.analysis_routes import router as phase51_analysis_router
 # Phase 52: System Intelligence, Data Quality, Strategy Ensemble & Execution Simulation
 from app.api.v1.system_intelligence_routes import router as phase52_sys_intel_router
+# Phase 62: Multi-Timeframe Signal Stream, Daily Signal Book & Indicator Registry
+from app.api.v1.signal_stream_routes import router as signal_stream_router
+# Phase 67: Prospective Signal Truth Engine & Forward Validation
+from app.api.v1.prospective_routes import router as prospective_routes_router
+# Phase 68: Prospective Evidence Campaigns & Virtual Paper Portfolio
+from app.api.v1.campaign_routes import router as campaign_routes_router
+# Phase 69A: Trade Signal Terminal UX & Canonical Prospective Signal Ledger
+from app.api.v1.terminal_routes import router as terminal_routes_router
+# Phase 71: Live System Validation & Diagnostics
+from app.api.v1.live_validation_routes import router as live_validation_router
+# Phase 72: Shadow-Live Trading & Diagnostics
+from app.api.v1.shadow_routes import router as shadow_routes_router
 
 # Sub-router inclusions (Actionable and Analysis routes take precedence over generic {signal_id})
+api_v1_router.include_router(shadow_routes_router)
+api_v1_router.include_router(live_validation_router)
+api_v1_router.include_router(terminal_routes_router)
 api_v1_router.include_router(phase50_actionable_router)
 api_v1_router.include_router(phase51_analysis_router)
 api_v1_router.include_router(phase52_sys_intel_router)
+api_v1_router.include_router(prospective_routes_router)
+api_v1_router.include_router(campaign_routes_router)
+api_v1_router.include_router(signal_stream_router)
 api_v1_router.include_router(signals_router)
 
 
@@ -161,5 +179,10 @@ api_v1_router.include_router(phase53_integrity_router, tags=["Phase 53 Forward I
 from app.api.v1.runtime_diagnostics import router as phase47_diagnostics_router
 
 api_v1_router.include_router(phase47_diagnostics_router, tags=["Phase 47 Runtime Diagnostics"])
+
+# Phase 66: Adaptive Signal Intelligence & Open-Source Quant Research
+from app.api.v1.adaptive_research_routes import router as phase66_research_router
+
+api_v1_router.include_router(phase66_research_router)
 
 

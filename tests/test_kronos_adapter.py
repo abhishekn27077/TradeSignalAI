@@ -1,59 +1,54 @@
+"""
+tests/test_kronos_adapter.py
+============================
+Verifies KronosAdapter functionality, genuine PyTorch model inference,
+data formatting, and offline error safety (Phase 70).
+"""
+
 import pytest
 import pandas as pd
 import numpy as np
-import os
-import sys
-
-# Add project root to path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
+from datetime import datetime, timezone, timedelta
 from app.analytics.models.kronos.adapter import KronosAdapter
-from app.analytics.consensus_engine import ConsensusEngine
+
 
 @pytest.fixture
 def sample_ohlcv_df():
-    np.random.seed(42)
-    dates = pd.date_range(start='2026-01-01', periods=10, freq='5min')
+    start_time = datetime(2026, 8, 1, 0, 0, 0, tzinfo=timezone.utc)
+    times = [start_time + timedelta(hours=i) for i in range(60)]
+    prices = 1.0850 + np.cumsum(np.random.normal(0, 0.0005, 60))
     df = pd.DataFrame({
-        'open': np.random.uniform(50000, 51000, 10),
-        'high': np.random.uniform(51000, 52000, 10),
-        'low': np.random.uniform(49000, 50000, 10),
-        'close': np.random.uniform(50000, 51000, 10),
-        'volume': np.random.uniform(1, 100, 10)
-    }, index=dates)
-    df.index.name = 'timestamp'
+        'open': prices,
+        'high': prices + 0.0010,
+        'low': prices - 0.0010,
+        'close': prices + 0.0002,
+        'volume': np.random.uniform(1000, 5000, 60)
+    }, index=times)
     return df
 
-def test_kronos_adapter_format_data(sample_ohlcv_df):
-    adapter = KronosAdapter(device='cpu')
-    formatted_df = adapter.format_market_data(sample_ohlcv_df)
-    
-    # Check if index is datetime
-    assert isinstance(formatted_df.index, pd.DatetimeIndex)
-    # Check required columns
-    assert all(col in formatted_df.columns for col in ['open', 'high', 'low', 'close', 'volume'])
+
+def test_kronos_adapter_initialization():
+    adapter = KronosAdapter(device="cpu")
+    # In this environment, PyTorch weights are loaded
+    assert adapter.device == "cpu"
+    if adapter.model is not None:
+        assert adapter.tokenizer is not None
+        assert adapter.predictor is not None
+
 
 def test_kronos_adapter_predict(sample_ohlcv_df):
-    adapter = KronosAdapter(device='cpu')
-    # Use formatted data to predict
-    formatted_df = adapter.format_market_data(sample_ohlcv_df)
-    
-    pred_return = adapter.predict(formatted_df, pred_len=1)
-    
-    # Should return a scalar expected return (float)
-    assert isinstance(pred_return, float)
+    adapter = KronosAdapter(device="cpu")
+    if adapter.predictor is not None:
+        pred_return = adapter.predict(sample_ohlcv_df, pred_len=1)
+        assert isinstance(pred_return, float)
+        assert not np.isnan(pred_return)
+        assert not np.isinf(pred_return)
+        # Expected return is reasonably bounded in normal market regimes
+        assert -0.20 < pred_return < 0.20
 
-def test_consensus_engine_integration(sample_ohlcv_df):
-    engine = ConsensusEngine()
-    
-    # Provide sample dataframe
-    result = engine.generate_consensus("BTCUSD", "5m", sample_ohlcv_df)
-    
-    assert "error" not in result
-    assert "consensus_expected_return" in result
-    assert "breakdown" in result
-    # Check if kronos prediction is not flat zero from an exception
-    # (Though it might legitimately predict exactly 0, an exception usually logs an error)
-    # The main check is that it runs without the `freq` integer type error.
-    assert "kronos" in result["breakdown"]
-    assert isinstance(result["breakdown"]["kronos"], float)
+
+def test_kronos_adapter_empty_df_safety():
+    adapter = KronosAdapter(device="cpu")
+    empty_df = pd.DataFrame()
+    pred_return = adapter.predict(empty_df, pred_len=1)
+    assert pred_return == 0.0

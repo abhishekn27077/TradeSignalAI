@@ -42,6 +42,7 @@ class CanonicalFingerprintMiddleware(BaseHTTPMiddleware):
             response.headers["X-Git-Commit"] = str(meta.get("git_commit", "ddcba51"))
             response.headers["X-Config-Hash"] = str(CONFIG_HASH)
             response.headers["X-Canonical-State-ID"] = str(snapshot.snapshot_id)
+            response.headers["X-Snapshot-Content-Hash"] = str(snapshot.snapshot_content_hash)
             response.headers["X-Generated-At"] = str(snapshot.created_at)
             response.headers["X-Market-Data-Timestamp"] = str(snapshot.market_data_timestamp)
         except Exception:
@@ -118,29 +119,35 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
             raise e
 
 async def global_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+    from app.logs.logger import redact_sensitive_text
+
     correlation_id = getattr(request.state, "correlation_id", "unknown")
 
     if isinstance(exc, BaseAPIException):
+        sanitized_details = {
+            "provider": exc.provider,
+            "recoverable": exc.recoverable,
+            "timestamp": exc.timestamp,
+        }
+        if exc.details:
+            for k, v in exc.details.items():
+                sanitized_details[k] = redact_sensitive_text(str(v)) if isinstance(v, str) else v
+
         content = ErrorResponse(
             success=False,
-            message=exc.message,
+            message=redact_sensitive_text(exc.message),
             error_code=exc.error_code,
-            details={
-                "provider": exc.provider,
-                "recoverable": exc.recoverable,
-                "timestamp": exc.timestamp,
-                **(exc.details or {}),
-            },
+            details=sanitized_details,
         ).model_dump()
         status_code = exc.status_code
         logger.warning(
-            f"API Exception: {exc.error_code} - {exc.message}",
+            f"API Exception: {exc.error_code} - {content['message']}",
             extra={"correlation_id": correlation_id},
         )
     elif isinstance(exc, ValueError):
         content = ErrorResponse(
             success=False,
-            message=str(exc),
+            message=redact_sensitive_text(str(exc)),
             error_code="VALIDATION_ERROR",
             details={"recoverable": False},
         ).model_dump()

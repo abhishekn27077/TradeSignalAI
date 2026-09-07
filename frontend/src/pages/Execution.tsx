@@ -33,7 +33,7 @@ export const ExecutionPage: React.FC = () => {
   const rejected = displayOrders.filter((o: any) => o.status === 'REJECTED' || o.status === 'rejected').length;
 
   return (
-    <div className="h-full flex flex-col gap-3 p-3 overflow-hidden bg-trading-dark">
+    <div className="h-full flex flex-col gap-3 p-3 overflow-y-auto bg-trading-dark min-h-full pb-16">
       <div className="flex items-center justify-between shrink-0">
         <h2 className="text-sm font-semibold text-text-primary">Execution Dashboard</h2>
         <button onClick={() => { refreshOrders(); }} className="p-1 text-text-muted hover:text-text-primary"><RefreshCw className="w-3.5 h-3.5" /></button>

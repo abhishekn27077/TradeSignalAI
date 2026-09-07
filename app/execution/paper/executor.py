@@ -25,8 +25,19 @@ class PaperExecutor(BaseExecutor):
         quantity: float,
         price: float | None = None
     ) -> Order:
+        # Input validation — reject obviously invalid orders before any state mutation
+        import math
+        if quantity <= 0 or (isinstance(quantity, float) and (math.isnan(quantity) or math.isinf(quantity))):
+            return Order(id=str(uuid.uuid4()), symbol=symbol, side=side, order_type=order_type,
+                         quantity=quantity, price=price, status=OrderStatus.REJECTED,
+                         timestamp=datetime.now(timezone.utc))
+        if price is not None and (math.isnan(price) or math.isinf(price)):
+            return Order(id=str(uuid.uuid4()), symbol=symbol, side=side, order_type=order_type,
+                         quantity=quantity, price=price, status=OrderStatus.REJECTED,
+                         timestamp=datetime.now(timezone.utc))
+
         order_id = str(uuid.uuid4())
-        
+
         # For paper trading, we simulate immediate fills for market orders.
         # Use provided price or fetch real-time price if missing.
         
@@ -85,45 +96,41 @@ class PaperExecutor(BaseExecutor):
         realized_pnl = None
         
         # Simplistic position update logic for long/short
+        # ALWAYS deduct the full order cost from balance first.
+        # Then adjust for realized PnL when closing/reducing an opposite position.
         if side == OrderSide.BUY:
+            self.balance -= quantity * price  # pay for all units bought
             if pos.quantity < 0:
                 # Covering a short position
                 cover_qty = min(abs(pos.quantity), quantity)
                 realized_pnl = (pos.average_entry_price - price) * cover_qty
-                
-            new_qty = pos.quantity + quantity
-            if new_qty > 0 and pos.quantity >= 0:
-                # Averaging up/down on a long position
-                total_cost = (pos.quantity * pos.average_entry_price) + (quantity * price)
-                pos.average_entry_price = total_cost / new_qty
-            elif new_qty > 0 and pos.quantity < 0:
-                # Flipped from short to long
-                pos.average_entry_price = price
-                
-            pos.quantity = new_qty
-            self.balance -= quantity * price
-            if realized_pnl is not None:
                 self.balance += realized_pnl
-                
+                pos.quantity += quantity
+                if pos.quantity > 0:
+                    # Flipped to long — average entry is the price of the new long portion
+                    pos.average_entry_price = price
+            else:
+                # Adding to long or opening new long
+                total_cost = (pos.quantity * pos.average_entry_price) + (quantity * price)
+                pos.quantity += quantity
+                pos.average_entry_price = total_cost / pos.quantity
+
         elif side == OrderSide.SELL:
+            self.balance += quantity * price  # receive proceeds from all units sold
             if pos.quantity > 0:
-                # Selling a long position
+                # Selling into a long position
                 sell_qty = min(pos.quantity, quantity)
                 realized_pnl = (price - pos.average_entry_price) * sell_qty
-                
-            new_qty = pos.quantity - quantity
-            if new_qty < 0 and pos.quantity <= 0:
-                # Averaging up/down on a short position
-                total_cost = (abs(pos.quantity) * pos.average_entry_price) + (quantity * price)
-                pos.average_entry_price = total_cost / abs(new_qty)
-            elif new_qty < 0 and pos.quantity > 0:
-                # Flipped from long to short
-                pos.average_entry_price = price
-                
-            pos.quantity = new_qty
-            self.balance += quantity * price
-            if realized_pnl is not None:
                 self.balance += realized_pnl
+                pos.quantity -= quantity
+                if pos.quantity < 0:
+                    # Flipped to short — new short portion at `price`
+                    pos.average_entry_price = price
+            else:
+                # Adding to short or opening new short
+                total_cost = (abs(pos.quantity) * pos.average_entry_price) + (quantity * price)
+                pos.quantity -= quantity
+                pos.average_entry_price = total_cost / abs(pos.quantity)
                 
         return realized_pnl
 

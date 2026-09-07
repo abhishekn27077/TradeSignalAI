@@ -46,7 +46,7 @@ export const MemoryPage: React.FC = () => {
   };
 
   return (
-    <div className="h-full flex flex-col gap-3 p-3 overflow-hidden bg-trading-dark">
+    <div className="h-full flex flex-col gap-3 p-3 overflow-y-auto bg-trading-dark min-h-full pb-16">
       <div className="flex items-center justify-between shrink-0">
         <h1 className="text-sm font-semibold text-text-primary flex items-center gap-2">
           <BrainCircuit className="w-4 h-4 text-accent-purple" /> AI Long-Term Memory

@@ -36,7 +36,8 @@ class RiskEngine:
             result["checks"]["quantity"] = False
             
         # RR Filter > 2:1
-        take_profit = trade_proposal.get("take_profit", 0)
+        # Coordinator passes "target" and "stop_loss"; accept both keys for resilience
+        take_profit = trade_proposal.get("target") or trade_proposal.get("take_profit", 0)
         stop_loss = trade_proposal.get("stop_loss", 0)
         
         if take_profit > 0 and stop_loss > 0 and price > 0:
@@ -69,5 +70,8 @@ class RiskEngine:
                     result["reason"] = "Kill switch active"
             except Exception as e:
                 logger.warning(f"Failsafe check error: {e}")
+                # Fail closed on failsafe error to prevent unreviewed trades
+                result["approved"] = False
+                result["reason"] = f"Failsafe check error: {e}"
 
         return result

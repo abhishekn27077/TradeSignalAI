@@ -1,0 +1,22 @@
+{
+  "experiment_id": "EXP-P72-20260826152218",
+  "timestamp_utc": "2026-08-26T15:22:18.292703+00:00",
+  "parameters": {
+    "rsi_period": 14,
+    "supertrend_period": 10,
+    "supertrend_multiplier": 3.0,
+    "atr_period": 14
+  },
+  "models": {
+    "kronos": "NeoQuasar/Kronos-mini",
+    "policy": "POL-72-v1"
+  },
+  "result_summary": {
+    "audited_at_utc": "2026-08-26T15:22:18.292703+00:00",
+    "hardcoded_asset_magic_numbers_found": 0,
+    "date_specific_override_rules_found": 0,
+    "lookahead_leakage_violations_found": 0,
+    "parameter_sensitivity_verdict": "ROBUST (No cliff-edge fragility detected)",
+    "data_snooping_defense": "STRICT_SEPARATION (Training vs Test Folds untouched)"
+  }
+}

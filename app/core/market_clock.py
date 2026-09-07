@@ -209,6 +209,105 @@ class MarketClockService:
             "direction_label": "ago" if is_passed else "remaining",
         }
 
+    @classmethod
+    def get_market_session(cls, asset: str = "EURUSD", dt_utc: Optional[datetime] = None) -> Dict[str, Any]:
+        """
+        Determines the current market session, session overlaps, and market open/close status.
+        """
+        now = dt_utc or cls.get_current_utc()
+        if now.tzinfo is None:
+            now = now.replace(tzinfo=timezone.utc)
 
+        weekday = now.weekday()  # 0=Monday, 4=Friday, 5=Saturday, 6=Sunday
+        hour = now.hour
+        is_crypto = "BTC" in asset or "ETH" in asset
+
+        # Weekend Check (Forex / Indices close Friday 21:00 UTC to Sunday 21:00 UTC)
+        is_weekend = False
+        if not is_crypto:
+            if weekday == 4 and hour >= 21:
+                is_weekend = True
+            elif weekday == 5:
+                is_weekend = True
+            elif weekday == 6 and hour < 21:
+                is_weekend = True
+
+        # Major Global Sessions (UTC)
+        # Sydney: 21:00 - 06:00 UTC
+        # Tokyo: 00:00 - 09:00 UTC
+        # London: 07:00 - 16:00 UTC
+        # New York: 12:00 - 21:00 UTC
+        active_sessions = []
+        if hour >= 21 or hour < 6:
+            active_sessions.append("SYDNEY")
+        if 0 <= hour < 9:
+            active_sessions.append("TOKYO")
+        if 7 <= hour < 16:
+            active_sessions.append("LONDON")
+        if 12 <= hour < 21:
+            active_sessions.append("NEW_YORK")
+
+        is_london_ny_overlap = ("LONDON" in active_sessions) and ("NEW_YORK" in active_sessions)
+        is_market_open = is_crypto or (not is_weekend)
+
+        return {
+            "asset": asset,
+            "is_crypto": is_crypto,
+            "is_market_open": is_market_open,
+            "is_weekend": is_weekend,
+            "active_sessions": active_sessions,
+            "is_london_ny_overlap": is_london_ny_overlap,
+            "current_utc": now.isoformat(),
+            "current_ist": cls.to_ist(now).isoformat(),
+        }
+
+    @classmethod
+    def validate_candle_timestamp(
+        cls,
+        candle_ts: datetime,
+        wall_clock_ts: Optional[datetime] = None,
+        max_drift_seconds: int = 120,
+        max_staleness_seconds: int = 7200
+    ) -> Dict[str, Any]:
+        """
+        Validates candle timestamp integrity:
+        - Future timestamp detection (FAIL CLOSED)
+        - Clock drift detection
+        - Stale feed detection
+        """
+        now = wall_clock_ts or cls.get_current_utc()
+        if candle_ts.tzinfo is None:
+            candle_ts = candle_ts.replace(tzinfo=timezone.utc)
+        if now.tzinfo is None:
+            now = now.replace(tzinfo=timezone.utc)
+
+        diff_seconds = (candle_ts - now).total_seconds()
+        
+        # 1. Future timestamp check
+        is_future = diff_seconds > max_drift_seconds
+
+        # 2. Staleness check
+        age_seconds = (now - candle_ts).total_seconds()
+        is_stale = age_seconds > max_staleness_seconds
+
+        status = "VALID"
+        if is_future:
+            status = "FUTURE_TIMESTAMP_VIOLATION"
+        elif is_stale:
+            status = "STALE_DATA_WARNING"
+
+        return {
+            "status": status,
+            "candle_timestamp_utc": candle_ts.isoformat(),
+            "wall_clock_timestamp_utc": now.isoformat(),
+            "diff_seconds": round(diff_seconds, 2),
+            "age_seconds": round(age_seconds, 2),
+            "is_future": is_future,
+            "is_stale": is_stale,
+            "is_valid": not is_future,
+        }
+
+
+# Canonical Alias
+MarketClock = MarketClockService
 market_clock = MarketClockService()
-

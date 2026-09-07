@@ -340,6 +340,25 @@ export const useAppStore = create<AppState>((set, get) => ({
       get().refreshPositions();
     });
 
+    wsManager.on('connection_state', (data: any) => {
+      const isConn = Boolean(data?.connected);
+      const current = get().systemHealth;
+      get().setSystemHealth({
+        api: current?.api || (isConn ? 'online' : 'offline'),
+        database: current?.database || 'online',
+        websocket: isConn ? 'online' : 'offline',
+        marketFeed: current?.marketFeed || 'online',
+        aiEngine: current?.aiEngine || 'online',
+        brokerConnection: current?.brokerConnection || 'online',
+        latencyMs: current?.latencyMs || 0,
+        avgLatency: current?.avgLatency || 0,
+        cpuUsage: current?.cpuUsage || 0,
+        memoryUsage: current?.memoryUsage || 0,
+        memoryTotal: current?.memoryTotal || 0,
+        uptime: current?.uptime || '',
+      });
+    });
+
     wsManager.on('system_health', (data: any) => {
       if (data) {
         const components = data.components || {};

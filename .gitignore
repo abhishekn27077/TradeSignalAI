@@ -1,9 +1,19 @@
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
+
+# Caches and virtual environments
 env/
+venv/
+.venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Distribution / packaging
 build/
 develop-eggs/
 dist/
@@ -19,10 +29,76 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-.pytest_cache/
-.ruff_cache/
-node_modules/
-dist/
-*.log
-scratch/
+
+# Secrets and environment files
+.env
+.env.*
+*.env
+!.env.example
+!.env.template
+
+# Certificates, keys and keystores
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+*.der
+*.jks
+*.keystore
+
+# Secret directories
+secrets/
+secret/
+credentials/
+private/
+certs/
+
+# Databases and local persistence
+*.db
+*.sqlite
+*.sqlite3
+*.db-shm
+*.db-wal
 test_audit.db
+trade_signal.db
+tradesignal.db
+trading_fallback.db
+app/database/*.db
+app/database/*.sqlite
+
+# Logs
+*.log
+logs/
+*.log.*
+
+# Temporary, scratch, and backup files
+scratch/
+*.bak
+*.backup
+*.old
+*.tmp
+*.temp
+
+# Frontend dependencies and builds
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Coverage reports
+coverage/
+htmlcov/
+.coverage
+.coverage.*
+
+# IDEs, editors and OS metadata
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+desktop.ini

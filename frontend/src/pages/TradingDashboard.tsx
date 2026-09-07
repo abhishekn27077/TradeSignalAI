@@ -101,8 +101,14 @@ export const TradingDashboard: React.FC = () => {
         fetch('/api/v1/intelligence/data-health').then(r => r.ok ? r.json() : null).catch(() => null),
         fetch('/api/v1/intelligence/model-health').then(r => r.ok ? r.json() : null).catch(() => null),
         fetch('/api/v1/live/today').then(r => r.ok ? r.json() : null).catch(() => null),
+        useAppStore.getState().refreshSystemHealth().catch(() => null),
       ]);
-      setLiveSignals(data || []);
+      const safeData = Array.isArray(data)
+        ? data
+        : (Array.isArray((data as any)?.live_signals)
+            ? (data as any).live_signals
+            : (Array.isArray((data as any)?.live_qualified_signals) ? (data as any).live_qualified_signals : []));
+      setLiveSignals(safeData);
       if (stats && stats.success !== false) {
           setDashboardStats({
               signals_today: stats.signals_today || 0,
@@ -184,7 +190,8 @@ export const TradingDashboard: React.FC = () => {
 
   // Filter and find strongest actionable signal
   const strongest = useMemo(() => {
-    let filtered = liveSignals.filter(s => {
+    const list = Array.isArray(liveSignals) ? liveSignals : [];
+    let filtered = list.filter(s => {
       const sig = s.signal;
       if (!sig) return false;
       if (sig.strategy_name === 'System Engine') return false;

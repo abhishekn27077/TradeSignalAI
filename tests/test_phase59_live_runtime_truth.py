@@ -212,12 +212,19 @@ def test_strong_signal_zero_trust_policy_strictness():
 # ── 10. Market Data Freshness Tracking ────────────────────────────────────────
 
 def test_market_data_freshness_tracking():
-    """Verify data_freshness is present with valid age_seconds and FRESH status."""
+    """Verify data_freshness is present with valid age_seconds and correct status.
+
+    Freshness is timeframe-aware: hourly candles are FRESH if < 2h old,
+    not < 120s (which only applied to the old hardcoded fake data).
+    """
     state = canonical_signal_service.evaluate_asset_intelligence("BTCUSD")
     freshness = state["data_freshness"]
 
-    assert freshness["status"] == "FRESH"
-    assert freshness["age_seconds"] <= 120.0
+    assert freshness["status"] in ("FRESH", "STALE")
+    assert freshness["age_seconds"] >= 0.0
+    # For hourly data, FRESH means < 7200s (2h). Verify consistency:
+    if freshness["status"] == "FRESH":
+        assert freshness["age_seconds"] < 7200.0
     assert "market_data_timestamp" in freshness
 
 

@@ -228,10 +228,10 @@ class LiveForecastScheduler:
         
         rejection_reason = None
         if not is_qualified:
-            if is_stale:
-                rejection_reason = "STALE_DATA"
-            elif not is_market_open:
+            if not is_market_open:
                 rejection_reason = "MARKET_CLOSED"
+            elif is_stale:
+                rejection_reason = "STALE_DATA"
             elif shadow_validation_engine.is_paused:
                 rejection_reason = "VALIDATION_PAUSED"
             elif high_risk_event:

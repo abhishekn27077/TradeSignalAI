@@ -5,11 +5,13 @@ import { StatusBar } from './components/layout/StatusBar';
 import { useAppStore } from './store/useAppStore';
 
 /* ── New Trading Terminal Pages ─────────────────────────────────────────── */
+import { TradeSignalTerminal } from './pages/signals/TradeSignalTerminal';
 import { TradingDashboard } from './pages/TradingDashboard';
 import { TodaysSignals } from './pages/signals/TodaysSignals';
 import { H4ForecastsPage as H4ForecastsNew } from './pages/signals/H4Forecasts';
 import { SwingSignals } from './pages/signals/SwingSignals';
 import { SignalHistory } from './pages/signals/SignalHistory';
+import { SignalFeedSchedule } from './pages/signals/SignalFeedSchedule';
 
 /* ── Existing Pages (preserved for Admin mode) ─────────────────────────── */
 import { TerminalPage } from './pages/Terminal';
@@ -91,20 +93,37 @@ import { Phase43ShadowDashboard } from './pages/forecasts/Phase43ShadowDashboard
 import { RealityEvidenceDashboard } from './pages/forecasts/RealityEvidenceDashboard';
 import { DailyCommandCenter } from './pages/forecasts/DailyCommandCenter';
 import { LiveEdgeEvidence } from './pages/forecasts/LiveEdgeEvidence';
+import { ValidationPage } from './pages/ValidationPage';
+import { ShadowLivePage } from './pages/ShadowLivePage';
 
 const pageMap: Record<string, React.FC> = {
-  /* ── New Trading Terminal ─────────────────────────────────────────── */
+  /* ── Phase 69A Primary Trade Signal Terminal ─────────────────────── */
+  'trade-terminal': TradeSignalTerminal,
+  'terminal': TradeSignalTerminal,
+  'signal-feed-schedule': TradeSignalTerminal,
+  'signals-feed': TradeSignalTerminal,
+  'signals': TradeSignalTerminal,
+  'todays-signals': TradeSignalTerminal,
+
+  /* ── Phase 71 Live Validation & Diagnostics ──────────────────────── */
+  'validation': ValidationPage,
+  'live-validation': ValidationPage,
+
+  /* ── Phase 72 Shadow-Live Trading ────────────────────────────────── */
+  'shadow-live': ShadowLivePage,
+  'shadow': ShadowLivePage,
+
+  /* ── Secondary Dashboard & Analytic Pages ────────────────────────── */
   'dashboard': TradingDashboard,
-  'todays-signals': TodaysSignals,
   'h4-forecasts-new': H4ForecastsNew,
   'swing-signals': SwingSignals,
   'signal-history': SignalHistory,
 
   /* ── Existing Pages (Admin) ──────────────────────────────────────── */
-  terminal: TerminalPage,
+  'admin-terminal': TerminalPage,
   'ai-command': AICommandPage,
   strategies: StrategiesPage,
-  signals: SignalsPage,
+  'admin-signals': SignalsPage,
   news: NewsPage,
   portfolio: PortfolioPage,
   risk: RiskPage,
@@ -175,6 +194,8 @@ const pageMap: Record<string, React.FC> = {
   'phase46-evidence': LiveEdgeEvidence,
 };
 
+import { ErrorBoundary } from './components/common/ErrorBoundary';
+
 const App: React.FC = () => {
   const activePage = useAppStore((s) => s.activePage);
   const initialize = useAppStore((s) => s.initialize);
@@ -189,8 +210,10 @@ const App: React.FC = () => {
       <TopToolbar />
       <div className="flex flex-1 min-h-0">
         <Sidebar />
-        <main className="flex-1 min-w-0 overflow-hidden">
-          <ActivePage />
+        <main className="flex-1 min-w-0 overflow-y-auto">
+          <ErrorBoundary fallbackTitle="Unable to display this view">
+            <ActivePage />
+          </ErrorBoundary>
         </main>
       </div>
       <StatusBar />
