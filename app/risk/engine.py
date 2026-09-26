@@ -29,35 +29,67 @@ class RiskEngine:
         quantity = trade_proposal.get("quantity", 0)
         price = trade_proposal.get("price", 0)
 
+        import math
+
+        if not symbol:
+            return {"approved": False, "reason": "Missing trade symbol", "checks": {"symbol": False}}
+
+        if direction not in ("BUY", "SELL"):
+            return {"approved": False, "reason": f"Invalid direction: {direction}", "checks": {"direction": False}}
+
+        if not isinstance(quantity, (int, float)) or math.isnan(quantity) or math.isinf(quantity) or quantity <= 0:
+            return {"approved": False, "reason": f"Invalid quantity: {quantity}", "checks": {"quantity": False}}
+
         max_qty = 100
         if quantity > max_qty:
-            result["approved"] = False
-            result["reason"] = f"Quantity {quantity} exceeds max {max_qty}"
-            result["checks"]["quantity"] = False
-            
-        # RR Filter > 2:1
+            return {"approved": False, "reason": f"Quantity {quantity} exceeds max {max_qty}", "checks": {"quantity": False}}
+
+        if not isinstance(price, (int, float)) or math.isnan(price) or math.isinf(price) or price <= 0:
+            return {"approved": False, "reason": f"Invalid entry price: {price}", "checks": {"price": False}}
+
         # Coordinator passes "target" and "stop_loss"; accept both keys for resilience
         take_profit = trade_proposal.get("target") or trade_proposal.get("take_profit", 0)
         stop_loss = trade_proposal.get("stop_loss", 0)
-        
-        if take_profit > 0 and stop_loss > 0 and price > 0:
-            if direction == "BUY":
-                risk = price - stop_loss
-                reward = take_profit - price
-            else:
-                risk = stop_loss - price
-                reward = price - take_profit
-                
-            if risk > 0:
-                rr_ratio = reward / risk
-                if rr_ratio < 2.0:
-                    result["approved"] = False
-                    result["reason"] = f"RR Ratio {rr_ratio:.2f} is below minimum 2.0"
-                    result["checks"]["rr_ratio"] = False
-            else:
-                result["approved"] = False
-                result["reason"] = "Invalid Risk parameter (SL = Entry)"
-                result["checks"]["rr_ratio"] = False
+
+        # Enforce mandatory Stop Loss and Take Profit
+        if not isinstance(stop_loss, (int, float)) or math.isnan(stop_loss) or math.isinf(stop_loss) or stop_loss <= 0:
+            return {"approved": False, "reason": "Missing or non-positive Stop Loss", "checks": {"stop_loss": False}}
+
+        if not isinstance(take_profit, (int, float)) or math.isnan(take_profit) or math.isinf(take_profit) or take_profit <= 0:
+            return {"approved": False, "reason": "Missing or non-positive Take Profit", "checks": {"take_profit": False}}
+
+        # Enforce geometric correctness: SL < Entry < TP for BUY, TP < Entry < SL for SELL
+        if direction == "BUY":
+            if not (stop_loss < price < take_profit):
+                return {
+                    "approved": False,
+                    "reason": f"Invalid BUY geometry: SL ({stop_loss}) < Entry ({price}) < TP ({take_profit}) required",
+                    "checks": {"geometry": False}
+                }
+            risk = price - stop_loss
+            reward = take_profit - price
+        else:
+            if not (take_profit < price < stop_loss):
+                return {
+                    "approved": False,
+                    "reason": f"Invalid SELL geometry: TP ({take_profit}) < Entry ({price}) < SL ({stop_loss}) required",
+                    "checks": {"geometry": False}
+                }
+            risk = stop_loss - price
+            reward = price - take_profit
+
+        if risk <= 0:
+            return {"approved": False, "reason": "Invalid Risk parameter (SL = Entry)", "checks": {"rr_ratio": False}}
+
+        rr_ratio = reward / risk
+        if rr_ratio < 2.0:
+            return {"approved": False, "reason": f"RR Ratio {rr_ratio:.2f} is below minimum 2.0", "checks": {"rr_ratio": False}}
+
+        result["checks"]["quantity"] = True
+        result["checks"]["price"] = True
+        result["checks"]["stop_loss"] = True
+        result["checks"]["take_profit"] = True
+        result["checks"]["rr_ratio"] = True
 
         result["checks"]["max_daily_loss"] = self._settings.MAX_DAILY_LOSS_PCT
         result["checks"]["max_drawdown"] = self._settings.MAX_DRAWDOWN_PCT

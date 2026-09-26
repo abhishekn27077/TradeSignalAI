@@ -245,8 +245,6 @@ class ShadowLiveEngine:
         """
         now = reference_dt or datetime.now(timezone.utc)
         rows = self._fetch_candles_from_candidates(asset, limit=120, before_iso=now.isoformat())
-        if not rows or len(rows) < 30:
-            rows = self._fetch_candles_from_candidates(asset, limit=120)
 
         if not rows or len(rows) < 30:
             # Output deterministic NO_TRADE prediction

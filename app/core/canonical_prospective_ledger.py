@@ -553,6 +553,18 @@ class CanonicalProspectiveLedger:
                 query += " AND (generated_at_utc LIKE ? OR generated_at_ist LIKE ?)"
                 params.extend([f"{today_str}%", f"{today_str}%"])
             elif date_filter.upper() == "YESTERDAY":
+                cur.execute("SELECT COUNT(*) FROM canonical_prospective_signal_ledger WHERE (generated_at_utc LIKE ? OR generated_at_ist LIKE ?)", (f"{yesterday_str}%", f"{yesterday_str}%"))
+                cnt = cur.fetchone()[0]
+                if cnt == 0:
+                    cur.execute("SELECT SUBSTR(generated_at_utc, 1, 10) FROM canonical_prospective_signal_ledger WHERE SUBSTR(generated_at_utc, 1, 10) < ? ORDER BY generated_at_utc DESC LIMIT 1", (today_str,))
+                    row = cur.fetchone()
+                    if row and row[0]:
+                        yesterday_str = row[0]
+                    else:
+                        cur.execute("SELECT SUBSTR(generated_at_utc, 1, 10) FROM canonical_prospective_signal_ledger ORDER BY generated_at_utc DESC LIMIT 1")
+                        row = cur.fetchone()
+                        if row and row[0]:
+                            yesterday_str = row[0]
                 query += " AND (generated_at_utc LIKE ? OR generated_at_ist LIKE ?)"
                 params.extend([f"{yesterday_str}%", f"{yesterday_str}%"])
             elif date_filter.upper() == "7D":

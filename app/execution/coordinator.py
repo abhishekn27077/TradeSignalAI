@@ -127,6 +127,23 @@ class ExecutionCoordinator:
                 "reason": failsafe_reason
             }
 
+        # Phase 74: Fail-closed duplicate signal guard on production execution path
+        try:
+            from app.core.signal_identity import SignalIdentityGuard
+            from app.database.manager import db_manager
+            identity_hash = SignalIdentityGuard.build_identity(trade_proposal)
+            if db_manager._session_factory:
+                async with db_manager.get_session()() as session:
+                    is_dup = await SignalIdentityGuard.is_duplicate(session, identity_hash)
+                    if is_dup:
+                        logger.warning(f"Trade rejected by SignalIdentityGuard: duplicate signal detected ({identity_hash[:16]})")
+                        await update_signal_status("REJECTED", exec_status="DUPLICATE_SIGNAL")
+                        return {"status": "REJECTED", "reason": "DUPLICATE_SIGNAL"}
+        except Exception as e:
+            logger.error(f"Duplicate check fail-closed error: {e}")
+            await update_signal_status("REJECTED", exec_status="DUPLICATE_CHECK_FAILED")
+            return {"status": "REJECTED", "reason": "DUPLICATE_CHECK_FAILED"}
+
         await update_signal_status("ENTRY CREATED")
 
         try:

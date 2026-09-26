@@ -13,6 +13,7 @@ from app.api.middleware import (
     RateLimitMiddleware,
     RequestLoggingMiddleware,
     SecurityHeadersMiddleware,
+    StateChangingAuthMiddleware,
     global_exception_handler,
 )
 from app.api.router import main_api_router
@@ -249,6 +250,7 @@ def create_app() -> FastAPI:
 
     app.add_middleware(GZipMiddleware, minimum_size=1000)
     app.add_middleware(SecurityHeadersMiddleware)
+    app.add_middleware(StateChangingAuthMiddleware)
     app.add_middleware(
         RateLimitMiddleware,
         max_requests=settings.RATE_LIMIT_PER_MINUTE,

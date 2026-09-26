@@ -275,10 +275,17 @@ async def global_websocket_endpoint(websocket: WebSocket, token: str | None = Qu
     # Authenticate via token
     user = None
     if token:
-        user = verify_token(token)
+        try:
+            user = verify_token(token)
+        except Exception:
+            user = None
+        if not user or user.get("user_id") == "anonymous":
+            logger.warning("WebSocket connection rejected: invalid authentication token.")
+            await websocket.close(code=1008, reason="Invalid authentication token")
+            return
     
     if not user:
-        logger.info("WebSocket connected without a valid token. Proceeding as anonymous.")
+        logger.info("WebSocket connected without a token. Read-only public telemetry mode.")
     
     client_id = str(uuid.uuid4())
     await ws_manager.connect(websocket, client_id)
@@ -328,6 +335,9 @@ async def global_websocket_endpoint(websocket: WebSocket, token: str | None = Qu
                     await ws_manager.unsubscribe(client_id, topic)
                     await websocket.send_json({"event": "unsubscribed", "topic": topic})
                 elif action == "symbol_changed" and topic:
+                    if not user:
+                        await websocket.send_json({"error": "Authentication required for symbol change", "status": 401})
+                        continue
                     await event_bus.publish("SymbolChanged", {"symbol": topic})
                     await websocket.send_json({"event": "symbol_changed_ack", "symbol": topic})
             except json.JSONDecodeError:

@@ -123,15 +123,16 @@ class WalkForwardValidationEngine:
             for t in range(15, len(test_df) - 1):
                 sub_df = test_df.iloc[:t]
                 close_t = closes[t]
-                ema20 = closes[t-10:t].mean()
-                atr = np.mean(highs[t-10:t] - lows[t-10:t]) if np.mean(highs[t-10:t] - lows[t-10:t]) > 0 else 0.0010
+                from app.core.canonical_signal_service import canonical_signal_service
+                tech_dir, tech_conf, _ = canonical_signal_service._compute_real_technical_score(sub_df)
+                if tech_dir not in ("BUY", "SELL"):
+                    continue
 
-                if close_t > ema20:
-                    direction = "BUY"
+                direction = tech_dir
+                if direction == "BUY":
                     sl = close_t - (atr * 1.5)
                     tp = close_t + (atr * 3.0)
                 else:
-                    direction = "SELL"
                     sl = close_t + (atr * 1.5)
                     tp = close_t - (atr * 3.0)
 

@@ -88,9 +88,9 @@ class SignalIdentityGuard:
                 return True
             return False
         except Exception as e:
-            logger.error(f"SignalIdentityGuard.is_duplicate error: {e}")
-            # Fail open — do not block the signal on DB error
-            return False
+            logger.error(f"SignalIdentityGuard.is_duplicate error (failing closed): {e}")
+            # Fail closed — suppress/quarantine the signal on error to prevent duplicate execution
+            return True
 
     @staticmethod
     def build_identity(signal_dict: dict[str, Any]) -> str:

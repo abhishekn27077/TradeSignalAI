@@ -82,7 +82,7 @@ class KronosForensicEvaluator:
             }
 
         df = pd.DataFrame(rows, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
-        df['timestamp'] = pd.to_datetime(df['timestamp'], utc=True)
+        df['timestamp'] = pd.to_datetime(df['timestamp'], utc=True, format='mixed')
         df = df.sort_values(by='timestamp').reset_index(drop=True)
         df.set_index('timestamp', inplace=True)
         for col in ['open', 'high', 'low', 'close', 'volume']:

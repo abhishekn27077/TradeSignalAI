@@ -77,14 +77,16 @@ class MarketStructureEngine:
             except Exception:
                 pass
                 
-        # 2. Market Structure (Pivots)
-        # Using a rolling window to identify local max/min
+        # 2. Market Structure (Pivots) - Strictly Causal Confirmation
+        # A pivot at (t - pivot_right) is confirmed at current bar t using only data up to t (no future data)
         window = self.pivot_left + self.pivot_right + 1
-        rolling_max = df['high'].rolling(window=window, center=True).max()
-        rolling_min = df['low'].rolling(window=window, center=True).min()
+        rolling_max = df['high'].rolling(window=window, center=False).max()
+        rolling_min = df['low'].rolling(window=window, center=False).min()
+        cand_high = df['high'].shift(self.pivot_right)
+        cand_low = df['low'].shift(self.pivot_right)
         
-        pivot_highs = df[df['high'] == rolling_max]['high'].dropna()
-        pivot_lows = df[df['low'] == rolling_min]['low'].dropna()
+        pivot_highs = df[cand_high == rolling_max]['high'].dropna()
+        pivot_lows = df[cand_low == rolling_min]['low'].dropna()
         
         trend = "SIDEWAYS"
         bos = None

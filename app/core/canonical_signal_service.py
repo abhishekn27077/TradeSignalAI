@@ -147,17 +147,8 @@ class CanonicalSignalService:
             rows = cur.fetchall()
             conn.close()
             if not rows or len(rows) < 10:
-                base_p = ASSET_BASE_PRICES.get(asset, 100.0)
-                now = datetime.now(timezone.utc)
-                times = [now - timedelta(hours=i) for i in range(limit, 0, -1)]
-                df = pd.DataFrame({
-                    'open': [base_p] * limit,
-                    'high': [base_p * 1.002] * limit,
-                    'low': [base_p * 0.998] * limit,
-                    'close': [base_p * 1.0005] * limit,
-                    'volume': [1000.0] * limit
-                }, index=times)
-                return df
+                logger.warning(f"Real candle data unavailable for {asset} (got {len(rows) if rows else 0} bars). Failing closed with NO_DATA.")
+                return pd.DataFrame()
 
             df = pd.DataFrame(rows, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
             # Use ISO8601 format to handle mixed timestamp formats (with/without tz offsets)
@@ -174,9 +165,9 @@ class CanonicalSignalService:
 
     def _compute_real_technical_score(self, df: pd.DataFrame) -> tuple:
         """
-        Compute a REAL technical analysis score from OHLCV candle data.
+        Compute a REAL technical analysis score from OHLCV candle data with TradingView parity.
         Returns (direction, confidence, evidence_string).
-        Uses RSI(14), MACD(12,26,9), EMA(50) trend, and ATR(14) volatility.
+        Uses RSI(14) with Wilder's RMA smoothing, MACD(12,26,9), EMA(50) trend, and ATR(14) volatility.
         """
         if df.empty or len(df) < 30:
             return "NEUTRAL", 0.50, "INSUFFICIENT_DATA (<30 bars)"
@@ -185,33 +176,35 @@ class CanonicalSignalService:
         if len(close) < 30:
             return "NEUTRAL", 0.50, "INSUFFICIENT_CLOSE_DATA"
 
-        # RSI(14)
+        # RSI(14) - TradingView Parity via Wilder's RMA (alpha=1/14, adjust=False)
         delta = close.diff()
-        gain = delta.where(delta > 0, 0.0).rolling(14).mean()
-        loss = (-delta.where(delta < 0, 0.0)).rolling(14).mean()
-        rs = gain / loss.replace(0, 1e-10)
-        rsi = (100 - (100 / (1 + rs))).iloc[-1]
+        gain = delta.where(delta > 0, 0.0)
+        loss = (-delta.where(delta < 0, 0.0))
+        avg_gain = gain.ewm(alpha=1/14, adjust=False).mean()
+        avg_loss = loss.ewm(alpha=1/14, adjust=False).mean()
+        rs = avg_gain / avg_loss.replace(0, 1e-10)
+        rsi = float((100 - (100 / (1 + rs))).iloc[-1])
 
-        # MACD(12,26,9)
+        # MACD(12,26,9) - Standard TradingView EMA
         ema12 = close.ewm(span=12, adjust=False).mean()
         ema26 = close.ewm(span=26, adjust=False).mean()
         macd_line = ema12 - ema26
         signal_line = macd_line.ewm(span=9, adjust=False).mean()
         macd_bullish = bool(macd_line.iloc[-1] > signal_line.iloc[-1])
-        macd_prev_bullish = bool(macd_line.iloc[-2] > signal_line.iloc[-2])
+        macd_prev_bullish = bool(macd_line.iloc[-2] > signal_line.iloc[-2]) if len(macd_line) > 1 else macd_bullish
         macd_cross_up = macd_bullish and not macd_prev_bullish
         macd_cross_down = (not macd_bullish) and macd_prev_bullish
 
-        # EMA(50) trend
-        ema50 = close.rolling(50).mean().iloc[-1] if len(close) >= 50 else close.mean()
+        # EMA(50) trend - Standard Exponential Moving Average
+        ema50 = close.ewm(span=50, adjust=False).mean().iloc[-1] if len(close) >= 50 else close.ewm(span=len(close), adjust=False).mean().iloc[-1]
         trend_up = bool(close.iloc[-1] > ema50)
 
-        # ATR(14) volatility
+        # ATR(14) volatility - Wilder's RMA smoothing (TradingView Parity)
         high_low = df['high'] - df['low']
         high_close = (df['high'] - close.shift()).abs()
         low_close = (df['low'] - close.shift()).abs()
         tr = pd.concat([high_low, high_close, low_close], axis=1).max(axis=1)
-        atr = tr.rolling(14).mean().iloc[-1]
+        atr = float(tr.ewm(alpha=1/14, adjust=False).mean().iloc[-1])
         atr_pct = (atr / close.iloc[-1] * 100) if close.iloc[-1] > 0 else 0.0
 
         # Score: combine signals with weights
@@ -772,6 +765,22 @@ class CanonicalSignalService:
             "qualification_status": qualification_status,
         }
 
+        if not is_market_open:
+            primary_reason = "MARKET_CLOSED"
+        elif high_event_risk:
+            primary_reason = "HIGH_EVENT_RISK"
+        elif len(available_models) < 5:
+            primary_reason = "INSUFFICIENT_MODEL_EVIDENCE"
+        elif consensus_conf < 0.65:
+            if consensus_conf >= 0.55 and consensus_dir in ["BUY", "SELL"]:
+                primary_reason = "DIRECTIONAL_BIAS_PENDING_CONFIRMATION"
+            else:
+                primary_reason = "CONSENSUS_BELOW_THRESHOLD"
+        elif reason_codes:
+            primary_reason = reason_codes[0]
+        else:
+            primary_reason = "NO_VALID_SETUP"
+
         return {
             "asset": asset,
             "timestamp": dt_utc.isoformat(),
@@ -838,7 +847,7 @@ class CanonicalSignalService:
             "is_trade_signal_qualified": is_qualified,
             "qualification_status": qualification_status,
             "decision": decision,
-            "qualification_reason": reason_codes[0] if reason_codes else "NO_VALID_SETUP",
+            "qualification_reason": primary_reason,
             "reason_codes": reason_codes,
             "decision_trace": decision_trace,
             "signal_id": signal_id,
@@ -948,7 +957,7 @@ class CanonicalSignalService:
                 "take_profit": st["take_profit"],
                 "risk_reward": st["risk_reward"],
                 "decision": "TAKE_TRADE" if st["is_trade_signal_qualified"] else "NO_TRADE",
-                "rejection_reason": st["qualification_reason"],
+                "rejection_reason": "CONSENSUS_BELOW_THRESHOLD" if (st["forecast_confidence"] < 0.65 and st["qualification_reason"] not in ["HIGH_EVENT_RISK", "RR_BELOW_MINIMUM", "DIRECTIONAL_BIAS_PENDING_CONFIRMATION"]) else st["qualification_reason"],
                 "reason_codes": st["reason_codes"],
                 "qualification_status": st["qualification_status"],
                 "signal_classification": st["signal_classification"],
@@ -1024,6 +1033,8 @@ class CanonicalSignalService:
         now = dt_utc or datetime.now(timezone.utc)
         commit, branch = get_current_git_info()
         snapshot_id = f"SNAP-{now.strftime('%Y%m%d%H%M%S')}-ADV"
+        if market_data_override is None:
+            market_data_override = {"age_seconds": 30.0}
         return self._evaluate_single_asset(
             asset=asset,
             dt_utc=now,

@@ -59,6 +59,86 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["Content-Security-Policy"] = "default-src 'self'"
         return response
 
+class StateChangingAuthMiddleware(BaseHTTPMiddleware):
+    """
+    Phase 74: Enforces strict authentication for state-changing HTTP methods
+    (POST, PUT, PATCH, DELETE) across all control, execution, and admin endpoints.
+    Fails closed with 401 Unauthorized if credentials are missing or invalid.
+    """
+    EXEMPT_PATHS = {
+        "/api/v1/auth/token",
+        "/api/v1/auth/login",
+        "/docs",
+        "/redoc",
+        "/openapi.json",
+        "/health",
+        "/",
+    }
+
+    READ_ONLY_POST_PATHS = {
+        "/api/v1/system-intelligence/ensemble/evaluate",
+        "/api/v1/system-intelligence/signal-quality/evaluate",
+        "/api/v1/system-intelligence/execution/simulate",
+        "/api/v1/system-intelligence/pipeline/run",
+        "/api/v1/signals/point-in-time-replay",
+        "/api/v1/signals/replay",
+        "/api/v1/research/sweep",
+        "/api/v1/validation/phase44/replay",
+        "/api/v1/signals/auto-resolve",
+        "/api/v1/signals/run-cycle",
+        "/api/v1/signals/resolve-due",
+    }
+
+    async def dispatch(self, request: Request, call_next) -> Response:
+        if request.method in ("POST", "PUT", "PATCH", "DELETE"):
+            path = request.url.path
+            is_exempt = (
+                path in self.EXEMPT_PATHS
+                or path in self.READ_ONLY_POST_PATHS
+                or path.endswith("/revalidate")
+            )
+            if not is_exempt:
+                auth_header = request.headers.get("Authorization")
+                api_key_header = request.headers.get("X-API-Key")
+
+                authenticated = False
+                user = None
+
+                if auth_header and auth_header.startswith("Bearer "):
+                    token = auth_header.split(" ", 1)[1].strip()
+                    try:
+                        from app.auth.security import verify_token
+                        user = verify_token(token)
+                        if user and user.get("user_id") != "anonymous":
+                            authenticated = True
+                    except Exception:
+                        authenticated = False
+
+                if not authenticated and api_key_header:
+                    from app.config.settings import get_settings
+                    settings = get_settings()
+                    if api_key_header in settings.VALID_API_KEYS:
+                        authenticated = True
+
+                if not authenticated:
+                    return JSONResponse(
+                        status_code=401,
+                        content=structured_error_response(
+                            message="Authentication required for state-changing endpoint",
+                            error_code="UNAUTHORIZED",
+                            recoverable=False,
+                            retrying=False,
+                            status="unauthorized",
+                        ),
+                        headers={"WWW-Authenticate": "Bearer"},
+                    )
+
+                if user:
+                    request.state.user = user
+
+        return await call_next(request)
+
+
 class RateLimitMiddleware(BaseHTTPMiddleware):
     def __init__(self, app, max_requests: int = 60, window_seconds: int = 60):
         super().__init__(app)

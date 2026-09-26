@@ -89,19 +89,34 @@ class KronosAdapter:
         """
         if df.empty or self.predictor is None:
             return 0.0
-            
+
         try:
-            # Extract historical data. We'll use the entire sequence provided.
-            # Kronos requires x_timestamp (historical) and y_timestamp (future).
+            if not isinstance(df.index, pd.DatetimeIndex):
+                df = self.format_market_data(df)
+
             x_timestamp = df.index
-            
+
             # Create future timestamps
-            freq = pd.Timedelta(minutes=5) # Default fallback
-            if len(df.index) >= 2:
-                freq = df.index[-1] - df.index[-2]
-                
+            freq = pd.Timedelta(minutes=5)  # Default fallback
+            if len(df.index) >= 2 and isinstance(df.index, pd.DatetimeIndex):
+                diff = df.index[-1] - df.index[-2]
+                if diff > pd.Timedelta(0):
+                    freq = diff
+
             y_timestamp = pd.date_range(start=df.index[-1] + freq, periods=pred_len, freq=freq)
-            
+
+            # Deterministic seeding for zero-trust reproducibility across identical candle snapshots
+            try:
+                import hashlib
+                import torch
+                import numpy as np
+                seed_bytes = df[['open', 'high', 'low', 'close']].values.tobytes()
+                seed_int = int(hashlib.sha256(seed_bytes).hexdigest()[:8], 16)
+                torch.manual_seed(seed_int)
+                np.random.seed(seed_int % (2**32 - 1))
+            except Exception:
+                pass
+
             # Predict
             pred_df = self.predictor.predict(
                 df=df,

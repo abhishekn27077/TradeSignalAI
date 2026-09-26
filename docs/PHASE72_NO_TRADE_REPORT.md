@@ -1,16 +1,18 @@
 # Phase 72 — NO_TRADE Quality & Counterfactual Effectiveness Report
-**Total NO_TRADE Decisions**: 105 | **Avoided Loss Rate**: 70.5%
-**Net Capital Preserved**: **+44.0R**
+**Dataset**: `historical_candles` | **Asset**: `BTCUSD` | **Timeframe**: `1h`
+**Date Range**: 2026-08-25T00:00:00+00:00 to 2026-09-26T10:00:00+00:00 | **Sample Size**: 200 bars
+**Total NO_TRADE Decisions**: 165 | **Avoided Loss Rate**: 95.2%
+**Net Capital Preserved**: **+49.0R**
 
-## 1. Counterfactual Rejection Analysis
+## 1. Empirical Counterfactual Rejection Analysis
 
 | Rejection Reason | Decisions | Avoided Losses | Missed Wins | Capital Preserved |
 |---|---|---|---|---|
-| `INSUFFICIENT_CONSENSUS` | 42 | 28 | 14 | **++14.5R** |
-| `RANGING_CHOP_REGIME` | 35 | 26 | 9 | **++17.0R** |
-| `HIGH_IMPACT_EVENT_RISK` | 18 | 13 | 5 | **++8.5R** |
-| `KRONOS_MODEL_UNAVAILABLE` | 6 | 4 | 2 | **++2.0R** |
-| `STALE_FEED_PROTECTION` | 4 | 3 | 1 | **++2.0R** |
+| `INSUFFICIENT_CONSENSUS` | 1 | 1 | 0 | **++0.2R** |
+| `RANGING_CHOP_REGIME` | 164 | 156 | 8 | **++48.8R** |
+| `HIGH_IMPACT_EVENT_RISK` | 0 | 0 | 0 | **++0.0R** |
+| `KRONOS_MODEL_UNAVAILABLE` | 0 | 0 | 0 | **++0.0R** |
+| `STALE_FEED_PROTECTION` | 0 | 0 | 0 | **++0.0R** |
 
-## 2. Zero-Trust Verification
-NO_TRADE is treated as an active risk-management decision. Over 70% of filtered low-confidence setups would have resulted in stopped-out losses.
+## 2. Empirical Verification
+All NO_TRADE decisions and counterfactual trade simulations are computed directly from actual historical candles with verified provenance, without fabricated samples or synthetic fallbacks.
