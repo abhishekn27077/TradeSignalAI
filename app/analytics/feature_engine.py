@@ -122,8 +122,7 @@ class FeatureEngine:
         # 8. Target Variable (for supervised training / evaluation)
         df['Future_Return_5'] = (df['close'].shift(-5) / df['close'] - 1.0).fillna(0.0)
         
-        # Forward fill and backward fill NaNs so live inference rows are preserved
+        # Forward fill past values into future rows; never backward fill future values into past rows
         df.ffill(inplace=True)
-        df.bfill(inplace=True)
         df.fillna(0.0, inplace=True)
         return df

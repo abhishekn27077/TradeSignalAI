@@ -36,12 +36,12 @@ export const SystemPage: React.FC = () => {
   };
 
   const services = [
-    { name: 'FastAPI Server', status: status.api, icon: <Server className="w-4 h-4" /> },
+    { name: 'FastAPI Backend API', status: status.api, icon: <Server className="w-4 h-4" /> },
     { name: 'WebSocket Feed', status: status.websocket, icon: <Wifi className="w-4 h-4" /> },
-    { name: 'PostgreSQL', status: status.database, icon: <Database className="w-4 h-4" /> },
-    { name: 'AI Engine', status: status.aiEngine, icon: <Brain className="w-4 h-4" /> },
-    { name: 'Market Feed', status: status.marketFeed, icon: <Activity className="w-4 h-4" /> },
-    { name: 'TradingView', status: status.brokerConnection, icon: <Activity className="w-4 h-4" /> },
+    { name: 'Market Database (SQLite)', status: status.database, icon: <Database className="w-4 h-4" /> },
+    { name: 'AI & Strategy Engine', status: status.aiEngine, icon: <Brain className="w-4 h-4" /> },
+    { name: 'Market Feed (MT5 / Binance)', status: status.marketFeed, icon: <Activity className="w-4 h-4" /> },
+    { name: 'Broker Gateway (Paper-Only)', status: status.brokerConnection, icon: <Activity className="w-4 h-4" /> },
   ];
 
   return (

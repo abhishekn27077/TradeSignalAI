@@ -74,9 +74,8 @@ class MarketMemoryEngine:
         exclude_cols = ['Future_Return_5', 'close']
         feature_cols = [c for c in df.columns if c not in exclude_cols]
         
-        # Handle nan
+        # Causal forward fill only; do not backward fill future feature values into past rows
         df.ffill(inplace=True)
-        df.bfill(inplace=True)
         df.dropna(inplace=True)
         
         if len(df) < 500:

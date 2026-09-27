@@ -55,9 +55,9 @@ class MarketDataHealthService:
     def get_system_health(self) -> Dict[str, Any]:
         all_feeds = list(self.asset_health_registry.values())
         if not all_feeds:
-            # Query actual SQLite historical_candles table to inspect monitored feeds
             import sqlite3
             default_assets = ["EURUSD", "GBPUSD", "USDJPY", "AUDUSD", "BTCUSD", "ETHUSD", "XAUUSD", "NAS100", "SPX500"]
+            now_utc = datetime.now(timezone.utc)
             try:
                 conn = sqlite3.connect("tradesignal.db")
                 cur = conn.cursor()
@@ -68,24 +68,38 @@ class MarketDataHealthService:
                     )
                     row = cur.fetchone()
                     count = row[0] if row else 0
-                    last_ts = row[1] if row and row[1] else None
+                    last_ts_str = row[1] if row and row[1] else None
+                    freshness_sec = 999999.0
+                    if last_ts_str:
+                        try:
+                            clean_ts = last_ts_str.replace("Z", "+00:00")
+                            parsed_ts = datetime.fromisoformat(clean_ts)
+                            if parsed_ts.tzinfo is None:
+                                parsed_ts = parsed_ts.replace(tzinfo=timezone.utc)
+                            freshness_sec = max(0.0, (now_utc - parsed_ts).total_seconds())
+                        except Exception:
+                            freshness_sec = 999999.0
 
-                    is_valid = count >= 15
-                    status = DataQualityState.DATA_QUALITY_GOOD.value if count >= 50 else (
-                        DataQualityState.DATA_QUALITY_DEGRADED.value if count >= 15 else DataQualityState.DATA_QUALITY_UNACCEPTABLE.value
+                    # 1H candle is fresh only if within 7200 seconds (2 hours) and count >= 50
+                    is_fresh = freshness_sec <= 7200.0 and count >= 50
+                    status = (
+                        DataQualityState.DATA_QUALITY_GOOD.value if is_fresh else (
+                            DataQualityState.DATA_QUALITY_DEGRADED.value if count >= 15 else DataQualityState.DATA_QUALITY_UNACCEPTABLE.value
+                        )
                     )
                     self.asset_health_registry[f"{a}_1H"] = {
                         "asset": a,
                         "timeframe": "1H",
-                        "provider": "HistoricalMarketDB",
+                        "provider": "HISTORICAL_SQLITE_CACHE",
                         "status": status,
-                        "is_valid_for_trading": is_valid,
-                        "last_candle_utc": last_ts or datetime.now(timezone.utc).isoformat(),
-                        "freshness_seconds": 60.0 if is_valid else 999999.0,
+                        "is_valid_for_trading": False,  # Historical cache alone is NOT valid for live trading without live feed
+                        "last_candle_utc": last_ts_str or "NEVER",
+                        "freshness_seconds": round(freshness_sec, 2),
                         "latency_ms": 1.5,
                         "total_candles": count,
-                        "issues_count": 0 if is_valid else 1,
-                        "updated_at_utc": datetime.now(timezone.utc).isoformat()
+                        "issues_count": 0 if is_fresh else 1,
+                        "updated_at_utc": now_utc.isoformat(),
+                        "classification": "HISTORICAL_EVIDENCE",
                     }
                 conn.close()
             except Exception:

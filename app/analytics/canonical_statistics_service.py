@@ -102,16 +102,16 @@ class CanonicalStatisticsService:
 
         pos_r = sum(r for r in r_values if r > 0)
         neg_r = abs(sum(r for r in r_values if r < 0))
-        profit_factor = round(pos_r / neg_r, 2) if neg_r > 0 else (round(pos_r, 2) if pos_r > 0 else 1.0)
+        profit_factor = round(pos_r / neg_r, 2) if neg_r > 0 else (round(pos_r, 2) if pos_r > 0 else 0.0)
 
-        # Sharpe ratio
+        # Sharpe ratio (truthful: 0.0 when insufficient trades)
         if len(r_values) > 1:
             mean_r = sum(r_values) / len(r_values)
             variance = sum((r - mean_r) ** 2 for r in r_values) / (len(r_values) - 1)
             std_r = math.sqrt(variance) if variance > 0 else 0.01
             sharpe = round((mean_r / std_r) * math.sqrt(min(252, resolved_count)), 2)
         else:
-            sharpe = 1.85 if win_rate_pct >= 60 else 1.0
+            sharpe = 0.0
 
         # Maximum Drawdown in R-multiples
         running_peak = 0.0

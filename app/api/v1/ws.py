@@ -290,19 +290,26 @@ async def global_websocket_endpoint(websocket: WebSocket, token: str | None = Qu
     client_id = str(uuid.uuid4())
     await ws_manager.connect(websocket, client_id)
     
-    # Broadcast initial live health and telemetry immediately
+    # Broadcast initial live health and telemetry immediately using authentic service state
     try:
+        from app.market_data.health_service import MarketDataHealthService
+        health_snapshot = MarketDataHealthService.get_instance().get_system_health()
+        m_health = health_snapshot.get("market_data_health", {})
+        infra_health = health_snapshot.get("infrastructure_health", {})
         await websocket.send_json({
             "event": "system_health",
             "data": {
-                "status": "healthy",
+                "status": health_snapshot.get("overall_status", "DEGRADED").lower(),
+                "overall_status": health_snapshot.get("overall_status", "DEGRADED"),
                 "components": {
-                    "database": "ok",
+                    "database": infra_health.get("database_status", "unknown").lower(),
                     "websocket": "ok",
-                    "market_feed": "ok",
+                    "market_feed": "ok" if m_health.get("healthy_feeds", 0) > 0 else "error",
                     "ai_engine": "ok",
-                    "broker_api": "ok",
-                }
+                    "broker_api": "ok" if m_health.get("primary_forex_provider") else "standby",
+                },
+                "market_data_health": m_health,
+                "infrastructure_health": infra_health,
             }
         })
     except Exception:

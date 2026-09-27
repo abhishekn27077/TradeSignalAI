@@ -64,21 +64,39 @@ class MT5DataProvider(BaseDataProvider):
     Primary Market Data Provider using official MetaTrader 5 API.
     """
 
+    # Common broker suffixes for account types (Standard, Raw, Micro, ECN, etc.)
+    KNOWN_BROKER_SUFFIXES = ["", "m", ".a", "#", ".pro", "_i", "ecn", ".r", ".c", "+"]
+
     def __init__(self):
         self._connected = False
         self._broker_name: str = "MetaQuotes Software Corp."
         self._server_name: str = "Demo"
         self._login: Optional[int] = None
         self._lock = asyncio.Lock()
+        self._last_connect_failure: Optional[datetime] = None
+        self._connect_cooldown_seconds: float = 30.0
+        self._resolved_symbol_cache: Dict[str, str] = {}
 
     @property
     def name(self) -> str:
         return "MT5"
 
+    def _should_skip_connect_attempt(self) -> bool:
+        if self._last_connect_failure is None:
+            return False
+        elapsed = (datetime.now(timezone.utc) - self._last_connect_failure).total_seconds()
+        return elapsed < self._connect_cooldown_seconds
+
     async def connect(self) -> bool:
         if not MT5_AVAILABLE:
             logger.warning("MetaTrader5 python package not available.")
             self._connected = False
+            return False
+
+        if self._should_skip_connect_attempt():
+            logger.debug(
+                f"MT5 connection in cooldown ({self._connect_cooldown_seconds}s). Skipping initialize attempt."
+            )
             return False
 
         settings = get_settings()
@@ -103,6 +121,7 @@ class MT5DataProvider(BaseDataProvider):
             )
             if res:
                 self._connected = True
+                self._last_connect_failure = None
                 term_info = await loop.run_in_executor(None, mt5.terminal_info)
                 acct_info = await loop.run_in_executor(None, mt5.account_info)
                 if term_info:
@@ -116,15 +135,46 @@ class MT5DataProvider(BaseDataProvider):
                 err = mt5.last_error()
                 logger.warning(f"MT5 initialize failed: {err}")
                 self._connected = False
+                self._last_connect_failure = datetime.now(timezone.utc)
                 return False
         except asyncio.TimeoutError:
             logger.warning("MT5 initialize timed out after 2.0s (terminal unavailable). Failing closed.")
             self._connected = False
+            self._last_connect_failure = datetime.now(timezone.utc)
             return False
         except Exception as e:
             logger.error(f"Error during MT5 initialization: {e}")
             self._connected = False
+            self._last_connect_failure = datetime.now(timezone.utc)
             return False
+
+    def _resolve_broker_symbol(self, clean_symbol: str) -> Optional[str]:
+        """
+        Resolves broker-specific symbol variations (e.g. EURUSD -> EURUSDm, EURUSD.a, EURUSD#).
+        Preserves instrument identity; never substitutes a different currency or asset.
+        Returns the exact matching broker symbol or None.
+        """
+        if not MT5_AVAILABLE or not self._connected:
+            return None
+        
+        cached = self._resolved_symbol_cache.get(clean_symbol)
+        if cached:
+            return cached
+
+        # Check raw symbol and known suffix candidates
+        for suffix in self.KNOWN_BROKER_SUFFIXES:
+            candidate = f"{clean_symbol}{suffix}"
+            try:
+                info = mt5.symbol_info(candidate)
+                if info is not None:
+                    # Successfully mapped to broker instrument
+                    self._resolved_symbol_cache[clean_symbol] = candidate
+                    return candidate
+            except Exception:
+                continue
+
+        # If direct probe fails, return None (fail closed, no guess)
+        return None
 
     async def check_health(self) -> bool:
         if not MT5_AVAILABLE:
@@ -154,13 +204,14 @@ class MT5DataProvider(BaseDataProvider):
                 return None
 
         clean_symbol = symbol.replace("/", "").strip()
+        broker_symbol = self._resolve_broker_symbol(clean_symbol) or clean_symbol
         loop = asyncio.get_event_loop()
         try:
             # Ensure symbol is selected in Market Watch
-            await loop.run_in_executor(None, lambda: mt5.symbol_select(clean_symbol, True))
-            tick = await loop.run_in_executor(None, lambda: mt5.symbol_info_tick(clean_symbol))
+            await loop.run_in_executor(None, lambda: mt5.symbol_select(broker_symbol, True))
+            tick = await loop.run_in_executor(None, lambda: mt5.symbol_info_tick(broker_symbol))
             if tick is None:
-                logger.debug(f"MT5 symbol_info_tick returned None for {clean_symbol}")
+                logger.debug(f"MT5 symbol_info_tick returned None for {broker_symbol} (requested {clean_symbol})")
                 return None
 
             rec_time = datetime.now(timezone.utc)
@@ -186,6 +237,7 @@ class MT5DataProvider(BaseDataProvider):
             return {
                 "symbol": clean_symbol,
                 "canonical_symbol": clean_symbol,
+                "broker_symbol": broker_symbol,
                 "price": last or bid,
                 "bid": bid,
                 "ask": ask,
@@ -217,6 +269,7 @@ class MT5DataProvider(BaseDataProvider):
                 return []
 
         clean_symbol = symbol.replace("/", "").strip()
+        broker_symbol = self._resolve_broker_symbol(clean_symbol) or clean_symbol
         tf_mt5 = TIMEFRAME_MAP.get(timeframe)
         if tf_mt5 is None:
             logger.warning(f"Unsupported timeframe for MT5: {timeframe}")
@@ -224,12 +277,12 @@ class MT5DataProvider(BaseDataProvider):
 
         loop = asyncio.get_event_loop()
         try:
-            await loop.run_in_executor(None, lambda: mt5.symbol_select(clean_symbol, True))
+            await loop.run_in_executor(None, lambda: mt5.symbol_select(broker_symbol, True))
             rates = await loop.run_in_executor(
-                None, lambda: mt5.copy_rates_from_pos(clean_symbol, tf_mt5, 0, count)
+                None, lambda: mt5.copy_rates_from_pos(broker_symbol, tf_mt5, 0, count)
             )
             if rates is None or len(rates) == 0:
-                logger.debug(f"MT5 copy_rates_from_pos returned no rates for {clean_symbol}")
+                logger.debug(f"MT5 copy_rates_from_pos returned no rates for {broker_symbol} (requested {clean_symbol})")
                 return []
 
             rec_time = datetime.now(timezone.utc)
