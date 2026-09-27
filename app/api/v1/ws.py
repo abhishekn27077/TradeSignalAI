@@ -302,7 +302,7 @@ async def global_websocket_endpoint(websocket: WebSocket, token: str | None = Qu
                 "status": health_snapshot.get("overall_status", "DEGRADED").lower(),
                 "overall_status": health_snapshot.get("overall_status", "DEGRADED"),
                 "components": {
-                    "database": infra_health.get("database_status", "unknown").lower(),
+                    "database": "ok" if infra_health.get("database_status", "").upper() in ("HEALTHY", "OK") else "error",
                     "websocket": "ok",
                     "market_feed": "ok" if m_health.get("healthy_feeds", 0) > 0 else "error",
                     "ai_engine": "ok",

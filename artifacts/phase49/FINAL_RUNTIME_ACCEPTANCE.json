@@ -1,8 +1,8 @@
 {
   "phase": "PHASE_49",
   "title": "Live Fresh-Data, Future-Signal & Temporal Truth Engine \u2014 Final Runtime Acceptance",
-  "execution_timestamp_utc": "2026-09-27T14:54:50.683272+00:00",
-  "execution_timestamp_ist": "Sunday, 27 September 2026 08:24 PM IST",
+  "execution_timestamp_utc": "2026-09-27T15:46:29.501343+00:00",
+  "execution_timestamp_ist": "Sunday, 27 September 2026 09:16 PM IST",
   "verdict": "FAIL",
   "total_tests": 32,
   "passed": 31,
@@ -12,11 +12,11 @@
       "test": "Record current UTC and IST time",
       "status": "PASS",
       "evidence": {
-        "utc": "2026-09-27T14:54:35.017516+00:00",
-        "ist": "2026-09-27T20:24:35.017522+05:30",
-        "ist_formatted": "Sunday, 27 September 2026 08:24 PM IST"
+        "utc": "2026-09-27T15:46:15.658981+00:00",
+        "ist": "2026-09-27T21:16:15.658986+05:30",
+        "ist_formatted": "Sunday, 27 September 2026 09:16 PM IST"
       },
-      "timestamp_utc": "2026-09-27T14:54:35.017553+00:00"
+      "timestamp_utc": "2026-09-27T15:46:15.659017+00:00"
     },
     "A2": {
       "test": "Inspect latest stored closed candle per asset",
@@ -38,7 +38,7 @@
           }
         }
       },
-      "timestamp_utc": "2026-09-27T14:54:35.046817+00:00"
+      "timestamp_utc": "2026-09-27T15:46:15.691192+00:00"
     },
     "A3": {
       "test": "Start/restart application (startup sync executed)",
@@ -47,7 +47,7 @@
         "sync_returned": true,
         "note": "StartupSyncService.synchronize_market_data() invoked"
       },
-      "timestamp_utc": "2026-09-27T14:54:42.726136+00:00"
+      "timestamp_utc": "2026-09-27T15:46:23.203669+00:00"
     },
     "A4": {
       "test": "Capture provider's newest available closed candle",
@@ -68,7 +68,7 @@
           }
         }
       },
-      "timestamp_utc": "2026-09-27T14:54:42.754121+00:00"
+      "timestamp_utc": "2026-09-27T15:46:23.237507+00:00"
     },
     "A5": {
       "test": "Provider timestamp correctly compared with DB timestamp",
@@ -95,15 +95,15 @@
           }
         ]
       },
-      "timestamp_utc": "2026-09-27T14:54:42.754227+00:00"
+      "timestamp_utc": "2026-09-27T15:46:23.237612+00:00"
     },
     "A6": {
       "test": "Newly available candles inserted into SQLite",
       "status": "PASS",
       "evidence": {
-        "total_candle_rows": 254254
+        "total_candle_rows": 254268
       },
-      "timestamp_utc": "2026-09-27T14:54:43.047287+00:00"
+      "timestamp_utc": "2026-09-27T15:46:23.248734+00:00"
     },
     "A7": {
       "test": "Duplicates are NOT created",
@@ -112,7 +112,7 @@
         "duplicate_rows_found": 0,
         "samples": []
       },
-      "timestamp_utc": "2026-09-27T14:54:43.113265+00:00"
+      "timestamp_utc": "2026-09-27T15:46:23.404378+00:00"
     },
     "A8": {
       "test": "Forecast engine reads newly synchronized data",
@@ -122,7 +122,7 @@
         "expected": 9,
         "sample_asset": "EURUSD"
       },
-      "timestamp_utc": "2026-09-27T14:54:43.170205+00:00"
+      "timestamp_utc": "2026-09-27T15:46:23.459442+00:00"
     },
     "A9": {
       "test": "data_as_of in forecast corresponds to synchronized data",
@@ -149,7 +149,7 @@
           }
         ]
       },
-      "timestamp_utc": "2026-09-27T14:54:43.170260+00:00"
+      "timestamp_utc": "2026-09-27T15:46:23.459504+00:00"
     },
     "B1": {
       "test": "All current signals have target_time > current_time",
@@ -179,22 +179,23 @@
           },
           {
             "asset": "BTCUSD",
-            "time": "2026-09-27T14:00:00",
-            "note": "Already filtered by journal"
+            "candle_ts": "2026-09-27T15:00:00+00:00",
+            "expiry_utc": "2026-09-27T17:00:00+00:00",
+            "is_future": true
           }
         ]
       },
-      "timestamp_utc": "2026-09-27T14:54:43.170416+00:00"
+      "timestamp_utc": "2026-09-27T15:46:23.459694+00:00"
     },
     "B2": {
       "test": "Expired signals (target <= current) are rejected",
       "status": "PASS",
       "evidence": {
-        "test_target_utc": "2026-09-27T11:54:43.170285+00:00",
-        "current_utc": "2026-09-27T14:54:43.170285+00:00",
+        "test_target_utc": "2026-09-27T12:46:23.459529+00:00",
+        "current_utc": "2026-09-27T15:46:23.459529+00:00",
         "is_expired_result": true
       },
-      "timestamp_utc": "2026-09-27T14:54:43.170438+00:00"
+      "timestamp_utc": "2026-09-27T15:46:23.459723+00:00"
     },
     "B3": {
       "test": "Past forecasts available in historical/ledger views",
@@ -203,7 +204,7 @@
         "total_predictions_in_ledger": 9,
         "note": "shadow_ledger_engine.get_all_predictions() retains ALL predictions immutably"
       },
-      "timestamp_utc": "2026-09-27T14:54:43.170454+00:00"
+      "timestamp_utc": "2026-09-27T15:46:23.459741+00:00"
     },
     "C1": {
       "test": "Generate forecast at simulated 2:00 PM IST",
@@ -211,11 +212,11 @@
       "evidence": {
         "simulated_time_ist": "02:00 PM IST",
         "forecasts_generated": 9,
-        "sample_prediction_id": "PRED-EURUSD-20260927145443-88e8df",
+        "sample_prediction_id": "PRED-EURUSD-20260927154623-d1c909",
         "sample_direction": "BUY",
         "sample_confidence": 0.66
       },
-      "timestamp_utc": "2026-09-27T14:54:43.284388+00:00"
+      "timestamp_utc": "2026-09-27T15:46:23.512862+00:00"
     },
     "C2": {
       "test": "Forecast persisted in shadow ledger",
@@ -223,7 +224,7 @@
       "evidence": {
         "predictions_persisted": 9
       },
-      "timestamp_utc": "2026-09-27T14:54:43.284461+00:00"
+      "timestamp_utc": "2026-09-27T15:46:23.512910+00:00"
     },
     "C3": {
       "test": "Restart at 5:00 PM IST recalculates with fresh data",
@@ -239,26 +240,26 @@
         "old_forecast_in_history": true,
         "note": "Old forecast remains in immutable ledger; new cycle uses current market state"
       },
-      "timestamp_utc": "2026-09-27T14:54:50.340507+00:00"
+      "timestamp_utc": "2026-09-27T15:46:29.278338+00:00"
     },
     "C4": {
       "test": "Previous forecast remains in immutable history",
       "status": "PASS",
       "evidence": {
-        "old_prediction_id": "PRED-EURUSD-20260927145443-88e8df",
+        "old_prediction_id": "PRED-EURUSD-20260927154623-d1c909",
         "found_in_ledger": true,
         "total_predictions_now": 9
       },
-      "timestamp_utc": "2026-09-27T14:54:50.340568+00:00"
+      "timestamp_utc": "2026-09-27T15:46:29.278396+00:00"
     },
     "D1": {
       "test": "Advancing time beyond forecast target marks it expired",
       "status": "PASS",
       "evidence": {
-        "simulated_past_target": "2026-09-27T09:54:43.170285+00:00",
+        "simulated_past_target": "2026-09-27T10:46:23.459529+00:00",
         "is_expired": true
       },
-      "timestamp_utc": "2026-09-27T14:54:50.340614+00:00"
+      "timestamp_utc": "2026-09-27T15:46:29.278431+00:00"
     },
     "D2": {
       "test": "Today's Signals does NOT contain expired forecast",
@@ -267,7 +268,7 @@
         "today_forecast_count": 9,
         "all_are_future": false
       },
-      "timestamp_utc": "2026-09-27T14:54:50.340769+00:00"
+      "timestamp_utc": "2026-09-27T15:46:29.278567+00:00"
     },
     "D3": {
       "test": "Signal History (ledger) contains past forecasts",
@@ -275,7 +276,7 @@
       "evidence": {
         "total_predictions_in_history": 9
       },
-      "timestamp_utc": "2026-09-27T14:54:50.340789+00:00"
+      "timestamp_utc": "2026-09-27T15:46:29.278584+00:00"
     },
     "D4": {
       "test": "Prediction Ledger contains past forecasts",
@@ -284,7 +285,7 @@
         "ledger_size": 9,
         "note": "shadow_ledger_engine is immutable append-only"
       },
-      "timestamp_utc": "2026-09-27T14:54:50.340802+00:00"
+      "timestamp_utc": "2026-09-27T15:46:29.278597+00:00"
     },
     "E1": {
       "test": "IST format matches 'Weekday, DD Month YYYY HH:MM AM/PM IST'",
@@ -295,7 +296,7 @@
         "expected_pattern": "^[A-Z][a-z]+, \\d{2} [A-Z][a-z]+ \\d{4} \\d{2}:\\d{2} [AP]M IST$",
         "matches": true
       },
-      "timestamp_utc": "2026-09-27T14:54:50.341004+00:00"
+      "timestamp_utc": "2026-09-27T15:46:29.278772+00:00"
     },
     "E2": {
       "test": "Format does NOT use 24-hour notation",
@@ -304,7 +305,7 @@
         "formatted": "Friday, 21 August 2026 06:00 PM IST",
         "contains_18:00": false
       },
-      "timestamp_utc": "2026-09-27T14:54:50.341025+00:00"
+      "timestamp_utc": "2026-09-27T15:46:29.278790+00:00"
     },
     "E3": {
       "test": "Format does NOT use ISO 8601 notation",
@@ -313,7 +314,7 @@
         "formatted": "Friday, 21 August 2026 06:00 PM IST",
         "has_iso_datetime_pattern": false
       },
-      "timestamp_utc": "2026-09-27T14:54:50.341106+00:00"
+      "timestamp_utc": "2026-09-27T15:46:29.278865+00:00"
     },
     "E4": {
       "test": "Format does NOT say UTC",
@@ -322,23 +323,23 @@
         "formatted": "Friday, 21 August 2026 06:00 PM IST",
         "ends_with_IST": true
       },
-      "timestamp_utc": "2026-09-27T14:54:50.341123+00:00"
+      "timestamp_utc": "2026-09-27T15:46:29.278882+00:00"
     },
     "E5": {
       "test": "Journal response includes date_ist_formatted field",
       "status": "PASS",
       "evidence": {
-        "date_ist_formatted": "Sunday, 27 September 2026 08:24 PM IST"
+        "date_ist_formatted": "Sunday, 27 September 2026 09:16 PM IST"
       },
-      "timestamp_utc": "2026-09-27T14:54:50.341136+00:00"
+      "timestamp_utc": "2026-09-27T15:46:29.278894+00:00"
     },
     "E6": {
       "test": "Forecast rows include time_ist_formatted field",
       "status": "PASS",
       "evidence": {
-        "sample": "Sunday, 27 September 2026 08:24 PM IST"
+        "sample": "Sunday, 27 September 2026 09:16 PM IST"
       },
-      "timestamp_utc": "2026-09-27T14:54:50.341150+00:00"
+      "timestamp_utc": "2026-09-27T15:46:29.278909+00:00"
     },
     "F1": {
       "test": "No hardcoded forecast timestamps in production code",
@@ -352,7 +353,7 @@
           "2026-08-21"
         ]
       },
-      "timestamp_utc": "2026-09-27T14:54:50.608094+00:00"
+      "timestamp_utc": "2026-09-27T15:46:29.429544+00:00"
     },
     "F2": {
       "test": "Forecast times are dynamically derived from input datetime",
@@ -363,18 +364,18 @@
         "test_3": "Friday, 25 December 2026 08:30 AM IST",
         "all_different": true
       },
-      "timestamp_utc": "2026-09-27T14:54:50.608202+00:00"
+      "timestamp_utc": "2026-09-27T15:46:29.429634+00:00"
     },
     "G1": {
       "test": "is_data_stale correctly detects old data",
       "status": "PASS",
       "evidence": {
-        "test_candle_time": "2026-09-27T11:54:43.170285+00:00",
-        "current_time": "2026-09-27T14:54:43.170285+00:00",
+        "test_candle_time": "2026-09-27T12:46:23.459529+00:00",
+        "current_time": "2026-09-27T15:46:23.459529+00:00",
         "age_seconds": 10800.0,
         "is_stale": true
       },
-      "timestamp_utc": "2026-09-27T14:54:50.608269+00:00"
+      "timestamp_utc": "2026-09-27T15:46:29.429675+00:00"
     },
     "G2": {
       "test": "Startup sync FAILS CLOSED when provider unavailable",
@@ -384,7 +385,7 @@
         "expected": false,
         "note": "DATA_UNAVAILABLE logged; no new actionable forecast generated"
       },
-      "timestamp_utc": "2026-09-27T14:54:50.610337+00:00"
+      "timestamp_utc": "2026-09-27T15:46:29.431129+00:00"
     },
     "G3": {
       "test": "DATA_STALE and DATA_UNAVAILABLE are used in production code",
@@ -393,7 +394,7 @@
         "DATA_STALE_found": true,
         "DATA_UNAVAILABLE_found": true
       },
-      "timestamp_utc": "2026-09-27T14:54:50.682966+00:00"
+      "timestamp_utc": "2026-09-27T15:46:29.501054+00:00"
     },
     "H1": {
       "test": "End-to-end lineage: all timestamps traceable",
@@ -403,18 +404,18 @@
         "1_provider_candle_timestamp": "2026-09-25T23:00:00",
         "2_db_candle_timestamp": "2026-09-25T23:00:00",
         "3_feature_timestamp": "2026-09-25T23:00:00",
-        "4_model_evaluation_timestamp": "2026-09-27T14:54:43.113350+00:00",
-        "5_forecast_generation_timestamp": "2026-09-27T14:54:43.113350+00:00",
-        "6_target_forecast_timestamp": "Sunday, 27 September 2026 08:24 PM IST",
+        "4_model_evaluation_timestamp": "2026-09-27T15:46:23.404446+00:00",
+        "5_forecast_generation_timestamp": "2026-09-27T15:46:23.404446+00:00",
+        "6_target_forecast_timestamp": "Sunday, 27 September 2026 09:16 PM IST",
         "7_current_ui_signal": {
-          "prediction_id": "PRED-EURUSD-20260927145443-88e8df",
+          "prediction_id": "PRED-EURUSD-20260927154623-d1c909",
           "direction": "BUY",
           "confidence": 0.66,
           "entry_price": 1.1401208639144897,
-          "time_ist_formatted": "Sunday, 27 September 2026 08:24 PM IST"
+          "time_ist_formatted": "Sunday, 27 September 2026 09:16 PM IST"
         }
       },
-      "timestamp_utc": "2026-09-27T14:54:50.683072+00:00"
+      "timestamp_utc": "2026-09-27T15:46:29.501156+00:00"
     }
   }
 }
