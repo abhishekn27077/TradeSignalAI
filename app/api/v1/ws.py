@@ -326,6 +326,11 @@ async def global_websocket_endpoint(websocket: WebSocket, token: str | None = Qu
                 action = msg.get("action")
                 topic = msg.get("topic")
 
+                if action in ("symbol_changed", "publish", "inject_signal", "trigger_action") or (action not in ("ping", "subscribe", "unsubscribe") and not user):
+                    if not user:
+                        await websocket.send_json({"error": "Authentication required for write/publish actions", "status": 401})
+                        continue
+
                 if action == "ping":
                     await websocket.send_json({"event": "pong", "timestamp": time.time()})
                 elif action == "subscribe" and topic:
@@ -335,9 +340,6 @@ async def global_websocket_endpoint(websocket: WebSocket, token: str | None = Qu
                     await ws_manager.unsubscribe(client_id, topic)
                     await websocket.send_json({"event": "unsubscribed", "topic": topic})
                 elif action == "symbol_changed" and topic:
-                    if not user:
-                        await websocket.send_json({"error": "Authentication required for symbol change", "status": 401})
-                        continue
                     await event_bus.publish("SymbolChanged", {"symbol": topic})
                     await websocket.send_json({"event": "symbol_changed_ack", "symbol": topic})
             except json.JSONDecodeError:

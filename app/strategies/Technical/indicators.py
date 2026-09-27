@@ -20,21 +20,18 @@ def compute_atr(df: pd.DataFrame, period: int = 14) -> pd.Series:
 
 
 def compute_rsi(df: pd.DataFrame, period: int = 14) -> pd.Series:
-    """Computes Relative Strength Index (RSI)."""
+    """Computes Relative Strength Index (RSI) using Wilder's smoothing (RMA)."""
     delta = df['close'].diff()
     gain = delta.clip(lower=0)
     loss = -delta.clip(upper=0)
 
-    avg_gain = gain.rolling(window=period, min_periods=period).mean()
-    avg_loss = loss.rolling(window=period, min_periods=period).mean()
-
-    # Wilder's smoothing
-    for i in range(period, len(df)):
-        avg_gain.iloc[i] = (avg_gain.iloc[i - 1] * (period - 1) + gain.iloc[i]) / period
-        avg_loss.iloc[i] = (avg_loss.iloc[i - 1] * (period - 1) + loss.iloc[i]) / period
+    # Wilder's Exponential Moving Average (alpha = 1 / period)
+    alpha = 1.0 / period
+    avg_gain = gain.ewm(alpha=alpha, min_periods=period, adjust=False).mean()
+    avg_loss = loss.ewm(alpha=alpha, min_periods=period, adjust=False).mean()
 
     rs = avg_gain / (avg_loss + 1e-10)
-    rsi = 100 - (100 / (1 + rs))
+    rsi = 100.0 - (100.0 / (1.0 + rs))
     return rsi.fillna(50.0)
 
 

@@ -412,19 +412,30 @@ class CanonicalSignalService:
         # 3. Market Data & Validation — use REAL latest candle price, not hardcoded base prices
         ref_price = None
         age_seconds = None
-        candle_timeframe = None
+        eval_tf = "1h"
         try:
             conn = sqlite3.connect("tradesignal.db", timeout=10.0)
             cur = conn.cursor()
             cur.execute(
                 """
                 SELECT close, timestamp, timeframe FROM historical_candles
-                WHERE symbol = ?
+                WHERE symbol = ? AND timeframe IN ('1h', '1H', 'H1')
                 ORDER BY timestamp DESC LIMIT 1
                 """,
                 (asset,),
             )
             row = cur.fetchone()
+            # If no 1h candle, fallback to any closed candle but enforce strict max age
+            if not row:
+                cur.execute(
+                    """
+                    SELECT close, timestamp, timeframe FROM historical_candles
+                    WHERE symbol = ?
+                    ORDER BY timestamp DESC LIMIT 1
+                    """,
+                    (asset,),
+                )
+                row = cur.fetchone()
             conn.close()
             if row and row[0]:
                 ref_price = float(row[0])
@@ -464,9 +475,12 @@ class CanonicalSignalService:
             "1d": 172800, "D1": 172800,
             "1wk": 1209600,
         }
-        freshness_threshold = _TF_FRESHNESS_SECONDS.get(
-            (candle_timeframe or "1h"), 7200
-        )
+        if candle_timeframe:
+            freshness_threshold = float(_TF_FRESHNESS_SECONDS.get(candle_timeframe, 7200.0))
+        elif eval_tf:
+            freshness_threshold = float(_TF_FRESHNESS_SECONDS.get(eval_tf, 7200.0))
+        else:
+            freshness_threshold = 7200.0
 
         # Check Price Validity
         is_price_valid = (

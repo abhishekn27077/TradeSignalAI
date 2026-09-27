@@ -34,6 +34,8 @@ class AssetTradingCalendar:
     Detailed trading schedule rules per asset class.
     """
     ASSET_SCHEDULES = {
+        "BTCUSDT": {"class": "CRYPTO", "venue": "BINANCE", "open_all_week": True},
+        "ETHUSDT": {"class": "CRYPTO", "venue": "BINANCE", "open_all_week": True},
         "BTCUSD": {"class": "CRYPTO", "venue": "CRYPTO_24_7", "open_all_week": True},
         "ETHUSD": {"class": "CRYPTO", "venue": "CRYPTO_24_7", "open_all_week": True},
         "EURUSD": {"class": "FOREX", "venue": "FX_INTERBANK", "open_all_week": False},
@@ -207,9 +209,9 @@ class MarketSessionService:
 
     @classmethod
     def get_all_market_statuses(cls, dt_utc: Optional[datetime] = None) -> List[Dict[str, Any]]:
-        """Returns status list for all 9 core assets."""
-        symbols = list(AssetTradingCalendar.ASSET_SCHEDULES.keys())
-        return [cls.get_market_status(sym, dt_utc) for sym in symbols]
+        """Returns status list for all 9 core monitored assets."""
+        core_assets = ["BTCUSD", "ETHUSD", "EURUSD", "GBPUSD", "USDJPY", "AUDUSD", "XAUUSD", "NAS100", "SPX500"]
+        return [cls.get_market_status(sym, dt_utc) for sym in core_assets]
 
 
 market_session_service = MarketSessionService()

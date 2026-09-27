@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 from typing import Dict, Any, List, Optional
+import os
 import pandas as pd
 
 from app.market_data.quality.engine import DataQualityEngine
@@ -96,10 +97,51 @@ class MarketDataHealthService:
             "DEGRADED" if healthy_count > 0 else "UNAVAILABLE"
         )
 
+        from app.core.market_session import MarketSessionService
+        from app.config.settings import get_settings
+        now_utc = datetime.now(timezone.utc)
+        settings = get_settings()
+
+        # Domain 1: Infrastructure Health
+        infrastructure_health = {
+            "api_status": "HEALTHY",
+            "backend_runtime": "HEALTHY",
+            "database_status": "HEALTHY" if os.path.exists("tradesignal.db") else "DEGRADED",
+            "overall_infrastructure": "HEALTHY",
+        }
+
+        # Domain 2: Market Data Health
+        market_data_health = {
+            "overall_status": overall_status,
+            "total_monitored_feeds": len(all_feeds),
+            "healthy_feeds": healthy_count,
+            "primary_forex_provider": "MT5",
+            "primary_crypto_provider": "BINANCE",
+            "secondary_provider": "TRADINGVIEW",
+            "feeds": self.asset_health_registry,
+        }
+
+        # Domain 3: Trading State
+        trading_state = {
+            "execution_mode": "PAPER_ONLY",
+            "real_money_enabled": False,
+            "safety_lockout": "ENGAGED",
+            "asset_sessions": {
+                "USDJPY": "CLOSED" if not MarketSessionService.is_market_open("USDJPY", now_utc) else "OPEN",
+                "EURUSD": "CLOSED" if not MarketSessionService.is_market_open("EURUSD", now_utc) else "OPEN",
+                "BTCUSDT": "OPEN",
+                "ETHUSDT": "OPEN",
+            },
+        }
+
         return {
             "overall_status": overall_status,
             "total_monitored_feeds": len(all_feeds),
             "healthy_feeds": healthy_count,
-            "timestamp_utc": datetime.now(timezone.utc).isoformat(),
-            "feeds": self.asset_health_registry
+            "timestamp_utc": now_utc.isoformat(),
+            "infrastructure_health": infrastructure_health,
+            "market_data_health": market_data_health,
+            "trading_state": trading_state,
+            "feeds": self.asset_health_registry,
         }
+

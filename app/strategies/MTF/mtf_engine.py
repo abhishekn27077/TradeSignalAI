@@ -148,6 +148,11 @@ class MTFEngine:
         elif st and st.direction == Direction.BEARISH:
             scores -= 1
 
+        if adx and adx.direction == Direction.BULLISH:
+            scores += 1
+        elif adx and adx.direction == Direction.BEARISH:
+            scores -= 1
+
         if rsi and rsi.direction == Direction.BULLISH:
             scores += 1
         elif rsi and rsi.direction == Direction.BEARISH:

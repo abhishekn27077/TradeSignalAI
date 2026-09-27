@@ -288,11 +288,16 @@ def _detect_swing_levels(df: pd.DataFrame, pivot_window: int = 5) -> tuple[float
 
     window = pivot_window * 2 + 1
     try:
-        rolling_max = df["high"].rolling(window=window, center=True).max()
-        rolling_min = df["low"].rolling(window=window, center=True).min()
+        # Strictly backwards-looking / lagged confirmation to prevent lookahead bias:
+        # A pivot at (t - pivot_window) is confirmed once the subsequent pivot_window bars close.
+        roll_max = df["high"].rolling(window=window).max()
+        roll_min = df["low"].rolling(window=window).min()
 
-        pivot_highs = df[df["high"] == rolling_max]["high"].dropna()
-        pivot_lows  = df[df["low"]  == rolling_min]["low"].dropna()
+        is_pivot_high = (df["high"].shift(pivot_window) == roll_max)
+        is_pivot_low  = (df["low"].shift(pivot_window)  == roll_min)
+
+        pivot_highs = df.loc[is_pivot_high, "high"].dropna()
+        pivot_lows  = df.loc[is_pivot_low, "low"].dropna()
 
         swing_high = float(pivot_highs.iloc[-1]) if not pivot_highs.empty else None
         swing_low  = float(pivot_lows.iloc[-1])  if not pivot_lows.empty  else None

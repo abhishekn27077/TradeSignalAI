@@ -65,6 +65,16 @@ class ProspectiveSignalScheduler:
         active_positions = paper_portfolio_engine.get_portfolio_state().get("open_positions", [])
 
         for cand in ranking_res.top_signals:
+            # Canonical Pre-Journaling Validity & Session Gate (Phase 9, 10)
+            if cand.get("status") != "QUALIFIED":
+                logger.info(f"[SIGNAL_GATE] Suppressing non-qualified candidate: {cand.get('asset')} {cand.get('timeframe')} status={cand.get('status')}")
+                continue
+
+            from app.core.market_session import MarketSessionService
+            if not MarketSessionService.is_market_open(cand["asset"], now_utc):
+                logger.info(f"[SIGNAL_GATE] Suppressed signal for closed market: {cand.get('asset')}")
+                continue
+
             # Frequency & Deduplication Check
             cand_check = dict(cand)
             cand_check["canonical_snapshot_hash"] = snapshot.snapshot_content_hash

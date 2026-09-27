@@ -68,15 +68,16 @@ class CandleModel(Base):
     volume = Column(Float, default=0.0)
     spread = Column(Float, nullable=True)
     session = Column(String, nullable=True)  # Asian, London, New York, etc.
+    venue = Column(String, nullable=True, default="MT5_BROKER", index=True)
     provider = Column(String, default="yfinance")
     timezone = Column(String, default="UTC")
     quality_score = Column(Float, nullable=True)
     features_json = Column(JSON, nullable=True)  # Feature store blob
 
     __table_args__ = (
-        UniqueConstraint("symbol", "timeframe", "timestamp", "provider",
+        UniqueConstraint("symbol", "venue", "timeframe", "timestamp", "provider",
                          name="uq_candle_identity"),
-        Index("ix_candle_range", "symbol", "timeframe", "timestamp"),
+        Index("ix_candle_range", "symbol", "venue", "timeframe", "timestamp"),
         Index("ix_candle_provider", "provider", "symbol"),
     )
 

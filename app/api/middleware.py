@@ -82,11 +82,11 @@ class StateChangingAuthMiddleware(BaseHTTPMiddleware):
         "/api/v1/system-intelligence/pipeline/run",
         "/api/v1/signals/point-in-time-replay",
         "/api/v1/signals/replay",
-        "/api/v1/research/sweep",
-        "/api/v1/validation/phase44/replay",
         "/api/v1/signals/auto-resolve",
         "/api/v1/signals/run-cycle",
         "/api/v1/signals/resolve-due",
+        "/api/v1/research/sweep",
+        "/api/v1/validation/phase44/replay",
     }
 
     async def dispatch(self, request: Request, call_next) -> Response:

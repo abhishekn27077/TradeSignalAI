@@ -49,6 +49,7 @@ from app.analytics.historical_analog_engine import historical_analog_engine
 from app.analytics.expected_r_engine import expected_r_engine
 from app.core.signal_product import CausalViolationError
 from app.core.signal_event_logger import signal_event_logger
+from app.core.signal_validator import CanonicalSignalValidator, SignalRejectionReason
 
 logger = logging.getLogger("signal_factory")
 
@@ -373,11 +374,22 @@ class SignalFactory:
             event_risk=event_risk,
         )
 
-        # 8. Decision Trace
+        # 8. Canonical Pre-Flight Signal Validity Gate (Phase 9, 10, 11, 18)
+        pre_flight_res = CanonicalSignalValidator.validate_pre_flight(
+            asset_symbol=asset,
+            timeframe=timeframe,
+            current_price=current_price,
+            stop_loss=sl,
+            take_profit=tp,
+            direction=direction,
+            reference_time=now,
+        )
+
         decision_trace = {
-            "price_validity": {"passed": True, "price": current_price},
-            "freshness": {"passed": True, "age_seconds": 0.4},
-            "market_session": {"passed": True, "session": session},
+            "price_validity": pre_flight_res.checks.get("price_validity", {"passed": current_price is not None and current_price > 0, "price": current_price}),
+            "freshness": pre_flight_res.checks.get("data_freshness", {"passed": True, "age_seconds": 0.4}),
+            "market_session": pre_flight_res.checks.get("market_session", {"passed": True, "session": session}),
+            "paper_execution_only": pre_flight_res.checks.get("paper_execution_only", {"passed": True}),
             "event_risk": {"passed": event_risk != "HIGH", "event_risk": event_risk},
             "contributing_models": {"passed": agree_count >= 5, "actual": agree_count},
             "consensus_confidence": {"passed": raw_conf >= 0.65, "actual": raw_conf},
@@ -385,10 +397,17 @@ class SignalFactory:
             "risk_reward": {"passed": rr_ratio >= 1.50, "actual": rr_ratio},
             "expected_net_r": {"passed": exp_r_report.expected_net_r > 0.0, "actual": exp_r_report.expected_net_r},
             "quality_tier": exp_r_report.quality_grade,
+            "pre_flight_passed": pre_flight_res.is_valid,
         }
 
-        # Status Assignment
-        if exp_r_report.decision == "QUALIFIED" and raw_conf >= 0.65 and agree_count >= 5:
+        # Status Assignment (FAIL-CLOSED: If pre-flight gate failed, ALWAYS REJECT)
+        invalidation_reason = None
+        if not pre_flight_res.is_valid:
+            status = "REJECTED"
+            decision = "NO_TRADE"
+            is_shadow = False
+            invalidation_reason = pre_flight_res.rejection_reason.value if pre_flight_res.rejection_reason else "PRE_FLIGHT_REJECTED"
+        elif exp_r_report.decision == "QUALIFIED" and raw_conf >= 0.65 and agree_count >= 5:
             status = "QUALIFIED"
             decision = "TAKE_NOW"
             is_shadow = False
@@ -453,6 +472,7 @@ class SignalFactory:
                 "forward_4h_mean_pct": dist_hz.mean_return_pct if dist_hz else 0.0,
             },
             is_shadow_tracked=is_shadow,
+            invalidation_reason=invalidation_reason,
         )
 
         # Causal & Telemetry Event Emission
@@ -598,11 +618,34 @@ class SignalFactory:
         watchlist = [s for s in all_today if s.status == "WATCHLIST"]
         rejected = [s for s in all_today if s.status == "REJECTED"]
 
-        yesterday_results = [
-            {"time": "15:00", "asset": "EURUSD", "timeframe": "1H", "direction": "BUY", "outcome": "TP_HIT", "net_r": 1.85},
-            {"time": "16:00", "asset": "GBPUSD", "timeframe": "1H", "direction": "BUY", "outcome": "SL_HIT", "net_r": -1.05},
-            {"time": "17:00", "asset": "BTCUSD", "timeframe": "4H", "direction": "BUY", "outcome": "TP_HIT", "net_r": 2.10},
-        ]
+        yesterday_results = []
+        conn = self._get_connection()
+        if conn:
+            try:
+                cur = conn.cursor()
+                yest_str = (now - timedelta(days=1)).strftime("%Y-%m-%d")
+                cur.execute(
+                    """
+                    SELECT generated_at, asset, timeframe, direction, outcome, net_r
+                    FROM canonical_prospective_signal_ledger
+                    WHERE date(generated_at_utc) = ? AND outcome IS NOT NULL
+                    ORDER BY generated_at_utc ASC
+                    """,
+                    (yest_str,),
+                )
+                for row in cur.fetchall():
+                    yesterday_results.append({
+                        "time": row[0][11:16] if len(row[0]) >= 16 else row[0],
+                        "asset": row[1],
+                        "timeframe": row[2],
+                        "direction": row[3],
+                        "outcome": row[4],
+                        "net_r": float(row[5]) if row[5] is not None else 0.0,
+                    })
+            except Exception as e:
+                logger.debug(f"Failed to load yesterday results: {e}")
+            finally:
+                conn.close()
 
         return {
             "date": today_str,

@@ -109,11 +109,16 @@ class CanonicalMarketDataService:
         low_p = float(last_row.get("low", close_p))
         volume = float(last_row.get("volume", 0.0))
 
-        pip_scale = 0.01 if "JPY" in asset or "XAU" in asset else (1.0 if "BTC" in asset or "ETH" in asset or "NAS" in asset else 0.0001)
-        half_spread = (spread_pips * pip_scale) / 2.0
-        bid = close_p - half_spread
-        ask = close_p + half_spread
-        mid = close_p
+        if "bid" in last_row and "ask" in last_row and pd.notna(last_row["bid"]) and pd.notna(last_row["ask"]):
+            bid = float(last_row["bid"])
+            ask = float(last_row["ask"])
+            mid = (bid + ask) / 2.0
+        else:
+            pip_scale = 0.01 if "JPY" in asset or "XAU" in asset else (1.0 if "BTC" in asset or "ETH" in asset or "NAS" in asset else 0.0001)
+            half_spread = (spread_pips * pip_scale) / 2.0
+            bid = close_p - half_spread
+            ask = close_p + half_spread
+            mid = close_p
 
         # Validation
         is_corrupted = (low_p > high_p) or (open_p < 0) or (close_p < 0) or (high_p < 0) or (low_p < 0)

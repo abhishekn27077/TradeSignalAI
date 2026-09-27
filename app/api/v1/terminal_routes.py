@@ -29,6 +29,7 @@ from app.core.canonical_prospective_ledger import (
 )
 from app.analytics.canonical_statistics_service import canonical_statistics_service
 from app.core.market_session import MarketSessionService
+from app.core.asset_registry import canonical_asset_registry
 from app.forecast.tomorrow_forecast_engine import tomorrow_forecast_engine
 from app.analytics.timeframe_intelligence_engine import timeframe_intelligence_engine
 
@@ -86,10 +87,19 @@ def format_signal_for_terminal(sig: CanonicalProspectiveSignal, now_utc: datetim
     reward_dist = abs(sig.take_profit - sig.entry_price)
     rr_ratio = round(reward_dist / risk_dist, 2) if risk_dist > 0 else 2.0
 
+    res = canonical_asset_registry.resolve(sig.asset)
+    canonical_sym = res[0].canonical_symbol if res else sig.asset
+    venue = res[0].venue if res else "MT5_BROKER"
+    provider = res[0].primary_provider.value if res else "MT5"
+
     return {
         "id": sig.signal_id,
         "signal_id": sig.signal_id,
         "asset": sig.asset,
+        "canonical_symbol": canonical_sym,
+        "venue": venue,
+        "provider": provider,
+        "execution_mode": "PAPER_ONLY",
         "direction": sig.direction,
         "timeframe": sig.timeframe,
         "entry": round(sig.actual_entry_price or sig.entry_price, 5),
@@ -132,6 +142,7 @@ def get_today_signals():
     Returns only official signals generated for today's trading session.
     Automatically resolves any expired signals against verified historical candles.
     Calculates today's win rate strictly from resolved signals.
+    Fail-closed: Does NOT serve stale past signals on Sunday when markets are closed.
     """
     now_utc = datetime.now(timezone.utc)
 
@@ -141,29 +152,33 @@ def get_today_signals():
     except Exception:
         pass
 
-    # 2. Fetch today's signals
+    # 2. Fetch today's signals (STRICTLY TODAY: NO FALLBACK TO ALL PAST SIGNALS)
     signals = canonical_prospective_ledger.get_signals_by_filter(date_filter="TODAY", limit=200)
 
-    # If no signals generated today, provide recent active signals for continuity
-    if not signals:
-        signals = canonical_prospective_ledger.get_signals_by_filter(date_filter="ALL", limit=9)
+    # 3. Market Session Truth Check (Forex / Crypto / Metals)
+    eurusd_status = MarketSessionService.get_market_status("EURUSD", dt_utc=now_utc)
+    btcusd_status = MarketSessionService.get_market_status("BTCUSD", dt_utc=now_utc)
+    is_forex_open = bool(eurusd_status.get("is_market_open", False))
+    is_crypto_open = bool(btcusd_status.get("is_market_open", False))
 
-    # Filter to qualified production signals
-    qualified_signals = [s for s in signals if s.qualification_status == "QUALIFIED"]
+    # Overall actionable market open state
+    is_market_open = is_forex_open or is_crypto_open
+
+    # Filter to qualified production signals whose market session is currently OPEN or was active today
+    qualified_signals = [
+        s for s in signals 
+        if s.qualification_status == "QUALIFIED" and MarketSessionService.is_market_open(s.asset, now_utc)
+    ]
     formatted_signals = [format_signal_for_terminal(s, now_utc) for s in qualified_signals]
 
-    # 3. Calculate today's performance STRICTLY from resolved signals today
+    # 4. Calculate today's performance STRICTLY from resolved signals today
     resolved_today = [s for s in qualified_signals if s.outcome is not None]
     wins_today = sum(1 for s in resolved_today if s.outcome == "WON")
     losses_today = sum(1 for s in resolved_today if s.outcome == "LOST")
     net_r_today = round(sum(s.net_r for s in resolved_today if s.net_r is not None), 2)
     win_rate_today = round((wins_today / len(resolved_today) * 100.0), 1) if resolved_today else None
 
-    # 4. Check Market Open status (Forex / General)
-    eurusd_status = MarketSessionService.get_market_status("EURUSD", dt_utc=now_utc)
-    btcusd_status = MarketSessionService.get_market_status("BTCUSD", dt_utc=now_utc)
-    is_market_open = eurusd_status.get("is_open", True) or btcusd_status.get("is_open", True)
-    session_name = eurusd_status.get("session_name", "Global Session")
+    session_name = eurusd_status.get("current_session", "CLOSED") if not is_forex_open else "FOREX_ACTIVE"
 
     ist_now_str = utc_to_ist_str(now_utc.isoformat(), include_date=True)
 
@@ -171,12 +186,26 @@ def get_today_signals():
     time_windows = canonical_prospective_ledger.get_today_time_windows(now_utc)
     total_no_trade = sum(w.get("no_trade_count", 0) for w in time_windows) if time_windows else 0
 
+    market_status_message = None
+    if not is_forex_open:
+        market_status_message = "Forex markets are CLOSED (Sunday Pre-Market). Trading resumes Sunday 22:00 UTC (03:30 AM IST Monday)."
+
     return {
         "success": True,
         "timestamp_utc": now_utc.isoformat(),
         "ist_current_time": ist_now_str,
         "is_market_open": is_market_open,
+        "is_forex_open": is_forex_open,
+        "is_crypto_open": is_crypto_open,
         "market_session": session_name,
+        "market_status_message": market_status_message,
+        "execution_mode": "PAPER_ONLY",
+        "data_feeds": {
+            "forex": "● MT5 — LIVE" if is_forex_open else "● MT5 — CLOSED",
+            "crypto": "● BINANCE — LIVE",
+            "secondary": "● TradingView — SECONDARY",
+            "sqlite": "● SQLite — HISTORICAL_STORE",
+        },
         "total_time_windows": len(time_windows),
         "total_qualified_signals": len(formatted_signals),
         "total_no_trade_signals": total_no_trade,

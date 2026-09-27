@@ -1,4 +1,5 @@
-from typing import Any
+from __future__ import annotations
+from typing import Any, Optional
 
 import numpy as np
 import pandas as pd
@@ -36,9 +37,11 @@ class FeatureStore:
         df['ATR'] = self._calculate_atr(df, 14)
         df['BB_Upper'], df['BB_Middle'], df['BB_Lower'] = self._calculate_bollinger_bands(df['close'])
         
-        # Market Structure (Simplified)
-        df['Swing_High'] = df['high'] == df['high'].rolling(window=5, center=True).max()
-        df['Swing_Low'] = df['low'] == df['low'].rolling(window=5, center=True).min()
+        # Market Structure (Non-lookahead with lag)
+        roll_max5 = df['high'].rolling(window=5).max()
+        roll_min5 = df['low'].rolling(window=5).min()
+        df['Swing_High'] = (df['high'].shift(2) == roll_max5)
+        df['Swing_Low'] = (df['low'].shift(2) == roll_min5)
         
         # Caching
         cache_key = f"{symbol}_{timeframe}"
@@ -48,10 +51,14 @@ class FeatureStore:
 
     def _calculate_rsi(self, series: pd.Series, period: int = 14) -> pd.Series:
         delta = series.diff()
-        gain = (delta.where(delta > 0, 0)).rolling(window=period).mean()
-        loss = (-delta.where(delta < 0, 0)).rolling(window=period).mean()
-        rs = gain / loss
-        return 100 - (100 / (1 + rs))
+        gain = delta.clip(lower=0)
+        loss = -delta.clip(upper=0)
+        # Wilder's Exponential Moving Average (RMA) with alpha = 1 / period
+        avg_gain = gain.ewm(alpha=1.0 / period, min_periods=period, adjust=False).mean()
+        avg_loss = loss.ewm(alpha=1.0 / period, min_periods=period, adjust=False).mean()
+        rs = avg_gain / (avg_loss + 1e-10)
+        rsi = 100.0 - (100.0 / (1.0 + rs))
+        return rsi.fillna(50.0)
         
     def _calculate_macd(self, series: pd.Series, fast: int = 12, slow: int = 26, signal: int = 9):
         ema_fast = series.ewm(span=fast, adjust=False).mean()

@@ -141,6 +141,9 @@ export const TradeSignalTerminal: React.FC = () => {
                 <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">
                   {marketSession}
                 </span>
+                <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
+                  PAPER ONLY
+                </span>
                 {isMarketOpen ? (
                   <span className="flex items-center gap-1 text-[10px] font-semibold font-mono text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
@@ -157,6 +160,13 @@ export const TradeSignalTerminal: React.FC = () => {
                 <span>{istDateStr}</span>
                 <span>•</span>
                 <span className="text-amber-400 font-semibold">{istTimeStr} IST</span>
+                <span>•</span>
+                <span className="text-slate-400">Feeds:</span>
+                <span className={todayData?.is_forex_open ? "text-emerald-400" : "text-amber-400"}>
+                  {todayData?.is_forex_open ? "● MT5 Live" : "● MT5 Closed"}
+                </span>
+                <span>|</span>
+                <span className="text-emerald-400">● Binance Live</span>
               </div>
             </div>
           </div>
@@ -289,18 +299,25 @@ export const TradeSignalTerminal: React.FC = () => {
               </div>
             </div>
 
-            {/* Market Closed Banner (If market is closed) */}
-            {!isMarketOpen && (
+            {/* Market Closed Banner (If market is closed or specific forex closed message) */}
+            {(!isMarketOpen || todayData?.market_status_message) && (
               <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3.5 flex items-start gap-3">
                 <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
                 <div>
                   <h4 className="text-xs font-bold text-amber-300 uppercase tracking-wide font-mono">
-                    MARKET CLOSED — LIVE GENERATION PAUSED
+                    FOREX MARKET CLOSED — SUNDAY PRE-MARKET
                   </h4>
                   <p className="text-xs text-slate-300 mt-0.5">
-                    Trading sessions for Forex/Commodities are closed for the weekend/holiday. The terminal displays
-                    today's qualified signals and verified session results without fabricating hypothetical predictions.
+                    {todayData?.market_status_message ||
+                      "Trading sessions for Forex are closed until Sunday 22:00 UTC (03:30 AM IST Monday). Actionable trade signals for Forex are blocked."}
                   </p>
+                  <div className="flex items-center gap-3 text-[11px] font-mono text-slate-400 mt-2">
+                    <span>Forex Primary: <strong className="text-amber-400">MT5 (CLOSED)</strong></span>
+                    <span>•</span>
+                    <span>Crypto Primary: <strong className="text-emerald-400">BINANCE (LIVE 24/7)</strong></span>
+                    <span>•</span>
+                    <span>Execution: <strong className="text-cyan-400">PAPER ONLY</strong></span>
+                  </div>
                 </div>
               </div>
             )}
@@ -328,6 +345,9 @@ export const TradeSignalTerminal: React.FC = () => {
                           </span>
                           <span className="text-[11px] font-bold font-mono px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-slate-200">
                             {sig.timeframe}
+                          </span>
+                          <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-950 text-slate-400 border border-slate-800">
+                            {sig.venue || 'MT5'}
                           </span>
                         </div>
 

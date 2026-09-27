@@ -26,24 +26,16 @@ export const TerminalPage: React.FC = () => {
 
     const unsubTick = wsManager.on('tick', (data: any) => {
       if (data?.symbol) {
-        const price = data.price ?? data.bid ?? 0;
-        const bid = data.bid ?? price * 0.9999;
-        const ask = data.ask ?? price * 1.0001;
-        const spread = ask - bid;
+        const price = data.price ?? 0;
+        const bid = data.bid ?? null;
+        const ask = data.ask ?? null;
+        const spread = (ask && bid) ? (ask - bid) : 0;
         setOrderBook(prev => ({
           ...prev,
           mid: price,
           spread,
-          bids: Array.from({ length: 8 }, (_, i) => ({
-            price: bid - i * spread * 0.5,
-            size: Math.random() * 3 + 0.1,
-            total: Math.random() * 10 + 1,
-          })),
-          asks: Array.from({ length: 8 }, (_, i) => ({
-            price: ask + i * spread * 0.5,
-            size: Math.random() * 3 + 0.1,
-            total: Math.random() * 10 + 1,
-          })),
+          bids: data.bids || (bid ? [{ price: bid, size: data.volume || 1.0, total: 1.0 }] : []),
+          asks: data.asks || (ask ? [{ price: ask, size: data.volume || 1.0, total: 1.0 }] : []),
         }));
       }
     });

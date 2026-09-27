@@ -6,8 +6,24 @@ from contextlib import contextmanager
 from datetime import datetime
 from typing import Any
 
-import pandas as pd
-from tvDatafeed import Interval, TvDatafeed
+try:
+    from tvDatafeed import Interval, TvDatafeed
+    TV_DATAFEED_AVAILABLE = True
+except ImportError:
+    TV_DATAFEED_AVAILABLE = False
+    class Interval:  # type: ignore
+        in_1_minute = "1m"
+        in_3_minute = "3m"
+        in_5_minute = "5m"
+        in_15_minute = "15m"
+        in_30_minute = "30m"
+        in_1_hour = "1h"
+        in_2_hour = "2h"
+        in_4_hour = "4h"
+        in_daily = "1d"
+        in_weekly = "1w"
+        in_monthly = "1M"
+    TvDatafeed = None  # type: ignore
 
 from app.config.settings import get_settings
 from app.logs.logger import get_logger
@@ -98,6 +114,9 @@ class TradingViewDataProvider(BaseDataProvider):
     # ── Connection ────────────────────────────────────────────────────────────
 
     async def connect(self) -> bool:
+        if not TV_DATAFEED_AVAILABLE:
+            self._connected = False
+            return False
         if self._connected:
             return True
         if self._is_circuit_open():
@@ -276,6 +295,44 @@ class TradingViewDataProvider(BaseDataProvider):
                 volume=r["volume"]
             ))
         return candles
+
+    async def validate_secondary_parity(
+        self, symbol: str, primary_price: float, tolerance_pct: float = 0.5
+    ) -> dict[str, Any]:
+        """
+        Phase 4: Performs secondary validation against primary feed.
+        Never replaces primary feed, records exact discrepancy and parity status.
+        """
+        sec_ticker = await self.get_ticker(symbol)
+        if not sec_ticker or sec_ticker.get("price") is None:
+            return {
+                "symbol": symbol,
+                "role": "SECONDARY_VALIDATION",
+                "status": "SECONDARY_UNAVAILABLE",
+                "primary_price": primary_price,
+                "secondary_price": None,
+                "discrepancy": None,
+                "discrepancy_pct": None,
+                "parity_passed": True,  # Non-blocking if secondary is down
+            }
+
+        sec_price = float(sec_ticker["price"])
+        diff = abs(primary_price - sec_price)
+        diff_pct = (diff / primary_price) * 100.0 if primary_price > 0 else 0.0
+        passed = diff_pct <= tolerance_pct
+
+        return {
+            "symbol": symbol,
+            "role": "SECONDARY_VALIDATION",
+            "provider": "TRADINGVIEW",
+            "status": "PARITY_CONFIRMED" if passed else "DISCREPANCY_DETECTED",
+            "primary_price": primary_price,
+            "secondary_price": sec_price,
+            "discrepancy": round(diff, 5),
+            "discrepancy_pct": round(diff_pct, 4),
+            "parity_passed": passed,
+            "timestamp": sec_ticker.get("timestamp"),
+        }
 
     async def get_orderbook(self, symbol: str, depth: int = 10) -> OrderBook:
         return OrderBook(
