@@ -152,6 +152,8 @@ def test_granular_no_trade_reasons():
                 "CONSENSUS_BELOW_THRESHOLD",
                 "INSUFFICIENT_MODEL_EVIDENCE",
                 "DIRECTIONAL_BIAS_PENDING_CONFIRMATION",
+                "STALE_MARKET_DATA",
+                "INVALID_MARKET_DATA",
             ]
 
 

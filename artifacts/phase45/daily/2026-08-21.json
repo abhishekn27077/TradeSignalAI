@@ -1,9 +1,9 @@
 {
   "date": "2026-08-21",
-  "created_at": "2026-09-27T15:47:14.901635+00:00",
+  "created_at": "2026-09-27T17:00:48.082456+00:00",
   "today_journal": {
     "date": "2026-09-27",
-    "date_ist_formatted": "Sunday, 27 September 2026 09:17 PM IST",
+    "date_ist_formatted": "Sunday, 27 September 2026 10:30 PM IST",
     "summary": {
       "today_forecasts": 9,
       "qualified_trades": 5,
@@ -17,7 +17,7 @@
     "forecasts": [
       {
         "time": "2026-09-25T23:00:00",
-        "time_ist_formatted": "Sunday, 27 September 2026 09:17 PM IST",
+        "time_ist_formatted": "Sunday, 27 September 2026 10:30 PM IST",
         "asset": "EURUSD",
         "direction": "BUY",
         "confidence": 0.66,
@@ -29,14 +29,14 @@
         "expected_move_pct": 1.0,
         "decision": "NO_TRADE",
         "rejection_reason": "MARKET_CLOSED",
-        "prediction_id": "PRED-EURUSD-20260927154623-d1c909",
-        "trace_id": "7fc81cbd-f635-488e-aa2f-f8b4f8ee76ef",
+        "prediction_id": "PRED-EURUSD-20260927170014-d243c7",
+        "trace_id": "3432686c-8cba-431e-a2aa-802a30eb421a",
         "status": "EXPIRED",
         "is_expired": true
       },
       {
         "time": "2026-09-26T23:00:00",
-        "time_ist_formatted": "Sunday, 27 September 2026 09:17 PM IST",
+        "time_ist_formatted": "Sunday, 27 September 2026 10:30 PM IST",
         "asset": "GBPUSD",
         "direction": "BUY",
         "confidence": 0.69,
@@ -48,14 +48,14 @@
         "expected_move_pct": 1.0,
         "decision": "NO_TRADE",
         "rejection_reason": "MARKET_CLOSED",
-        "prediction_id": "PRED-GBPUSD-20260927154623-0eb9fb",
-        "trace_id": "9a717c7f-6ecc-4b3b-ab41-84b361ee6422",
+        "prediction_id": "PRED-GBPUSD-20260927170014-d036cb",
+        "trace_id": "795a3697-8937-49ac-990c-1717c24859fa",
         "status": "EXPIRED",
         "is_expired": true
       },
       {
         "time": "2026-09-26T23:00:00",
-        "time_ist_formatted": "Sunday, 27 September 2026 09:17 PM IST",
+        "time_ist_formatted": "Sunday, 27 September 2026 10:30 PM IST",
         "asset": "USDJPY",
         "direction": "BUY",
         "confidence": 0.6,
@@ -67,14 +67,14 @@
         "expected_move_pct": 1.0,
         "decision": "NO_TRADE",
         "rejection_reason": "MARKET_CLOSED",
-        "prediction_id": "PRED-USDJPY-20260927154623-1ac6a5",
-        "trace_id": "aca4c00c-db03-4b84-b61e-494e3ecb1d30",
+        "prediction_id": "PRED-USDJPY-20260927170014-bcfa0c",
+        "trace_id": "fab800cb-4340-49d6-bf61-bf8c2931f09b",
         "status": "EXPIRED",
         "is_expired": true
       },
       {
         "time": "2026-09-26T23:00:00",
-        "time_ist_formatted": "Sunday, 27 September 2026 09:17 PM IST",
+        "time_ist_formatted": "Sunday, 27 September 2026 10:30 PM IST",
         "asset": "AUDUSD",
         "direction": "BUY",
         "confidence": 0.75,
@@ -86,14 +86,14 @@
         "expected_move_pct": 1.0,
         "decision": "NO_TRADE",
         "rejection_reason": "MARKET_CLOSED",
-        "prediction_id": "PRED-AUDUSD-20260927154623-cdfb9b",
-        "trace_id": "f2c0c7e4-0e6b-4ef1-b8a2-18f4d3492809",
+        "prediction_id": "PRED-AUDUSD-20260927170014-12ade9",
+        "trace_id": "5ef9aef9-31eb-4f4f-8281-c45b95cb981d",
         "status": "EXPIRED",
         "is_expired": true
       },
       {
         "time": "2026-09-27T15:00:00+00:00",
-        "time_ist_formatted": "Sunday, 27 September 2026 09:17 PM IST",
+        "time_ist_formatted": "Sunday, 27 September 2026 10:30 PM IST",
         "asset": "BTCUSD",
         "direction": "SELL",
         "confidence": 0.82,
@@ -105,14 +105,14 @@
         "expected_move_pct": 1.0,
         "decision": "TAKE_TRADE",
         "rejection_reason": null,
-        "prediction_id": "PRED-BTCUSD-20260927154623-66a7f1",
-        "trace_id": "01dcc90e-e72a-477b-be8d-822e9aab2ebe",
-        "status": "PAPER_OPEN",
-        "is_expired": false
+        "prediction_id": "PRED-BTCUSD-20260927170014-bc9211",
+        "trace_id": "2ee91e61-5e3e-4502-80b3-4bf8937476e6",
+        "status": "EXPIRED",
+        "is_expired": true
       },
       {
         "time": "2026-09-27T15:00:00+00:00",
-        "time_ist_formatted": "Sunday, 27 September 2026 09:17 PM IST",
+        "time_ist_formatted": "Sunday, 27 September 2026 10:30 PM IST",
         "asset": "ETHUSD",
         "direction": "BUY",
         "confidence": 0.82,
@@ -124,14 +124,14 @@
         "expected_move_pct": 1.0,
         "decision": "TAKE_TRADE",
         "rejection_reason": null,
-        "prediction_id": "PRED-ETHUSD-20260927154623-bbf0ab",
-        "trace_id": "91acb53d-ca46-44b5-93dc-75298f0c81be",
-        "status": "PAPER_OPEN",
-        "is_expired": false
+        "prediction_id": "PRED-ETHUSD-20260927170014-2ed68c",
+        "trace_id": "d6b3c561-d2a1-41cc-925d-df04439097a6",
+        "status": "EXPIRED",
+        "is_expired": true
       },
       {
         "time": "2026-09-25T20:00:00",
-        "time_ist_formatted": "Sunday, 27 September 2026 09:17 PM IST",
+        "time_ist_formatted": "Sunday, 27 September 2026 10:30 PM IST",
         "asset": "XAUUSD",
         "direction": "BUY",
         "confidence": 0.77,
@@ -143,14 +143,14 @@
         "expected_move_pct": 1.0,
         "decision": "TAKE_TRADE",
         "rejection_reason": null,
-        "prediction_id": "PRED-XAUUSD-20260927154623-148768",
-        "trace_id": "ea4374e1-2674-44a0-b893-81330dd1d7e8",
+        "prediction_id": "PRED-XAUUSD-20260927170014-66dc9c",
+        "trace_id": "5db87c7e-ebf8-42f8-8c93-f1e6311eab2c",
         "status": "EXPIRED",
         "is_expired": true
       },
       {
         "time": "2026-09-25T19:30:00",
-        "time_ist_formatted": "Sunday, 27 September 2026 09:17 PM IST",
+        "time_ist_formatted": "Sunday, 27 September 2026 10:30 PM IST",
         "asset": "NAS100",
         "direction": "SELL",
         "confidence": 0.75,
@@ -162,14 +162,14 @@
         "expected_move_pct": 1.0,
         "decision": "TAKE_TRADE",
         "rejection_reason": null,
-        "prediction_id": "PRED-NAS100-20260927154623-b027b3",
-        "trace_id": "5dc7922b-7745-4c9d-8edc-d7b189b8fb31",
+        "prediction_id": "PRED-NAS100-20260927170014-53a133",
+        "trace_id": "ef9a0716-15d4-457a-bc8f-dcb5bc8c80d2",
         "status": "EXPIRED",
         "is_expired": true
       },
       {
         "time": "2026-09-25T19:30:00",
-        "time_ist_formatted": "Sunday, 27 September 2026 09:17 PM IST",
+        "time_ist_formatted": "Sunday, 27 September 2026 10:30 PM IST",
         "asset": "SPX500",
         "direction": "BUY",
         "confidence": 0.84,
@@ -181,8 +181,8 @@
         "expected_move_pct": 1.0,
         "decision": "TAKE_TRADE",
         "rejection_reason": null,
-        "prediction_id": "PRED-SPX500-20260927154623-3d5d2b",
-        "trace_id": "da81cde0-cb25-4a74-a14e-d3a52a0fecb8",
+        "prediction_id": "PRED-SPX500-20260927170014-9747b1",
+        "trace_id": "41865a32-6572-44ca-a715-5fcac9e52881",
         "status": "EXPIRED",
         "is_expired": true
       }
@@ -392,7 +392,7 @@
   },
   "tomorrow_forecasts": {
     "target_date": "2026-09-28",
-    "generation_time": "2026-09-27T15:47:14.902644+00:00",
+    "generation_time": "2026-09-27T17:00:48.084078+00:00",
     "total_assets": 9,
     "source": "FALLBACK_SYNTHETIC",
     "forecasts": [
@@ -415,7 +415,7 @@
         "ai_explanation": "Tomorrow forward projection based on TRENDING_BULL continuation, 8/8 model convergence, and neutral MEDIUM event exposure.",
         "input_hash": "f54176435704a32e22ff1017db38903c0ccba70b9adb6ef9207653394054d796",
         "prediction_hash": "a959ed46a987a1be3da8b31cf8641702c0e21bf7f626dfeb0d644ed4b1e8c670",
-        "forecast_created_at": "2026-09-27T15:47:14.902644+00:00",
+        "forecast_created_at": "2026-09-27T17:00:48.084078+00:00",
         "source": "FALLBACK_SYNTHETIC",
         "is_synthetic": true,
         "status": "FALLBACK"
@@ -439,7 +439,7 @@
         "ai_explanation": "Tomorrow forward projection based on TRENDING_BEAR continuation, 7/8 model convergence, and neutral LOW event exposure.",
         "input_hash": "c58f17b8eb2204ba97a57417445a421ae65adb4c3047c8ea76a74c1e5bf8c08b",
         "prediction_hash": "4faa245220e4cb6dc2371b3df0a4849f63b1f4ce25458b467c2e2eb0e48cd562",
-        "forecast_created_at": "2026-09-27T15:47:14.902644+00:00",
+        "forecast_created_at": "2026-09-27T17:00:48.084078+00:00",
         "source": "FALLBACK_SYNTHETIC",
         "is_synthetic": true,
         "status": "FALLBACK"
@@ -463,7 +463,7 @@
         "ai_explanation": "Tomorrow forward projection based on TRENDING_BULL continuation, 8/8 model convergence, and neutral MEDIUM event exposure.",
         "input_hash": "998d515441e1c4b759a5e7eadbfefbe777526574669c890b3163fae9a75d1823",
         "prediction_hash": "a7c9e3713026c02d82effc1362f4fe0a87a6bca54362f287fe0dd0525a6af63c",
-        "forecast_created_at": "2026-09-27T15:47:14.902644+00:00",
+        "forecast_created_at": "2026-09-27T17:00:48.084078+00:00",
         "source": "FALLBACK_SYNTHETIC",
         "is_synthetic": true,
         "status": "FALLBACK"
@@ -487,7 +487,7 @@
         "ai_explanation": "Tomorrow forward projection based on TRENDING_BEAR continuation, 8/8 model convergence, and neutral LOW event exposure.",
         "input_hash": "404fbb18f05db5d534ad20b8424badf125d87cc35ed3a09b6c0c1ca9e8dff4b9",
         "prediction_hash": "c89404edbf44737732cde431d79e4ab488e4eb37fe7f23770b3f70a2a562fa56",
-        "forecast_created_at": "2026-09-27T15:47:14.902644+00:00",
+        "forecast_created_at": "2026-09-27T17:00:48.084078+00:00",
         "source": "FALLBACK_SYNTHETIC",
         "is_synthetic": true,
         "status": "FALLBACK"
@@ -511,7 +511,7 @@
         "ai_explanation": "Tomorrow forward projection based on TRENDING_BULL continuation, 8/8 model convergence, and neutral LOW event exposure.",
         "input_hash": "613ce1ae454f825881f71acccf8ce993b1a9eb53a26ab196865a2c0874a886d0",
         "prediction_hash": "4917434a8d774eaa88caf4a96cbe135b06609b12eb536d3d1e61b9e104c207a5",
-        "forecast_created_at": "2026-09-27T15:47:14.902644+00:00",
+        "forecast_created_at": "2026-09-27T17:00:48.084078+00:00",
         "source": "FALLBACK_SYNTHETIC",
         "is_synthetic": true,
         "status": "FALLBACK"
@@ -535,7 +535,7 @@
         "ai_explanation": "Tomorrow forward projection based on TRENDING_BEAR continuation, 7/8 model convergence, and neutral LOW event exposure.",
         "input_hash": "31a1707dd2ed63d785d9089a056a7a0aa67e3fe15826d5d88418e1ce7feede2d",
         "prediction_hash": "ad5660705d2f599a5effc83b8fd095f3d1665a4332181ec81de1ea7b70de8d6b",
-        "forecast_created_at": "2026-09-27T15:47:14.902644+00:00",
+        "forecast_created_at": "2026-09-27T17:00:48.084078+00:00",
         "source": "FALLBACK_SYNTHETIC",
         "is_synthetic": true,
         "status": "FALLBACK"
@@ -559,7 +559,7 @@
         "ai_explanation": "Tomorrow forward projection based on TRENDING_BULL continuation, 8/8 model convergence, and neutral MEDIUM event exposure.",
         "input_hash": "07406e014a60f381d97f2c732388d1db120fa479aacb60d8c4a2e8406a9878e7",
         "prediction_hash": "b895ff6d9b87e38e0388b432a59c6cdd598df6df42ad34f2b697e7604a35cba0",
-        "forecast_created_at": "2026-09-27T15:47:14.902644+00:00",
+        "forecast_created_at": "2026-09-27T17:00:48.084078+00:00",
         "source": "FALLBACK_SYNTHETIC",
         "is_synthetic": true,
         "status": "FALLBACK"
@@ -583,7 +583,7 @@
         "ai_explanation": "Tomorrow forward projection based on TRENDING_BEAR continuation, 7/8 model convergence, and neutral LOW event exposure.",
         "input_hash": "e438b1bd29104b087538e08c5b40c8968c533350366dce0673c2853f6979807e",
         "prediction_hash": "1fc0ee962d67fddabc416d3d509b33ade15fe3d1ade5ee8470f00044fde49b20",
-        "forecast_created_at": "2026-09-27T15:47:14.902644+00:00",
+        "forecast_created_at": "2026-09-27T17:00:48.084078+00:00",
         "source": "FALLBACK_SYNTHETIC",
         "is_synthetic": true,
         "status": "FALLBACK"
@@ -607,7 +607,7 @@
         "ai_explanation": "Tomorrow forward projection based on TRENDING_BULL continuation, 7/8 model convergence, and neutral MEDIUM event exposure.",
         "input_hash": "5f9849944655bd71a1ffacc4031594cb933c1e95366ef8c9b2b6aa3e66fb6796",
         "prediction_hash": "7010c2f923afb4b3361a7ae103c5583a5346ca665e1f38022871e0260aa04fc2",
-        "forecast_created_at": "2026-09-27T15:47:14.902644+00:00",
+        "forecast_created_at": "2026-09-27T17:00:48.084078+00:00",
         "source": "FALLBACK_SYNTHETIC",
         "is_synthetic": true,
         "status": "FALLBACK"
