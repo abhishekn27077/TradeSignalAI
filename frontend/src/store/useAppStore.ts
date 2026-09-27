@@ -119,7 +119,7 @@ function mapNewsItem(n: any): NewsItem {
 
 export const useAppStore = create<AppState>((set, get) => ({
   sidebarCollapsed: false,
-  activePage: 'dashboard',
+  activePage: 'today',
   activeAsset: 'ALL',
   adminMode: false,
   toggleSidebar: () => set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),

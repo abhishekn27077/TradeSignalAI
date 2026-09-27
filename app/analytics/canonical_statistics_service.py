@@ -227,6 +227,76 @@ class CanonicalStatisticsService:
             },
         }
 
+    def get_performance_by_asset(self, date_filter: str = "ALL", min_sample_req: int = 15) -> List[Dict[str, Any]]:
+        """
+        Returns performance breakdown per core asset.
+        Enforces strict sample size requirements:
+        If resolved signals N < min_sample_req, status is INSUFFICIENT SAMPLE.
+        """
+        result = []
+        for asset in CORE_ASSETS:
+            stats = self.get_canonical_performance_summary(date_filter=date_filter, asset=asset)
+            n_resolved = stats["resolved_count"]
+            if n_resolved < min_sample_req:
+                sample_label = f"INSUFFICIENT SAMPLE (N = {n_resolved})"
+                is_sufficient = False
+            else:
+                sample_label = "ROBUST SAMPLE"
+                is_sufficient = True
+
+            result.append({
+                "asset": asset,
+                "total_signals": stats["total_signals"],
+                "resolved_signals": n_resolved,
+                "wins": stats["wins"],
+                "losses": stats["losses"],
+                "win_rate_pct": stats["win_rate_pct"] if n_resolved > 0 else 0.0,
+                "total_net_r": stats["total_net_r"],
+                "profit_factor": stats["profit_factor"],
+                "expectancy_r": stats["expectancy_r"],
+                "sample_size": n_resolved,
+                "sample_status": sample_label,
+                "is_sufficient": is_sufficient,
+            })
+        # Sort by total net R descending
+        result.sort(key=lambda x: x["total_net_r"], reverse=True)
+        return result
+
+    def get_performance_by_timeframe(self, date_filter: str = "ALL", min_sample_req: int = 15) -> List[Dict[str, Any]]:
+        """
+        Returns performance breakdown per timeframe.
+        Never ranks a timeframe as 'BEST' unless N >= min_sample_req.
+        """
+        result = []
+        for tf in SUPPORTED_TIMEFRAMES:
+            stats = self.get_canonical_performance_summary(date_filter=date_filter, timeframe=tf)
+            n_resolved = stats["resolved_count"]
+            if n_resolved < min_sample_req:
+                sample_label = f"INSUFFICIENT SAMPLE (N = {n_resolved})"
+                is_sufficient = False
+            else:
+                sample_label = "ROBUST SAMPLE"
+                is_sufficient = True
+
+            result.append({
+                "timeframe": tf,
+                "total_signals": stats["total_signals"],
+                "resolved_signals": n_resolved,
+                "wins": stats["wins"],
+                "losses": stats["losses"],
+                "win_rate_pct": stats["win_rate_pct"] if n_resolved > 0 else 0.0,
+                "total_net_r": stats["total_net_r"],
+                "profit_factor": stats["profit_factor"],
+                "expectancy_r": stats["expectancy_r"],
+                "sample_size": n_resolved,
+                "sample_status": sample_label,
+                "is_sufficient": is_sufficient,
+            })
+        # Sort by net R descending
+        result.sort(key=lambda x: x["total_net_r"], reverse=True)
+        return result
+
 
 # Global Singleton Instance
 canonical_statistics_service = CanonicalStatisticsService()
+

@@ -502,6 +502,177 @@ class CanonicalProspectiveLedger:
 
         return None, None, None, None
 
+    def resolve_pending_expired_signals(self, reference_dt: Optional[datetime] = None) -> int:
+        """
+        Automatic Outcome Resolution Engine.
+        Scans for unresolved prospective signals whose max_exit_time has passed.
+        Fetches the exact historical candles from historical_candles across the trade window.
+        Deterministically evaluates TP, SL, conservative same-candle ambiguity, or time exit.
+        Immutably stores outcome, exit price, exit timestamp, and realized R.
+        """
+        now = reference_dt or datetime.now(timezone.utc)
+        now_str = now.isoformat()
+
+        conn = self._get_connection()
+        if not conn:
+            return 0
+
+        resolved_count = 0
+        try:
+            cur = conn.cursor()
+            cur.execute(
+                """
+                SELECT signal_id, asset, timeframe, direction, entry_price, stop_loss, take_profit,
+                       entry_window_start, preferred_entry_time, max_exit_time, friction_r
+                FROM canonical_prospective_signal_ledger
+                WHERE (outcome IS NULL OR signal_status != 'RESOLVED')
+                  AND max_exit_time <= ?
+                """,
+                (now_str,)
+            )
+            pending = cur.fetchall()
+
+            for row in pending:
+                (sig_id, asset, tf, direction, entry_price, sl, tp,
+                 entry_start, pref_entry, max_exit, friction) = row
+
+                t_start = (entry_start or pref_entry or "").replace("T", " ")[:19]
+                t_end = (max_exit or "").replace("T", " ")[:19]
+
+                cur.execute(
+                    """
+                    SELECT open, high, low, close, timestamp
+                    FROM historical_candles
+                    WHERE symbol = ?
+                      AND timestamp >= ?
+                      AND timestamp <= ?
+                    ORDER BY timestamp ASC
+                    """,
+                    (asset, t_start, t_end)
+                )
+                candles = cur.fetchall()
+                if not candles:
+                    cur.execute(
+                        """
+                        SELECT open, high, low, close, timestamp
+                        FROM historical_candles
+                        WHERE symbol = ?
+                          AND timestamp >= ?
+                          AND timestamp <= ?
+                        ORDER BY timestamp ASC
+                        """,
+                        (asset, entry_start, max_exit)
+                    )
+                    candles = cur.fetchall()
+
+                if not candles:
+                    continue
+
+                outcome = None
+                exit_price = None
+                exit_time = None
+                res_reason = None
+                net_r = None
+                gross_r = None
+
+                is_buy = direction.upper() in ["BUY", "LONG"]
+                risk_dist = abs(entry_price - sl) if abs(entry_price - sl) > 0 else (entry_price * 0.01)
+
+                for c_open, c_high, c_low, c_close, c_time in candles:
+                    c_open, c_high, c_low, c_close = float(c_open), float(c_high), float(c_low), float(c_close)
+                    if is_buy:
+                        tp_hit = c_high >= tp
+                        sl_hit = c_low <= sl
+                        if tp_hit and sl_hit:
+                            outcome = OUTCOME_LOST
+                            res_reason = "AMBIGUOUS_CANDLE_CONSERVATIVE_SL"
+                            exit_price = sl
+                            exit_time = str(c_time)
+                            gross_r = -1.0
+                            net_r = round(gross_r - friction, 2)
+                            break
+                        elif tp_hit:
+                            outcome = OUTCOME_WON
+                            res_reason = "TP_HIT"
+                            exit_price = tp
+                            exit_time = str(c_time)
+                            gross_r = round(abs(tp - entry_price) / risk_dist, 2)
+                            net_r = round(gross_r - friction, 2)
+                            break
+                        elif sl_hit:
+                            outcome = OUTCOME_LOST
+                            res_reason = "SL_HIT"
+                            exit_price = sl
+                            exit_time = str(c_time)
+                            gross_r = -1.0
+                            net_r = round(gross_r - friction, 2)
+                            break
+                    else:
+                        tp_hit = c_low <= tp
+                        sl_hit = c_high >= sl
+                        if tp_hit and sl_hit:
+                            outcome = OUTCOME_LOST
+                            res_reason = "AMBIGUOUS_CANDLE_CONSERVATIVE_SL"
+                            exit_price = sl
+                            exit_time = str(c_time)
+                            gross_r = -1.0
+                            net_r = round(gross_r - friction, 2)
+                            break
+                        elif tp_hit:
+                            outcome = OUTCOME_WON
+                            res_reason = "TP_HIT"
+                            exit_price = tp
+                            exit_time = str(c_time)
+                            gross_r = round(abs(entry_price - tp) / risk_dist, 2)
+                            net_r = round(gross_r - friction, 2)
+                            break
+                        elif sl_hit:
+                            outcome = OUTCOME_LOST
+                            res_reason = "SL_HIT"
+                            exit_price = sl
+                            exit_time = str(c_time)
+                            gross_r = -1.0
+                            net_r = round(gross_r - friction, 2)
+                            break
+
+                if outcome is None:
+                    last_c_close = float(candles[-1][3])
+                    last_c_time = str(candles[-1][4])
+                    outcome = OUTCOME_TIME_EXIT
+                    res_reason = "EXPIRY_EXIT"
+                    exit_price = last_c_close
+                    exit_time = last_c_time
+                    gross_pnl = (last_c_close - entry_price) if is_buy else (entry_price - last_c_close)
+                    gross_r = round(gross_pnl / risk_dist, 2)
+                    net_r = round(gross_r - friction, 2)
+
+                resolved_at = datetime.now(timezone.utc).isoformat()
+                cur.execute(
+                    """
+                    UPDATE canonical_prospective_signal_ledger
+                    SET outcome = ?,
+                        resolution_reason = ?,
+                        actual_exit_price = ?,
+                        actual_exit_time = ?,
+                        gross_r = ?,
+                        net_r = ?,
+                        signal_status = ?,
+                        resolved_at = ?
+                    WHERE signal_id = ?
+                    """,
+                    (outcome, res_reason, exit_price, exit_time, gross_r, net_r, STATUS_RESOLVED, resolved_at, sig_id)
+                )
+                resolved_count += 1
+
+            conn.commit()
+            return resolved_count
+        except Exception as e:
+            logger.error(f"Error in resolve_pending_expired_signals: {e}")
+            return resolved_count
+        finally:
+            conn.close()
+
+
     def get_signal(self, signal_id: str) -> Optional[CanonicalProspectiveSignal]:
         """Fetches a canonical signal record by signal_id."""
         conn = self._get_connection()

@@ -20,24 +20,23 @@ interface NavItem {
   children?: NavItem[];
 }
 
-/* ── Main Navigation (visible to all users) ─────────────────────────────── */
+/* ── Primary Navigation (Clean Signal-Only Terminal) ─────────────────────── */
 const mainNav: NavItem[] = [
-  { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard className="w-4 h-4" /> },
+  { id: 'today', label: 'Today', icon: <Zap className="w-4 h-4 text-emerald-400" /> },
+  { id: 'history', label: 'History', icon: <Clock className="w-4 h-4 text-cyan-400" /> },
+  { id: 'performance', label: 'Performance', icon: <BarChart className="w-4 h-4 text-amber-400" /> },
+  { id: 'settings', label: 'Settings', icon: <Settings className="w-4 h-4 text-slate-400" /> },
+  { id: 'system-status', label: 'System Status', icon: <Activity className="w-4 h-4 text-blue-400" /> },
+];
+
+/* ── Admin Navigation (hidden by default) ───────────────────────────────── */
+interface AdminSection { label: string; items: NavItem[]; }
+
+const adminSections: AdminSection[] = [
   {
-    id: 'signals-group', label: 'Signals', icon: <Zap className="w-4 h-4" />,
-    children: [
-      { id: 'trade-terminal', label: 'Trade Signal Terminal (P69A)', icon: <Zap className="w-3.5 h-3.5 text-cyan-400" /> },
-      { id: 'signal-feed-schedule', label: 'Signal Feed & Schedule (P64)', icon: <Radio className="w-3.5 h-3.5" /> },
-      { id: 'todays-signals', label: "Today's Signals", icon: <Clock className="w-3.5 h-3.5" /> },
-      { id: 'market-structure', label: 'Smart Money & Structure (P51)', icon: <Layers className="w-3.5 h-3.5" /> },
-      { id: 'h4-forecasts-new', label: 'H4 Forecasts', icon: <Clock className="w-3.5 h-3.5" /> },
-      { id: 'swing-signals', label: 'Swing Signals', icon: <TrendingUp className="w-3.5 h-3.5" /> },
-      { id: 'signal-history', label: 'Signal History', icon: <Archive className="w-3.5 h-3.5" /> },
-    ],
-  },
-  {
-    id: 'forecasts-group', label: 'Forecasts', icon: <Sun className="w-4 h-4" />,
-    children: [
+    label: 'Forecasts & Labs',
+    items: [
+      { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard className="w-3.5 h-3.5" /> },
       { id: 'daily-command', label: 'Daily Command', icon: <Radio className="w-3.5 h-3.5" /> },
       { id: 'live-edge', label: 'Live Edge Evidence', icon: <Scale className="w-3.5 h-3.5" /> },
       { id: 'tomorrow-forecast', label: 'Tomorrow Forecast', icon: <Sun className="w-3.5 h-3.5" /> },
@@ -46,19 +45,8 @@ const mainNav: NavItem[] = [
       { id: 'prediction-lab', label: 'Prediction Lab', icon: <FlaskConical className="w-3.5 h-3.5" /> },
       { id: 'prediction-ledger', label: 'Prediction Ledger', icon: <CheckSquare className="w-3.5 h-3.5" /> },
       { id: 'economic-calendar', label: 'Economic Calendar', icon: <CalendarDays className="w-3.5 h-3.5" /> },
-      { id: 'news-intelligence', label: 'News Intelligence', icon: <Newspaper className="w-3.5 h-3.5" /> },
     ],
   },
-  { id: 'portfolio', label: 'Portfolio', icon: <Briefcase className="w-4 h-4" /> },
-  { id: 'journal', label: 'Journal', icon: <BookOpen className="w-4 h-4" /> },
-  { id: 'system-health', label: 'System Health', icon: <Activity className="w-4 h-4" /> },
-  { id: 'config-center', label: 'Settings', icon: <Settings className="w-4 h-4" /> },
-];
-
-/* ── Admin Navigation (hidden by default) ───────────────────────────────── */
-interface AdminSection { label: string; items: NavItem[]; }
-
-const adminSections: AdminSection[] = [
   {
     label: 'Research',
     items: [

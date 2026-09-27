@@ -97,7 +97,12 @@ import { ValidationPage } from './pages/ValidationPage';
 import { ShadowLivePage } from './pages/ShadowLivePage';
 
 const pageMap: Record<string, React.FC> = {
-  /* ── Phase 69A Primary Trade Signal Terminal ─────────────────────── */
+  /* ── TradeSignal Signal-Only Terminal ───────────────────────────── */
+  'today': TradeSignalTerminal,
+  'history': TradeSignalTerminal,
+  'performance': TradeSignalTerminal,
+  'settings': TradeSignalTerminal,
+  'system-status': SystemHealth,
   'trade-terminal': TradeSignalTerminal,
   'terminal': TradeSignalTerminal,
   'signal-feed-schedule': TradeSignalTerminal,
@@ -199,7 +204,7 @@ import { ErrorBoundary } from './components/common/ErrorBoundary';
 const App: React.FC = () => {
   const activePage = useAppStore((s) => s.activePage);
   const initialize = useAppStore((s) => s.initialize);
-  const ActivePage = pageMap[activePage] ?? TradingDashboard;
+  const ActivePage = pageMap[activePage] ?? TradeSignalTerminal;
 
   useEffect(() => {
     initialize();
