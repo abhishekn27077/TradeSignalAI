@@ -4,11 +4,11 @@
 
 ## 1. Directional & Feature Skew Monitor
 
-- **Signals Audited**: 64
-- **BUY Count**: 50 (78.1%)
+- **Signals Audited**: 65
+- **BUY Count**: 51 (78.5%)
 - **SELL Count**: 12
 - **NO_TRADE Count**: 0
-- **Directional Skew Deviation**: 28.1%
+- **Directional Skew Deviation**: 28.5%
 
 ## 2. Performance Degradation Monitor
 

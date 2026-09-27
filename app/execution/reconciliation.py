@@ -251,6 +251,120 @@ class ReconciliationEngine:
             await self._publish_recon_result(result)
             return result
 
+    # ── 3-Way Reconciliation (Internal vs Broker vs Ledger) ───────────────────
+
+    def _get_ledger_positions(self) -> tuple[list[dict[str, Any]], bool]:
+        """
+        Fetch active positions from the Authoritative Canonical Prospective Ledger.
+        Returns (positions, ledger_available).
+        """
+        try:
+            from app.core.canonical_prospective_ledger import CanonicalProspectiveLedger, STATUS_ACTIVE
+            ledger = CanonicalProspectiveLedger()
+            signals = ledger.get_signals_by_filter(date_filter="ALL", status=STATUS_ACTIVE)
+            positions = []
+            for s in signals:
+                positions.append({
+                    "symbol": s.asset.upper(),
+                    "signal_id": s.signal_id,
+                    "direction": s.direction,
+                    "entry_price": s.actual_entry_price or s.entry_price,
+                    "stop_loss": s.stop_loss,
+                    "take_profit": s.take_profit,
+                })
+            return positions, True
+        except Exception as e:
+            logger.error(f"Failed to fetch ledger positions: {e}")
+            return [], False
+
+    async def run_3way_reconciliation(self) -> dict[str, Any]:
+        """
+        Institutional 3-way reconciliation across:
+        1. Internal Position Manager
+        2. External / Paper Broker
+        3. Authoritative Canonical Prospective Ledger
+
+        Detects quantity mismatches, missing positions, orphan ledger signals,
+        and ledger desynchronizations. Never silently ignores discrepancies.
+        """
+        async with self._lock:
+            internal = self._get_internal_positions()
+            external, broker_available = self._get_paper_positions()
+            ledger_positions, ledger_available = self._get_ledger_positions()
+
+            now_iso = datetime.now(timezone.utc).isoformat()
+
+            if not broker_available or not ledger_available:
+                status = "UNKNOWN"
+                logger.warning(
+                    f"3-WAY RECONCILIATION: Fail-closed. Broker available={broker_available}, "
+                    f"Ledger available={ledger_available} -> Status UNKNOWN"
+                )
+                return {
+                    "status": status,
+                    "broker_available": broker_available,
+                    "ledger_available": ledger_available,
+                    "mismatches": [],
+                    "timestamp": now_iso,
+                }
+
+            # 1. Standard 2-way diff (Internal vs External)
+            mismatches = self.diff_positions(internal, external)
+
+            # 2. Cross-check against Canonical Ledger
+            int_symbols = {p["symbol"].upper() for p in internal}
+            ext_symbols = {p["symbol"].upper() for p in external}
+            active_live_symbols = int_symbols | ext_symbols
+            ledger_symbols = {p["symbol"].upper() for p in ledger_positions}
+
+            # Check for positions active live but not active in ledger
+            for sym in active_live_symbols:
+                if sym not in ledger_symbols:
+                    mismatches.append({
+                        "symbol": sym,
+                        "issue": "LEDGER_DESYNC",
+                        "description": f"Symbol {sym} is active live but missing from active canonical ledger",
+                    })
+
+            # Check for signals active in ledger but not active live
+            for sym in ledger_symbols:
+                if sym not in active_live_symbols:
+                    mismatches.append({
+                        "symbol": sym,
+                        "issue": "ORPHAN_LEDGER_SIGNAL",
+                        "description": f"Signal for {sym} is marked ACTIVE in ledger but no live position exists",
+                    })
+
+            # Emit typed ReconciliationMismatch events if divergence detected
+            if mismatches:
+                logger.error(f"3-WAY RECONCILIATION DETECTED {len(mismatches)} MISMATCHES: {mismatches}")
+                try:
+                    from app.core.events import ReconciliationMismatch
+                    for m in mismatches:
+                        evt = ReconciliationMismatch(
+                            symbol=m["symbol"],
+                            mismatch_type=m["issue"],
+                            details=m,
+                        )
+                        from app.utils.event_bus import event_bus
+                        await event_bus.publish("ReconciliationMismatch", evt.to_dict())
+                except Exception as e:
+                    logger.warning(f"Failed to publish ReconciliationMismatch event: {e}")
+
+            result = {
+                "status": "MATCHED" if not mismatches else "MISMATCH",
+                "broker_available": True,
+                "ledger_available": True,
+                "internal_count": len(internal),
+                "external_count": len(external),
+                "ledger_count": len(ledger_positions),
+                "mismatch_count": len(mismatches),
+                "mismatches": mismatches,
+                "timestamp": now_iso,
+            }
+            await self._publish_recon_result(result)
+            return result
+
     # ── Per-Symbol Reconciliation ────────────────────────────────────────────
 
     async def reconcile_symbol(self, symbol: str) -> ReconResult:

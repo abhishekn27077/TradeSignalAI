@@ -82,3 +82,58 @@ def compute_vwap(df: pd.DataFrame) -> pd.Series:
     vol = df['volume'] if 'volume' in df.columns else pd.Series(np.ones(len(df)))
     vwap = (typical_price * vol).cumsum() / (vol.cumsum() + 1e-10)
     return vwap
+
+
+def compute_ema(data: pd.DataFrame | pd.Series, period: int = 20) -> pd.Series:
+    """Computes Exponential Moving Average (EMA)."""
+    series = data['close'] if isinstance(data, pd.DataFrame) else data
+    return series.ewm(span=period, adjust=False).mean()
+
+
+def compute_bollinger_bands(
+    data: pd.DataFrame | pd.Series,
+    period: int = 20,
+    std_dev: float = 2.0
+) -> Tuple[pd.Series, pd.Series, pd.Series]:
+    """
+    Computes Bollinger Bands (Upper, Middle/SMA, Lower).
+    Uses population or standard Bessel-corrected standard deviation.
+    """
+    series = data['close'] if isinstance(data, pd.DataFrame) else data
+    middle = series.rolling(window=period, min_periods=period).mean()
+    rolling_std = series.rolling(window=period, min_periods=period).std(ddof=0)
+    upper = middle + (rolling_std * std_dev)
+    lower = middle - (rolling_std * std_dev)
+    return upper, middle, lower
+
+
+def compute_stochastic(
+    df: pd.DataFrame,
+    k_period: int = 14,
+    d_period: int = 3,
+    slowing: int = 3
+) -> Tuple[pd.Series, pd.Series]:
+    """
+    Computes Full Stochastic Oscillator (%K and %D).
+    Fast %K = 100 * (Close - LowestLow) / (HighestHigh - LowestLow)
+    Slow %K = SMA(Fast %K, slowing)
+    %D = SMA(Slow %K, d_period)
+    """
+    high = df['high']
+    low = df['low']
+    close = df['close']
+
+    lowest_low = low.rolling(window=k_period, min_periods=k_period).min()
+    highest_high = high.rolling(window=k_period, min_periods=k_period).max()
+
+    denom = highest_high - lowest_low + 1e-10
+    fast_k = 100.0 * (close - lowest_low) / denom
+
+    if slowing > 1:
+        slow_k = fast_k.rolling(window=slowing, min_periods=slowing).mean()
+    else:
+        slow_k = fast_k
+
+    slow_d = slow_k.rolling(window=d_period, min_periods=d_period).mean()
+    return slow_k, slow_d
+
