@@ -376,6 +376,31 @@ class CanonicalSignalService:
 
     # ── Single Asset Point-in-Time Evaluation ────────────────────────────────
 
+    def evaluate_asset(
+        self,
+        asset: str,
+        dt_utc: Optional[datetime] = None,
+        signal_scope: str = "LIVE",
+        model_overrides: Optional[Dict[str, Dict[str, Any]]] = None,
+        market_data_override: Optional[Dict[str, Any]] = None,
+        risk_reward_override: Optional[float] = None,
+    ) -> Dict[str, Any]:
+        """Public point-in-time single asset evaluation method."""
+        now = dt_utc or datetime.now(timezone.utc)
+        commit, branch = get_current_git_info()
+        return self._evaluate_single_asset(
+            asset=asset,
+            dt_utc=now,
+            snapshot_id=f"SNAP-{asset}-{now.strftime('%Y%m%d%H%M%S')}-EVAL",
+            git_commit=commit,
+            git_branch=branch,
+            data_seq=0,
+            model_overrides=model_overrides,
+            market_data_override=market_data_override,
+            risk_reward_override=risk_reward_override,
+            signal_scope=signal_scope,
+        )
+
     def _evaluate_single_asset(
         self,
         asset: str,
@@ -387,6 +412,7 @@ class CanonicalSignalService:
         model_overrides: Optional[Dict[str, Dict[str, Any]]] = None,
         market_data_override: Optional[Dict[str, Any]] = None,
         risk_reward_override: Optional[float] = None,
+        signal_scope: str = "LIVE",
     ) -> Dict[str, Any]:
         """
         Executes point-in-time multi-model evaluation for a single asset.
@@ -451,15 +477,21 @@ class CanonicalSignalService:
         except Exception as e:
             logger.debug(f"Could not fetch live price for {asset}: {e}")
 
-        # Fallback to base price ONLY if no candle data exists at all
+        # Phase 79: Deprecate legacy static base prices; explicitly prohibit them from LIVE signals
+        used_static_base_price = False
         if ref_price is None:
-            ref_price = ASSET_BASE_PRICES.get(asset, 100.0)
+            if signal_scope in ["HISTORICAL_TEST", "MOCK_TEST"]:
+                ref_price = ASSET_BASE_PRICES.get(asset, 100.0)
+                used_static_base_price = True
+            else:
+                ref_price = None  # Fail closed for live/prospective production paths
         if age_seconds is None:
             age_seconds = 9999999.0  # unknown age → treated as STALE, never FRESH
 
         if market_data_override:
             if "price" in market_data_override:
                 ref_price = market_data_override["price"]
+                used_static_base_price = False
             if "age_seconds" in market_data_override:
                 age_seconds = float(market_data_override["age_seconds"])
             if "timeframe" in market_data_override:
@@ -724,6 +756,8 @@ class CanonicalSignalService:
         decision = "NO_TRADE"
         reason_codes = []
 
+        if used_static_base_price:
+            reason_codes.append("STATIC_BASE_PRICE_PROHIBITED")
         if not is_price_valid:
             reason_codes.append("INVALID_MARKET_DATA")
         if not is_fresh:
@@ -777,6 +811,7 @@ class CanonicalSignalService:
             "risk_reward": {"required": ">=1.5", "actual": risk_reward, "passed": risk_reward >= 1.5},
             "overall_decision": decision,
             "qualification_status": qualification_status,
+            "reason_codes": reason_codes,
         }
 
         if not is_market_open:
@@ -859,6 +894,7 @@ class CanonicalSignalService:
             "data_freshness": data_freshness,
             "risk_status": "PASS" if is_qualified else "GATED",
             "is_trade_signal_qualified": is_qualified,
+            "is_qualified": is_qualified,
             "qualification_status": qualification_status,
             "decision": decision,
             "qualification_reason": primary_reason,

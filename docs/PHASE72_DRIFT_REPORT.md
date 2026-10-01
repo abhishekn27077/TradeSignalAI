@@ -4,16 +4,16 @@
 
 ## 1. Directional & Feature Skew Monitor
 
-- **Signals Audited**: 93
-- **BUY Count**: 78 (83.9%)
+- **Signals Audited**: 98
+- **BUY Count**: 83 (84.7%)
 - **SELL Count**: 13
 - **NO_TRADE Count**: 0
-- **Directional Skew Deviation**: 33.9%
+- **Directional Skew Deviation**: 34.7%
 
 ## 2. Performance Degradation Monitor
 
-- **Resolved Sample**: 68
-- **Rolling Win Rate**: 82.4%
+- **Resolved Sample**: 69
+- **Rolling Win Rate**: 82.6%
 
 ## 3. Automated Safety Invariants
 - If rolling win rate drops below 45% -> System transitions to `DEGRADED` (0.5x risk)

@@ -153,7 +153,7 @@ class LiveSignalGenerationEngine:
 
         # Stage 1: Live Market Snapshot (Freshness & Quality Validated)
         snap_t0 = time.perf_counter()
-        snapshot: LiveAssetMarketSnapshot = await canonical_snapshot_manager.capture_live_snapshot(clean_asset)
+        snapshot: LiveAssetMarketSnapshot = await canonical_snapshot_manager.capture_live_snapshot(clean_asset, timeframe)
         snap_latency_ms = round((time.perf_counter() - snap_t0) * 1000, 2)
         self._latency_metrics["snapshot_latency_ms"] = snap_latency_ms
 

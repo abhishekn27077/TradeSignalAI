@@ -213,14 +213,31 @@ class CanonicalStatisticsService:
         avg_holding_sec = sum(holding_seconds_list) / len(holding_seconds_list) if holding_seconds_list else 14400.0
         avg_holding_hrs = round(avg_holding_sec / 3600.0, 1)
 
-        # Section 11: Sample Size Terminology
-        min_required_n = 15
-        if resolved_count < min_required_n:
+        # Phase 79: Explicit Sample Methodology Tiers (Part H)
+        if resolved_count < 15:
+            sample_status = "INSUFFICIENT SAMPLE"
+            is_sample_supported = False
+        elif resolved_count < 30:
             sample_status = "LIMITED SAMPLE"
             is_sample_supported = False
         else:
-            sample_status = "SAMPLE-SUPPORTED"
+            sample_status = "SUPPORTED SAMPLE"
             is_sample_supported = True
+
+        min_required_n = 15
+        sample_methodology = {
+            "status": sample_status,
+            "sample_n": resolved_count,
+            "min_required_n": min_required_n,
+            "supported_threshold_n": 30,
+            "confidence_interval_method": "Wilson Score 95% Confidence Interval",
+            "eligibility_rules": "Only genuine LIVE, canonical, evidence-backed, resolved signals are eligible. Unresolved, demo, synthetic, and replay records are excluded.",
+            "tier_definitions": {
+                "INSUFFICIENT SAMPLE": "N < 15: Empirical sample too small for statistical inference.",
+                "LIMITED SAMPLE": "15 <= N < 30: Preliminary sample; wide confidence interval.",
+                "SUPPORTED SAMPLE": "N >= 30: Sufficient sample size for standard parametric analysis.",
+            },
+        }
 
         return {
             "success": True,
@@ -229,6 +246,7 @@ class CanonicalStatisticsService:
             "sample_n": resolved_count,
             "min_required_n": min_required_n,
             "is_sample_supported": is_sample_supported,
+            "sample_methodology": sample_methodology,
             "sample_size_tooltip": "Sample size classification only. It does not indicate future profitability or predictive accuracy.",
             "total_signals": total_signals,
             "total_qualified": len(qualified_signals),

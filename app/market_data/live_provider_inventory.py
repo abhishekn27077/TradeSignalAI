@@ -127,8 +127,25 @@ class LiveProviderInventoryService:
             "role": "CACHE_AND_FORENSIC_EVIDENCE_ONLY",
         }
 
+        primary_assignments = {
+            "BTCUSD": "BINANCE",
+            "BTCUSDT": "BINANCE",
+            "ETHUSD": "BINANCE",
+            "ETHUSDT": "BINANCE",
+            "SOLUSD": "BINANCE",
+            "SOLUSDT": "BINANCE",
+            "EURUSD": "MT5",
+            "GBPUSD": "MT5",
+            "USDJPY": "MT5",
+            "AUDUSD": "MT5",
+            "XAUUSD": "MT5",
+            "NAS100": "MT5",
+            "SPX500": "MT5",
+        }
+
         inventory = {
             "timestamp_utc": now_utc.isoformat(),
+            "primary_assignments": primary_assignments,
             "providers": [
                 binance_record,
                 mt5_record,

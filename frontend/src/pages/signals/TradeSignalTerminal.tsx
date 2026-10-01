@@ -881,6 +881,7 @@ export const TradeSignalTerminal: React.FC = () => {
                       <th className="text-right px-3 py-3">TP</th>
                       <th className="text-center px-3 py-3">Open (IST)</th>
                       <th className="text-center px-3 py-3">Close (IST)</th>
+                      <th className="text-center px-3 py-3">Duration</th>
                       <th className="text-center px-3 py-3">Conf</th>
                       <th className="text-center px-3 py-3">Outcome</th>
                       <th className="text-right px-4 py-3">Realized R</th>
@@ -947,6 +948,7 @@ export const TradeSignalTerminal: React.FC = () => {
                             </td>
                             <td className="px-3 py-3 text-center text-slate-300">{sig.open_at_ist}</td>
                             <td className="px-3 py-3 text-center text-slate-300">{sig.close_at_ist}</td>
+                            <td className="px-3 py-3 text-center text-cyan-300 font-mono">{sig.duration || '—'}</td>
                             <td className="px-3 py-3 text-center text-slate-300">
                               {sig.confidence ?? sig.confidence_pct}%
                             </td>
@@ -1127,6 +1129,45 @@ export const TradeSignalTerminal: React.FC = () => {
               </div>
             </div>
 
+            {/* Sample Methodology Card - Part H */}
+            <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 space-y-3 font-mono">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                <div className="flex items-center gap-2">
+                  <Shield className="w-4 h-4 text-amber-400" />
+                  <span className="text-xs font-bold text-slate-200 uppercase tracking-wider">Sample Methodology & Statistical Rigor</span>
+                </div>
+                <span className="text-[10px] text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20 font-bold">
+                  {perfData?.overview?.sample_status || 'LIMITED SAMPLE'}
+                </span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                <div className="p-3 bg-slate-950 rounded-xl border border-slate-800/80 space-y-1">
+                  <div className="text-[10px] uppercase font-bold text-slate-400">1. Sample Tiers</div>
+                  <div className="text-[11px] text-slate-300">
+                    <div>• <strong className="text-rose-400">INSUFFICIENT (N &lt; 15)</strong>: Zero statistical power.</div>
+                    <div>• <strong className="text-amber-400">LIMITED (15 &le; N &lt; 30)</strong>: Wide Wilson CI bands.</div>
+                    <div>• <strong className="text-emerald-400">SUPPORTED (N &ge; 30)</strong>: Normal approximation valid.</div>
+                  </div>
+                </div>
+                <div className="p-3 bg-slate-950 rounded-xl border border-slate-800/80 space-y-1">
+                  <div className="text-[10px] uppercase font-bold text-slate-400">2. Confidence Interval</div>
+                  <div className="text-[11px] text-slate-300">
+                    Wilson Score 95% Interval handles small binomial samples without asymptotic distortion.
+                  </div>
+                  <div className="text-[10px] text-cyan-400 pt-1">
+                    Current CI: {perfData?.overview?.wilson_95_ci ? `[${perfData.overview.wilson_95_ci[0]}%, ${perfData.overview.wilson_95_ci[1]}%]` : '—'}
+                  </div>
+                </div>
+                <div className="p-3 bg-slate-950 rounded-xl border border-slate-800/80 space-y-1">
+                  <div className="text-[10px] uppercase font-bold text-slate-400">3. Eligibility Rules</div>
+                  <div className="text-[11px] text-slate-300">
+                    Only genuine <strong className="text-emerald-400">LIVE</strong>, canonical, resolved trades enter statistics.
+                    Unresolved, demo, synthetic, and historical replay records are strictly excluded.
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Performance by Asset */}
             <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 space-y-3">
               <div className="flex items-center justify-between">
@@ -1295,12 +1336,39 @@ export const TradeSignalTerminal: React.FC = () => {
                 </div>
                 <div className="space-y-2.5">
                   {systemStatus?.categories?.DATA?.map((item: any, idx: number) => (
-                    <div key={idx} className="flex items-center justify-between p-2.5 rounded-xl bg-slate-950 border border-slate-800/80">
-                      <div>
-                        <div className="font-bold text-slate-200 font-mono text-xs">{item.name}</div>
-                        <div className="text-[10px] text-slate-400 font-mono">{item.details}</div>
+                    <div key={idx} className="p-3 rounded-xl bg-slate-950 border border-slate-800/80 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-slate-200 font-mono text-xs">{item.name}</span>
+                          <span className="text-[10px] text-slate-500 font-mono">({item.role})</span>
+                        </div>
+                        {getStatusBadge(item.status)}
                       </div>
-                      {getStatusBadge(item.status)}
+
+                      {item.terminal && (
+                        <div className="grid grid-cols-2 gap-2 text-[10px] font-mono text-slate-300 pt-1 border-t border-slate-800/60">
+                          <div>Terminal: <strong className={item.terminal === 'CONNECTED' ? 'text-emerald-400' : 'text-rose-400'}>{item.terminal}</strong></div>
+                          <div>Account: <strong className={item.account === 'CONNECTED' ? 'text-emerald-400' : 'text-amber-400'}>{item.account}</strong></div>
+                          <div>Broker: <span className="text-slate-400">{item.broker || '—'}</span></div>
+                          <div>Symbols: <strong className="text-cyan-400">{item.symbols_verified || '—'}</strong></div>
+                          <div>Live Tick: <strong className={item.live_tick === 'YES' ? 'text-emerald-400' : 'text-slate-500'}>{item.live_tick || 'NO'}</strong></div>
+                          <div>Freshness: <span className="text-slate-300">{item.freshness || 'N/A'}</span></div>
+                          <div>Actionable: <strong className={item.actionable ? 'text-emerald-400' : 'text-rose-400'}>{item.actionable ? 'YES' : 'NO'}</strong></div>
+                          <div>Reason: <span className="text-amber-400 truncate">{item.diagnostic_reason || '—'}</span></div>
+                        </div>
+                      )}
+
+                      {item.safe_remediation_guidance && item.safe_remediation_guidance.length > 0 && !item.actionable && (
+                        <div className="mt-2 p-2 bg-slate-900/90 rounded-lg border border-amber-500/20 text-[10px] font-mono text-slate-300 space-y-1">
+                          <div className="font-bold text-amber-400 flex items-center justify-between">
+                            <span>Remediation Guidance</span>
+                            <span className="text-slate-500 text-[9px]">Part S</span>
+                          </div>
+                          {item.safe_remediation_guidance.map((step: string, sIdx: number) => (
+                            <div key={sIdx} className="text-slate-400 pl-1">{step}</div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   )) || (
                     <div className="text-xs text-slate-500 font-mono p-3">Loading data feed health...</div>
@@ -1608,6 +1676,13 @@ export const TradeSignalTerminal: React.FC = () => {
                     {selectedSignal.actual_exit_ist?.substring(7) || selectedSignal.close_at_ist?.substring(7) || '—'}
                   </div>
                 </div>
+                <ArrowRight className="w-3.5 h-3.5 text-slate-600" />
+                <div className="text-center">
+                  <div className="text-slate-500 text-[9px]">5. DURATION</div>
+                  <div className="text-cyan-300 font-bold">
+                    {selectedSignal.duration || '—'}
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -1630,6 +1705,7 @@ export const TradeSignalTerminal: React.FC = () => {
                 <div className="space-y-1">
                   <div className="text-[9px] uppercase font-bold text-slate-500">B. Data Provenance</div>
                   <div>Provider: <span className="text-emerald-400 font-bold">{selectedSignal.provider || 'MT5'}</span></div>
+                  <div>Broker Symbol: <span className="text-slate-300 font-mono">{selectedSignal.broker_symbol || selectedSignal.asset}</span></div>
                   <div>Data Verified: <span className={selectedSignal.live_data_verified ? 'text-emerald-400' : 'text-slate-400'}>{selectedSignal.live_data_verified ? 'YES (Live Feed)' : 'CACHE / HISTORICAL'}</span></div>
                   <div>Data Age: <span className="text-slate-300">{selectedSignal.data_age_seconds != null ? `${selectedSignal.data_age_seconds}s` : 'Fresh (<5s)'}</span></div>
                   <div>Record Type: <span className="text-cyan-400 font-bold">{selectedSignal.record_type || 'LIVE'}</span></div>
