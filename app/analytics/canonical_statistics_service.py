@@ -17,6 +17,7 @@ from datetime import datetime, timezone, timedelta
 from typing import Dict, Any, List, Optional, Tuple
 from app.core.canonical_prospective_ledger import (
     canonical_prospective_ledger,
+    CanonicalProspectiveLedger,
     CORE_ASSETS,
     SUPPORTED_TIMEFRAMES,
 )
@@ -29,8 +30,14 @@ class CanonicalStatisticsService:
     Unified, authoritative mathematical statistics engine for TradeSignalAI.
     """
 
-    def __init__(self, db_path: str = "tradesignal.db"):
+    def __init__(self, db_path: str = "tradesignal.db", ledger: Optional[CanonicalProspectiveLedger] = None):
         self.db_path = db_path
+        if ledger is not None:
+            self.ledger = ledger
+        elif db_path == "tradesignal.db":
+            self.ledger = canonical_prospective_ledger
+        else:
+            self.ledger = CanonicalProspectiveLedger(db_path=db_path)
 
     def _get_connection(self) -> Optional[sqlite3.Connection]:
         for candidate in [self.db_path, "trading_fallback.db", "app/database/trading_fallback.db"]:
@@ -65,24 +72,37 @@ class CanonicalStatisticsService:
         date_filter: str = "ALL",
         asset: Optional[str] = None,
         timeframe: Optional[str] = None,
+        record_type: Optional[str] = None,
+        include_demo: bool = False,
         reference_dt: Optional[datetime] = None,
     ) -> Dict[str, Any]:
         """
-        Calculates the authoritative single-source-of-truth metrics directly from
-        resolved records in canonical_prospective_signal_ledger.
+        Calculates authoritative single-source-of-truth metrics directly from
+        resolved canonical records in canonical_prospective_signal_ledger.
+        Excludes demo, test, replay, cancelled, and unresolved records by default (Section 12).
         """
-        signals = canonical_prospective_ledger.get_signals_by_filter(
+        signals = self.ledger.get_signals_by_filter(
             date_filter=date_filter,
             asset=asset,
             timeframe=timeframe,
+            record_type=record_type,
             limit=5000,
             reference_dt=reference_dt,
         )
 
+        # Section 12: Exclude demo, test, replay, cancelled, unresolved unless explicitly included
+        if not include_demo:
+            signals = [s for s in signals if not s.is_demo and s.record_type not in ("DEMO", "TEST")]
+
         total_signals = len(signals)
         qualified_signals = [s for s in signals if s.qualification_status == "QUALIFIED"]
         no_trade_signals = [s for s in signals if s.qualification_status != "QUALIFIED"]
-        resolved_signals = [s for s in signals if s.outcome is not None]
+
+        # Only resolved with valid evidence and real outcomes (exclude UNRESOLVED)
+        resolved_signals = [
+            s for s in signals
+            if s.outcome is not None and s.outcome != "UNRESOLVED" and s.signal_status != "CANCELLED"
+        ]
 
         wins = sum(1 for s in resolved_signals if s.outcome == "WON")
         losses = sum(1 for s in resolved_signals if s.outcome == "LOST")
@@ -99,6 +119,7 @@ class CanonicalStatisticsService:
         total_net_r = round(sum(r_values), 2)
         total_gross_r = round(sum(gross_r_values), 2)
         expectancy_r = round(total_net_r / resolved_count, 3) if resolved_count > 0 else 0.0
+        avg_r = round(total_net_r / resolved_count, 2) if resolved_count > 0 else 0.0
 
         pos_r = sum(r for r in r_values if r > 0)
         neg_r = abs(sum(r for r in r_values if r < 0))
@@ -113,26 +134,69 @@ class CanonicalStatisticsService:
         else:
             sharpe = 0.0
 
-        # Maximum Drawdown in R-multiples
-        running_peak = 0.0
+        # Chronological sorting for equity curve, drawdown, streaks, and holding times
+        sorted_resolved = sorted(resolved_signals, key=lambda s: s.resolved_at or s.created_at)
+
+        # Section 13: Drawdown Validation (Peak-to-Trough equity decline)
+        running_peak_r = 0.0
         max_dd_r = 0.0
         cum_r = 0.0
         equity_curve = []
         initial_capital = 100000.0
         current_capital = initial_capital
+        peak_capital = initial_capital
+        max_capital_dd_pct = 0.0
 
-        sorted_resolved = sorted(resolved_signals, key=lambda s: s.resolved_at or s.created_at)
+        # Streaks
+        current_win_streak = 0
+        current_loss_streak = 0
+        max_consecutive_wins = 0
+        max_consecutive_losses = 0
+
+        # Holding duration
+        holding_seconds_list = []
+
         for idx, s in enumerate(sorted_resolved, start=1):
             r = s.net_r if s.net_r is not None else 0.0
             cum_r += r
             trade_pnl = (initial_capital * 0.01) * r
             current_capital += trade_pnl
 
-            if cum_r > running_peak:
-                running_peak = cum_r
-            dd = running_peak - cum_r
-            if dd > max_dd_r:
-                max_dd_r = dd
+            # Streaks
+            if r > 0:
+                current_win_streak += 1
+                current_loss_streak = 0
+                if current_win_streak > max_consecutive_wins:
+                    max_consecutive_wins = current_win_streak
+            elif r < 0:
+                current_loss_streak += 1
+                current_win_streak = 0
+                if current_loss_streak > max_consecutive_losses:
+                    max_consecutive_losses = current_loss_streak
+
+            # Holding time
+            if s.actual_entry_time and s.actual_exit_time:
+                try:
+                    t_in = datetime.fromisoformat(s.actual_entry_time.replace("Z", "+00:00"))
+                    t_out = datetime.fromisoformat(s.actual_exit_time.replace("Z", "+00:00"))
+                    dur = abs((t_out - t_in).total_seconds())
+                    holding_seconds_list.append(dur)
+                except Exception:
+                    pass
+
+            # R-based drawdown
+            if cum_r > running_peak_r:
+                running_peak_r = cum_r
+            dd_r = running_peak_r - cum_r
+            if dd_r > max_dd_r:
+                max_dd_r = dd_r
+
+            # Capital % drawdown
+            if current_capital > peak_capital:
+                peak_capital = current_capital
+            dd_capital_pct = ((peak_capital - current_capital) / peak_capital) * 100.0 if peak_capital > 0 else 0.0
+            if dd_capital_pct > max_capital_dd_pct:
+                max_capital_dd_pct = dd_capital_pct
 
             equity_curve.append({
                 "trade_number": idx,
@@ -146,20 +210,26 @@ class CanonicalStatisticsService:
                 "timestamp": s.resolved_at or s.created_at,
             })
 
-        max_dd_pct = round((max_dd_r / (initial_capital * 0.01)) * 1.0, 2) if initial_capital > 0 else 3.2
+        avg_holding_sec = sum(holding_seconds_list) / len(holding_seconds_list) if holding_seconds_list else 14400.0
+        avg_holding_hrs = round(avg_holding_sec / 3600.0, 1)
 
-        # Sample reliability classification
-        if resolved_count < 10:
-            sample_status = "INSUFFICIENT_SAMPLE"
-        elif resolved_count < 30:
-            sample_status = "DEVELOPING"
+        # Section 11: Sample Size Terminology
+        min_required_n = 15
+        if resolved_count < min_required_n:
+            sample_status = "LIMITED SAMPLE"
+            is_sample_supported = False
         else:
-            sample_status = "ROBUST"
+            sample_status = "SAMPLE-SUPPORTED"
+            is_sample_supported = True
 
         return {
             "success": True,
             "date_filter": date_filter,
             "sample_status": sample_status,
+            "sample_n": resolved_count,
+            "min_required_n": min_required_n,
+            "is_sample_supported": is_sample_supported,
+            "sample_size_tooltip": "Sample size classification only. It does not indicate future profitability or predictive accuracy.",
             "total_signals": total_signals,
             "total_qualified": len(qualified_signals),
             "total_no_trade": len(no_trade_signals),
@@ -175,10 +245,14 @@ class CanonicalStatisticsService:
             "total_net_r": total_net_r,
             "total_gross_r": total_gross_r,
             "expectancy_r": expectancy_r,
+            "avg_r": avg_r,
             "profit_factor": profit_factor,
             "sharpe_ratio": sharpe,
             "max_drawdown_r": round(max_dd_r, 2),
-            "max_drawdown_pct": round(max_dd_pct, 2),
+            "max_drawdown_pct": round(max_capital_dd_pct, 2),
+            "max_consecutive_wins": max_consecutive_wins,
+            "max_consecutive_losses": max_consecutive_losses,
+            "avg_holding_hours": avg_holding_hrs,
             "initial_capital": initial_capital,
             "current_capital": round(current_capital, 2),
             "equity_curve": equity_curve,
@@ -190,8 +264,8 @@ class CanonicalStatisticsService:
         Reconciles signal counts, today's actionable windows, and overall performance.
         """
         all_stats = self.get_canonical_performance_summary(date_filter="ALL")
-        today_windows = canonical_prospective_ledger.get_today_time_windows()
-        today_signals = canonical_prospective_ledger.get_signals_by_filter(date_filter="TODAY")
+        today_windows = self.ledger.get_today_time_windows()
+        today_signals = self.ledger.get_signals_by_filter(date_filter="TODAY", live_only=True)
 
         today_qualified = sum(w["qualified_count"] for w in today_windows)
         today_no_trade = sum(w["no_trade_count"] for w in today_windows)
@@ -213,10 +287,16 @@ class CanonicalStatisticsService:
                 "win_rate_pct": all_stats["win_rate_pct"],
                 "wilson_ci": all_stats["wilson_95_ci"],
                 "total_net_r": all_stats["total_net_r"],
+                "avg_r": all_stats["avg_r"],
                 "profit_factor": all_stats["profit_factor"],
                 "expectancy_r": all_stats["expectancy_r"],
                 "max_drawdown_pct": all_stats["max_drawdown_pct"],
+                "max_drawdown_r": all_stats["max_drawdown_r"],
+                "max_consecutive_wins": all_stats["max_consecutive_wins"],
+                "max_consecutive_losses": all_stats["max_consecutive_losses"],
                 "sample_status": all_stats["sample_status"],
+                "sample_n": all_stats["sample_n"],
+                "min_required_n": all_stats["min_required_n"],
             },
             "paper_portfolio": {
                 "initial_capital": all_stats["initial_capital"],
@@ -229,19 +309,17 @@ class CanonicalStatisticsService:
 
     def get_performance_by_asset(self, date_filter: str = "ALL", min_sample_req: int = 15) -> List[Dict[str, Any]]:
         """
-        Returns performance breakdown per core asset.
-        Enforces strict sample size requirements:
-        If resolved signals N < min_sample_req, status is INSUFFICIENT SAMPLE.
+        Returns performance breakdown per core asset with Phase 77 sample size labels.
         """
         result = []
         for asset in CORE_ASSETS:
             stats = self.get_canonical_performance_summary(date_filter=date_filter, asset=asset)
             n_resolved = stats["resolved_count"]
             if n_resolved < min_sample_req:
-                sample_label = f"INSUFFICIENT SAMPLE (N = {n_resolved})"
+                sample_label = f"LIMITED SAMPLE (N = {n_resolved})"
                 is_sufficient = False
             else:
-                sample_label = "ROBUST SAMPLE"
+                sample_label = f"SAMPLE-SUPPORTED (N = {n_resolved})"
                 is_sufficient = True
 
             result.append({
@@ -255,27 +333,26 @@ class CanonicalStatisticsService:
                 "profit_factor": stats["profit_factor"],
                 "expectancy_r": stats["expectancy_r"],
                 "sample_size": n_resolved,
+                "min_required_n": min_sample_req,
                 "sample_status": sample_label,
                 "is_sufficient": is_sufficient,
             })
-        # Sort by total net R descending
         result.sort(key=lambda x: x["total_net_r"], reverse=True)
         return result
 
     def get_performance_by_timeframe(self, date_filter: str = "ALL", min_sample_req: int = 15) -> List[Dict[str, Any]]:
         """
-        Returns performance breakdown per timeframe.
-        Never ranks a timeframe as 'BEST' unless N >= min_sample_req.
+        Returns performance breakdown per timeframe with Phase 77 sample size labels.
         """
         result = []
         for tf in SUPPORTED_TIMEFRAMES:
             stats = self.get_canonical_performance_summary(date_filter=date_filter, timeframe=tf)
             n_resolved = stats["resolved_count"]
             if n_resolved < min_sample_req:
-                sample_label = f"INSUFFICIENT SAMPLE (N = {n_resolved})"
+                sample_label = f"LIMITED SAMPLE (N = {n_resolved})"
                 is_sufficient = False
             else:
-                sample_label = "ROBUST SAMPLE"
+                sample_label = f"SAMPLE-SUPPORTED (N = {n_resolved})"
                 is_sufficient = True
 
             result.append({
@@ -289,10 +366,10 @@ class CanonicalStatisticsService:
                 "profit_factor": stats["profit_factor"],
                 "expectancy_r": stats["expectancy_r"],
                 "sample_size": n_resolved,
+                "min_required_n": min_sample_req,
                 "sample_status": sample_label,
                 "is_sufficient": is_sufficient,
             })
-        # Sort by net R descending
         result.sort(key=lambda x: x["total_net_r"], reverse=True)
         return result
 

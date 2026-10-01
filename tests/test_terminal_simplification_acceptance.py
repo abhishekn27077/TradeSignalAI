@@ -283,7 +283,7 @@ def test_performance_sample_size_gating():
         assert "sample_status" in item
         assert "is_sufficient" in item
         if item["sample_size"] < 15:
-            assert "INSUFFICIENT SAMPLE" in item["sample_status"]
+            assert "LIMITED SAMPLE" in item["sample_status"] or "INSUFFICIENT SAMPLE" in item["sample_status"]
             assert item["is_sufficient"] is False
         else:
             assert item["is_sufficient"] is True
@@ -294,7 +294,7 @@ def test_performance_sample_size_gating():
         assert "sample_status" in item
         assert "is_sufficient" in item
         if item["sample_size"] < 15:
-            assert "INSUFFICIENT SAMPLE" in item["sample_status"]
+            assert "LIMITED SAMPLE" in item["sample_status"] or "INSUFFICIENT SAMPLE" in item["sample_status"]
             assert item["is_sufficient"] is False
         else:
             assert item["is_sufficient"] is True

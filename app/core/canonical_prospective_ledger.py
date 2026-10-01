@@ -55,6 +55,10 @@ STATUS_EXPIRED = "EXPIRED"
 STATUS_CANCELLED = "CANCELLED"
 STATUS_RESOLVED = "RESOLVED"
 STATUS_SUPERSEDED = "SUPERSEDED"
+STATUS_CANDIDATE = "CANDIDATE"
+STATUS_WATCHLIST = "WATCHLIST"
+STATUS_QUALIFIED = "QUALIFIED"
+STATUS_REJECTED = "REJECTED"
 
 # Outcomes
 OUTCOME_WON = "WON"
@@ -135,6 +139,29 @@ class CanonicalProspectiveSignal:
     # 8. Timestamps
     created_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     resolved_at: Optional[str] = None
+
+    # 9. Real-Signal Provenance & Forensic Traceability (Phase 77 Enforcement)
+    record_type: str = "HISTORICAL"  # "LIVE", "HISTORICAL", "REPLAY", "DEMO"
+    is_live: bool = False
+    is_historical: bool = True
+    is_demo: bool = False
+    is_replay: bool = False
+    live_data_verified: bool = False
+    provider: str = "MT5"
+    provider_status: str = "UNKNOWN"
+    market_data_timestamp_utc: Optional[str] = None
+    market_data_timestamp_ist: Optional[str] = None
+    data_age_seconds: Optional[float] = None
+    market_price_at_generation: Optional[float] = None
+    entry_deviation_pct: float = 0.0
+    decision: str = "NO_TRADE"
+    risk_status: str = "PASS"
+    consensus_confidence: Optional[float] = None
+    agreement_pct: Optional[float] = None
+    decision_trace: Dict[str, Any] = field(default_factory=dict)
+    first_barrier_touched: Optional[str] = None
+    resolution_source: Optional[str] = None
+    resolution_evidence: Dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         d = asdict(self)
@@ -246,12 +273,44 @@ class CanonicalProspectiveLedger:
             if "generation_version" not in cols:
                 cur.execute("ALTER TABLE canonical_prospective_signal_ledger ADD COLUMN generation_version INTEGER DEFAULT 1")
 
+            new_cols = {
+                "record_type": "TEXT DEFAULT 'HISTORICAL'",
+                "is_live": "INTEGER DEFAULT 0",
+                "is_historical": "INTEGER DEFAULT 1",
+                "is_demo": "INTEGER DEFAULT 0",
+                "is_replay": "INTEGER DEFAULT 0",
+                "live_data_verified": "INTEGER DEFAULT 0",
+                "provider": "TEXT DEFAULT 'MT5'",
+                "provider_status": "TEXT DEFAULT 'UNKNOWN'",
+                "market_data_timestamp_utc": "TEXT",
+                "market_data_timestamp_ist": "TEXT",
+                "data_age_seconds": "REAL",
+                "market_price_at_generation": "REAL",
+                "entry_deviation_pct": "REAL DEFAULT 0.0",
+                "decision": "TEXT DEFAULT 'NO_TRADE'",
+                "risk_status": "TEXT DEFAULT 'PASS'",
+                "consensus_confidence": "REAL",
+                "agreement_pct": "REAL",
+                "decision_trace": "TEXT",
+                "first_barrier_touched": "TEXT",
+                "resolution_source": "TEXT",
+                "resolution_evidence": "TEXT",
+            }
+            for col_name, col_def in new_cols.items():
+                if col_name not in cols:
+                    try:
+                        cur.execute(f"ALTER TABLE canonical_prospective_signal_ledger ADD COLUMN {col_name} {col_def}")
+                    except Exception:
+                        pass
+
             cur.execute("CREATE INDEX IF NOT EXISTS idx_cpsl_asset ON canonical_prospective_signal_ledger(asset)")
             cur.execute("CREATE INDEX IF NOT EXISTS idx_cpsl_timeframe ON canonical_prospective_signal_ledger(timeframe)")
             cur.execute("CREATE INDEX IF NOT EXISTS idx_cpsl_status ON canonical_prospective_signal_ledger(signal_status)")
             cur.execute("CREATE INDEX IF NOT EXISTS idx_cpsl_outcome ON canonical_prospective_signal_ledger(outcome)")
             cur.execute("CREATE INDEX IF NOT EXISTS idx_cpsl_gen_utc ON canonical_prospective_signal_ledger(generated_at_utc)")
             cur.execute("CREATE INDEX IF NOT EXISTS idx_cpsl_qual ON canonical_prospective_signal_ledger(qualification_status)")
+            cur.execute("CREATE INDEX IF NOT EXISTS idx_cpsl_rectype ON canonical_prospective_signal_ledger(record_type)")
+            cur.execute("CREATE INDEX IF NOT EXISTS idx_cpsl_islive ON canonical_prospective_signal_ledger(is_live)")
             cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS uidx_cpsl_identity ON canonical_prospective_signal_ledger(asset, timeframe, generated_at_utc, policy_version, generation_version)")
             conn.commit()
         except Exception as e:
@@ -301,9 +360,30 @@ class CanonicalProspectiveLedger:
     def persist_signal(self, signal: CanonicalProspectiveSignal, allow_revision: bool = False, supersedes_id: Optional[str] = None) -> bool:
         """
         Persists a newly generated prospective signal.
-        Enforces strict deduplication and immutability.
+        Enforces strict deduplication, immutability, and pricing deviation checks.
         If allow_revision is True and supersedes_id is provided, archives previous signal as SUPERSEDED.
         """
+        # Section 6: Signal Price Consistency Gate
+        if signal.market_price_at_generation and signal.market_price_at_generation > 0:
+            dev = abs(signal.entry_price - signal.market_price_at_generation) / signal.market_price_at_generation
+            object.__setattr__(signal, "entry_deviation_pct", round(dev * 100.0, 4))
+            # Allowed threshold: 0.5% (0.005)
+            if dev > 0.005 and signal.is_live:
+                object.__setattr__(signal, "qualification_status", "REJECTED")
+                object.__setattr__(signal, "signal_status", STATUS_REJECTED)
+                object.__setattr__(signal, "no_trade_reason", f"EXCESSIVE_PRICE_DEVIATION: entry={signal.entry_price} vs market={signal.market_price_at_generation} ({round(dev*100, 2)}% > 0.5%)")
+                object.__setattr__(signal, "is_live", False)
+                object.__setattr__(signal, "record_type", "DEMO")
+
+        # Section 4: Live Data Freshness Gate
+        # If data age > configured threshold (e.g. 120s) and signal is claimed live:
+        if signal.is_live and signal.data_age_seconds is not None and signal.data_age_seconds > 120.0:
+            object.__setattr__(signal, "qualification_status", "REJECTED")
+            object.__setattr__(signal, "signal_status", STATUS_REJECTED)
+            object.__setattr__(signal, "no_trade_reason", f"STALE_MARKET_DATA: data_age={signal.data_age_seconds}s > 120s threshold")
+            object.__setattr__(signal, "is_live", False)
+            object.__setattr__(signal, "record_type", "HISTORICAL")
+
         conn = self._get_connection()
         if not conn:
             return False
@@ -348,8 +428,18 @@ class CanonicalProspectiveLedger:
                     qualification_status, signal_status, no_trade_reason, supersedes_id, generation_version,
                     actual_entry_time, actual_entry_price, actual_exit_time, actual_exit_price,
                     outcome, resolution_reason, gross_r, friction_r, net_r, mfe, mae,
-                    created_at, resolved_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    created_at, resolved_at,
+                    record_type, is_live, is_historical, is_demo, is_replay, live_data_verified,
+                    provider, provider_status, market_data_timestamp_utc, market_data_timestamp_ist,
+                    data_age_seconds, market_price_at_generation, entry_deviation_pct,
+                    decision, risk_status, consensus_confidence, agreement_pct,
+                    decision_trace, first_barrier_touched, resolution_source, resolution_evidence
+                ) VALUES (
+                    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+                    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+                    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+                    ?, ?, ?, ?, ?, ?, ?, ?
+                )
                 """,
                 (
                     signal.signal_id, signal.campaign_id, signal.generated_at_utc, signal.generated_at_ist,
@@ -365,7 +455,14 @@ class CanonicalProspectiveLedger:
                     supersedes_id or signal.supersedes_id, signal.generation_version,
                     signal.actual_entry_time, signal.actual_entry_price, signal.actual_exit_time, signal.actual_exit_price,
                     signal.outcome, signal.resolution_reason, signal.gross_r, signal.friction_r, signal.net_r,
-                    signal.mfe, signal.mae, signal.created_at, signal.resolved_at
+                    signal.mfe, signal.mae, signal.created_at, signal.resolved_at,
+                    signal.record_type, 1 if signal.is_live else 0, 1 if signal.is_historical else 0,
+                    1 if signal.is_demo else 0, 1 if signal.is_replay else 0, 1 if signal.live_data_verified else 0,
+                    signal.provider, signal.provider_status, signal.market_data_timestamp_utc, signal.market_data_timestamp_ist,
+                    signal.data_age_seconds, signal.market_price_at_generation, signal.entry_deviation_pct,
+                    signal.decision, signal.risk_status, signal.consensus_confidence, signal.agreement_pct,
+                    json.dumps(signal.decision_trace), signal.first_barrier_touched, signal.resolution_source,
+                    json.dumps(signal.resolution_evidence)
                 )
             )
             conn.commit()
@@ -389,6 +486,9 @@ class CanonicalProspectiveLedger:
         mae: float = 0.0,
         actual_entry_price: Optional[float] = None,
         actual_entry_time: Optional[str] = None,
+        first_barrier_touched: Optional[str] = None,
+        resolution_source: Optional[str] = None,
+        resolution_evidence: Optional[Dict[str, Any]] = None,
     ) -> bool:
         """
         Deterministically resolves a prospective signal without modifying any of its original prediction fields.
@@ -414,7 +514,10 @@ class CanonicalProspectiveLedger:
                     actual_entry_price = COALESCE(?, actual_entry_price, entry_price),
                     actual_entry_time = COALESCE(?, actual_entry_time, preferred_entry_time),
                     signal_status = ?,
-                    resolved_at = ?
+                    resolved_at = ?,
+                    first_barrier_touched = COALESCE(?, first_barrier_touched),
+                    resolution_source = COALESCE(?, resolution_source),
+                    resolution_evidence = COALESCE(?, resolution_evidence)
                 WHERE signal_id = ?
                 """,
                 (
@@ -430,6 +533,9 @@ class CanonicalProspectiveLedger:
                     actual_entry_time,
                     STATUS_RESOLVED,
                     resolved_at,
+                    first_barrier_touched,
+                    resolution_source,
+                    json.dumps(resolution_evidence) if resolution_evidence else None,
                     signal_id,
                 )
             )
@@ -508,7 +614,8 @@ class CanonicalProspectiveLedger:
         Scans for unresolved prospective signals whose max_exit_time has passed.
         Fetches the exact historical candles from historical_candles across the trade window.
         Deterministically evaluates TP, SL, conservative same-candle ambiguity, or time exit.
-        Immutably stores outcome, exit price, exit timestamp, and realized R.
+        Immutably stores outcome, exit price, exit timestamp, realized R, and evidence.
+        If necessary evidence is missing, marks OUTCOME = UNRESOLVED.
         """
         now = reference_dt or datetime.now(timezone.utc)
         now_str = now.isoformat()
@@ -539,19 +646,8 @@ class CanonicalProspectiveLedger:
                 t_start = (entry_start or pref_entry or "").replace("T", " ")[:19]
                 t_end = (max_exit or "").replace("T", " ")[:19]
 
-                cur.execute(
-                    """
-                    SELECT open, high, low, close, timestamp
-                    FROM historical_candles
-                    WHERE symbol = ?
-                      AND timestamp >= ?
-                      AND timestamp <= ?
-                    ORDER BY timestamp ASC
-                    """,
-                    (asset, t_start, t_end)
-                )
-                candles = cur.fetchall()
-                if not candles:
+                candles = []
+                try:
                     cur.execute(
                         """
                         SELECT open, high, low, close, timestamp
@@ -561,19 +657,55 @@ class CanonicalProspectiveLedger:
                           AND timestamp <= ?
                         ORDER BY timestamp ASC
                         """,
-                        (asset, entry_start, max_exit)
+                        (asset, t_start, t_end)
                     )
                     candles = cur.fetchall()
+                except sqlite3.OperationalError:
+                    candles = []
 
                 if not candles:
+                    try:
+                        cur.execute(
+                            """
+                            SELECT open, high, low, close, timestamp
+                            FROM historical_candles
+                            WHERE symbol = ?
+                              AND timestamp >= ?
+                              AND timestamp <= ?
+                            ORDER BY timestamp ASC
+                            """,
+                            (asset, entry_start, max_exit)
+                        )
+                        candles = cur.fetchall()
+                    except sqlite3.OperationalError:
+                        candles = []
+
+                if not candles:
+                    # Section 9: If necessary historical evidence is unavailable, mark UNRESOLVED
+                    resolved_at = datetime.now(timezone.utc).isoformat()
+                    cur.execute(
+                        """
+                        UPDATE canonical_prospective_signal_ledger
+                        SET outcome = 'UNRESOLVED',
+                            resolution_reason = 'NO_HISTORICAL_EVIDENCE',
+                            signal_status = ?,
+                            resolved_at = ?,
+                            resolution_source = 'NONE'
+                        WHERE signal_id = ?
+                        """,
+                        (STATUS_RESOLVED, resolved_at, sig_id)
+                    )
+                    resolved_count += 1
                     continue
 
                 outcome = None
                 exit_price = None
                 exit_time = None
                 res_reason = None
+                first_barrier = None
                 net_r = None
                 gross_r = None
+                evidence_data = {"candles_evaluated": len(candles), "start": t_start, "end": t_end}
 
                 is_buy = direction.upper() in ["BUY", "LONG"]
                 risk_dist = abs(entry_price - sl) if abs(entry_price - sl) > 0 else (entry_price * 0.01)
@@ -586,26 +718,32 @@ class CanonicalProspectiveLedger:
                         if tp_hit and sl_hit:
                             outcome = OUTCOME_LOST
                             res_reason = "AMBIGUOUS_CANDLE_CONSERVATIVE_SL"
+                            first_barrier = "SL"
                             exit_price = sl
                             exit_time = str(c_time)
                             gross_r = -1.0
                             net_r = round(gross_r - friction, 2)
+                            evidence_data["trigger_candle"] = {"time": str(c_time), "high": c_high, "low": c_low, "both_hit": True}
                             break
                         elif tp_hit:
                             outcome = OUTCOME_WON
                             res_reason = "TP_HIT"
+                            first_barrier = "TP"
                             exit_price = tp
                             exit_time = str(c_time)
                             gross_r = round(abs(tp - entry_price) / risk_dist, 2)
                             net_r = round(gross_r - friction, 2)
+                            evidence_data["trigger_candle"] = {"time": str(c_time), "high": c_high, "tp": tp}
                             break
                         elif sl_hit:
                             outcome = OUTCOME_LOST
                             res_reason = "SL_HIT"
+                            first_barrier = "SL"
                             exit_price = sl
                             exit_time = str(c_time)
                             gross_r = -1.0
                             net_r = round(gross_r - friction, 2)
+                            evidence_data["trigger_candle"] = {"time": str(c_time), "low": c_low, "sl": sl}
                             break
                     else:
                         tp_hit = c_low <= tp
@@ -613,26 +751,32 @@ class CanonicalProspectiveLedger:
                         if tp_hit and sl_hit:
                             outcome = OUTCOME_LOST
                             res_reason = "AMBIGUOUS_CANDLE_CONSERVATIVE_SL"
+                            first_barrier = "SL"
                             exit_price = sl
                             exit_time = str(c_time)
                             gross_r = -1.0
                             net_r = round(gross_r - friction, 2)
+                            evidence_data["trigger_candle"] = {"time": str(c_time), "high": c_high, "low": c_low, "both_hit": True}
                             break
                         elif tp_hit:
                             outcome = OUTCOME_WON
                             res_reason = "TP_HIT"
+                            first_barrier = "TP"
                             exit_price = tp
                             exit_time = str(c_time)
                             gross_r = round(abs(entry_price - tp) / risk_dist, 2)
                             net_r = round(gross_r - friction, 2)
+                            evidence_data["trigger_candle"] = {"time": str(c_time), "low": c_low, "tp": tp}
                             break
                         elif sl_hit:
                             outcome = OUTCOME_LOST
                             res_reason = "SL_HIT"
+                            first_barrier = "SL"
                             exit_price = sl
                             exit_time = str(c_time)
                             gross_r = -1.0
                             net_r = round(gross_r - friction, 2)
+                            evidence_data["trigger_candle"] = {"time": str(c_time), "high": c_high, "sl": sl}
                             break
 
                 if outcome is None:
@@ -640,11 +784,13 @@ class CanonicalProspectiveLedger:
                     last_c_time = str(candles[-1][4])
                     outcome = OUTCOME_TIME_EXIT
                     res_reason = "EXPIRY_EXIT"
+                    first_barrier = "EXPIRY"
                     exit_price = last_c_close
                     exit_time = last_c_time
                     gross_pnl = (last_c_close - entry_price) if is_buy else (entry_price - last_c_close)
                     gross_r = round(gross_pnl / risk_dist, 2)
                     net_r = round(gross_r - friction, 2)
+                    evidence_data["expiry_candle"] = {"time": last_c_time, "close": last_c_close}
 
                 resolved_at = datetime.now(timezone.utc).isoformat()
                 cur.execute(
@@ -657,10 +803,14 @@ class CanonicalProspectiveLedger:
                         gross_r = ?,
                         net_r = ?,
                         signal_status = ?,
-                        resolved_at = ?
+                        resolved_at = ?,
+                        first_barrier_touched = ?,
+                        resolution_source = 'HISTORICAL_CANDLES_DB',
+                        resolution_evidence = ?
                     WHERE signal_id = ?
                     """,
-                    (outcome, res_reason, exit_price, exit_time, gross_r, net_r, STATUS_RESOLVED, resolved_at, sig_id)
+                    (outcome, res_reason, exit_price, exit_time, gross_r, net_r, STATUS_RESOLVED, resolved_at,
+                     first_barrier, json.dumps(evidence_data), sig_id)
                 )
                 resolved_count += 1
 
@@ -671,7 +821,6 @@ class CanonicalProspectiveLedger:
             return resolved_count
         finally:
             conn.close()
-
 
     def get_signal(self, signal_id: str) -> Optional[CanonicalProspectiveSignal]:
         """Fetches a canonical signal record by signal_id."""
@@ -696,13 +845,16 @@ class CanonicalProspectiveLedger:
         direction: Optional[str] = None,
         quality: Optional[str] = None,
         status: Optional[str] = None,
+        record_type: Optional[str] = None,  # "ALL", "LIVE", "HISTORICAL", "REPLAY", "DEMO"
+        provider: Optional[str] = None,
+        live_only: bool = False,
         limit: int = 100,
         offset: int = 0,
         reference_dt: Optional[datetime] = None,
     ) -> List[CanonicalProspectiveSignal]:
         """
-        Authoritative retrieval of canonical prospective signals with precise date boundary filtering.
-        Excludes superseded revisions by default unless specifically requested.
+        Authoritative retrieval of canonical prospective signals with precise date boundary filtering,
+        explicit record_type filtering (LIVE, HISTORICAL, REPLAY, DEMO), and live data enforcement.
         """
         now = reference_dt or datetime.now(timezone.utc)
         today_str = now.strftime("%Y-%m-%d")
@@ -718,6 +870,20 @@ class CanonicalProspectiveLedger:
             cur = conn.cursor()
             query = "SELECT * FROM canonical_prospective_signal_ledger WHERE signal_status != 'SUPERSEDED'"
             params: List[Any] = []
+
+            # Live Only Gate
+            if live_only:
+                query += " AND is_live = 1 AND live_data_verified = 1 AND is_demo = 0 AND record_type = 'LIVE'"
+
+            # Record Type Filter (Section 10)
+            if record_type and record_type.upper() != "ALL":
+                query += " AND record_type = ?"
+                params.append(record_type.upper())
+
+            # Provider Filter
+            if provider and provider.upper() != "ALL":
+                query += " AND provider = ?"
+                params.append(provider.upper())
 
             # Date Filter
             if date_filter.upper() == "TODAY":
@@ -759,7 +925,7 @@ class CanonicalProspectiveLedger:
                 query += " AND quality_grade = ?"
                 params.append(quality.upper())
             if status and status.upper() != "ALL":
-                if status.upper() in ["WON", "LOST", "TIME_EXIT", "AMBIGUOUS"]:
+                if status.upper() in ["WON", "LOST", "TIME_EXIT", "AMBIGUOUS", "UNRESOLVED"]:
                     query += " AND outcome = ?"
                     params.append(status.upper())
                 else:
@@ -777,9 +943,16 @@ class CanonicalProspectiveLedger:
 
     def get_today_time_windows(self, reference_dt: Optional[datetime] = None) -> List[Dict[str, Any]]:
         """
-        Groups today's active/qualified signals into actionable time windows (e.g. '18:00 SIGNAL WINDOW').
+        Groups today's genuine live active/qualified signals into actionable time windows.
+        Enforces Section 14: Only genuine live-data-verified, non-demo, canonical signals appear.
         """
-        today_signals = self.get_signals_by_filter(date_filter="TODAY", limit=200, reference_dt=reference_dt)
+        today_signals = self.get_signals_by_filter(
+            date_filter="TODAY",
+            live_only=True,
+            record_type="LIVE",
+            limit=200,
+            reference_dt=reference_dt
+        )
         
         # Group by HH:MM window
         windows_map: Dict[str, List[CanonicalProspectiveSignal]] = {}
@@ -813,6 +986,8 @@ class CanonicalProspectiveLedger:
 
         evidence = json.loads(d.get("evidence_clusters") or "{}") if isinstance(d.get("evidence_clusters"), str) else (d.get("evidence_clusters") or {})
         mtf_conf = json.loads(d.get("mtf_confirmation") or "{}") if isinstance(d.get("mtf_confirmation"), str) else (d.get("mtf_confirmation") or {})
+        dec_trace = json.loads(d.get("decision_trace") or "{}") if isinstance(d.get("decision_trace"), str) else (d.get("decision_trace") or {})
+        res_evid = json.loads(d.get("resolution_evidence") or "{}") if isinstance(d.get("resolution_evidence"), str) else (d.get("resolution_evidence") or {})
 
         return CanonicalProspectiveSignal(
             signal_id=d["signal_id"],
@@ -862,19 +1037,41 @@ class CanonicalProspectiveLedger:
             mae=float(d["mae"]) if d.get("mae") is not None else None,
             created_at=d["created_at"],
             resolved_at=d.get("resolved_at"),
+            # Real-Signal Provenance & Forensic Traceability (Phase 77)
+            record_type=d.get("record_type") or "HISTORICAL",
+            is_live=bool(d.get("is_live")),
+            is_historical=bool(d.get("is_historical") if d.get("is_historical") is not None else 1),
+            is_demo=bool(d.get("is_demo")),
+            is_replay=bool(d.get("is_replay")),
+            live_data_verified=bool(d.get("live_data_verified")),
+            provider=d.get("provider") or "MT5",
+            provider_status=d.get("provider_status") or "UNKNOWN",
+            market_data_timestamp_utc=d.get("market_data_timestamp_utc"),
+            market_data_timestamp_ist=d.get("market_data_timestamp_ist"),
+            data_age_seconds=float(d["data_age_seconds"]) if d.get("data_age_seconds") is not None else None,
+            market_price_at_generation=float(d["market_price_at_generation"]) if d.get("market_price_at_generation") is not None else None,
+            entry_deviation_pct=float(d["entry_deviation_pct"]) if d.get("entry_deviation_pct") is not None else 0.0,
+            decision=d.get("decision") or "NO_TRADE",
+            risk_status=d.get("risk_status") or "PASS",
+            consensus_confidence=float(d["consensus_confidence"]) if d.get("consensus_confidence") is not None else None,
+            agreement_pct=float(d["agreement_pct"]) if d.get("agreement_pct") is not None else None,
+            decision_trace=dec_trace,
+            first_barrier_touched=d.get("first_barrier_touched"),
+            resolution_source=d.get("resolution_source"),
+            resolution_evidence=res_evid,
         )
 
     def _cleanse_duplicate_signals(self):
         """
         Cleanses duplicate and test signals from the canonical ledger,
-        preserving only canonical entries with valid unique identities.
+        classifies historical/demo/live records, and preserves evidence.
         """
         conn = self._get_connection()
         if not conn:
             return
         try:
             cur = conn.cursor()
-            # 1. Delete test artifacts with explicit TEST prefixes
+            # 1. Delete transient test artifacts with explicit TEST prefixes
             cur.execute(
                 """
                 DELETE FROM canonical_prospective_signal_ledger 
@@ -894,8 +1091,32 @@ class CanonicalProspectiveLedger:
                 )
                 """
             )
+            # 3. Classify existing synthetic test / duplicate records as DEMO
+            cur.execute(
+                """
+                UPDATE canonical_prospective_signal_ledger
+                SET record_type = 'DEMO',
+                    is_demo = 1,
+                    is_live = 0,
+                    is_historical = 0
+                WHERE signal_id LIKE '%DEDUP-TEST%'
+                   OR market_snapshot_hash = 'snap-dup'
+                   OR campaign_id LIKE '%TEST%'
+                """
+            )
+            # 4. Classify remaining unclassified past records as HISTORICAL
+            cur.execute(
+                """
+                UPDATE canonical_prospective_signal_ledger
+                SET record_type = 'HISTORICAL',
+                    is_historical = 1,
+                    is_live = 0,
+                    is_demo = 0
+                WHERE record_type IS NULL OR (record_type NOT IN ('LIVE', 'DEMO', 'REPLAY') AND is_live = 0)
+                """
+            )
             conn.commit()
-            logger.info("Ledger deduplication cleanse completed successfully.")
+            logger.info("Ledger deduplication cleanse and classification completed successfully.")
         except Exception as e:
             logger.debug(f"Ledger cleanse note: {e}")
         finally:
