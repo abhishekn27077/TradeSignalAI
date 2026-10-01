@@ -162,6 +162,7 @@ class CanonicalProspectiveSignal:
     first_barrier_touched: Optional[str] = None
     resolution_source: Optional[str] = None
     resolution_evidence: Dict[str, Any] = field(default_factory=dict)
+    market_snapshot_id: Optional[str] = None
 
     def to_dict(self) -> Dict[str, Any]:
         d = asdict(self)
@@ -295,6 +296,7 @@ class CanonicalProspectiveLedger:
                 "first_barrier_touched": "TEXT",
                 "resolution_source": "TEXT",
                 "resolution_evidence": "TEXT",
+                "market_snapshot_id": "TEXT",
             }
             for col_name, col_def in new_cols.items():
                 if col_name not in cols:
@@ -433,12 +435,13 @@ class CanonicalProspectiveLedger:
                     provider, provider_status, market_data_timestamp_utc, market_data_timestamp_ist,
                     data_age_seconds, market_price_at_generation, entry_deviation_pct,
                     decision, risk_status, consensus_confidence, agreement_pct,
-                    decision_trace, first_barrier_touched, resolution_source, resolution_evidence
+                    decision_trace, first_barrier_touched, resolution_source, resolution_evidence,
+                    market_snapshot_id
                 ) VALUES (
                     ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
                     ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
                     ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
-                    ?, ?, ?, ?, ?, ?, ?, ?
+                    ?, ?, ?, ?, ?, ?, ?, ?, ?
                 )
                 """,
                 (
@@ -462,7 +465,7 @@ class CanonicalProspectiveLedger:
                     signal.data_age_seconds, signal.market_price_at_generation, signal.entry_deviation_pct,
                     signal.decision, signal.risk_status, signal.consensus_confidence, signal.agreement_pct,
                     json.dumps(signal.decision_trace), signal.first_barrier_touched, signal.resolution_source,
-                    json.dumps(signal.resolution_evidence)
+                    json.dumps(signal.resolution_evidence), signal.market_snapshot_id
                 )
             )
             conn.commit()
@@ -1059,6 +1062,7 @@ class CanonicalProspectiveLedger:
             first_barrier_touched=d.get("first_barrier_touched"),
             resolution_source=d.get("resolution_source"),
             resolution_evidence=res_evid,
+            market_snapshot_id=d.get("market_snapshot_id"),
         )
 
     def _cleanse_duplicate_signals(self):

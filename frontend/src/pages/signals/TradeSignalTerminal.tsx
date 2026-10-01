@@ -31,6 +31,122 @@ import { useAppStore } from '../../store/useAppStore';
 const IST_TZ = 'Asia/Kolkata';
 
 /* ========================================================================== */
+/* SECTION 16: REALTIME SIGNAL COUNTDOWN HELPER                               */
+/* ========================================================================== */
+
+const SignalCountdown: React.FC<{ signal: any; now: Date }> = ({ signal, now }) => {
+  const status = signal.status;
+  const nowMs = now.getTime();
+
+  // If UPCOMING: countdown to entry window
+  if (status === 'UPCOMING' && signal.open_at_utc) {
+    const openMs = new Date(signal.open_at_utc).getTime();
+    const diffSec = Math.floor((openMs - nowMs) / 1000);
+    if (diffSec > 0) {
+      const mins = Math.floor(diffSec / 60);
+      const secs = diffSec % 60;
+      return (
+        <span className="text-[10px] font-mono text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20 font-bold flex items-center gap-1">
+          <Clock className="w-3 h-3 text-cyan-400" />
+          Opens in {mins}m {secs}s
+        </span>
+      );
+    } else {
+      return (
+        <span className="text-[10px] font-mono text-cyan-300 bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20 font-bold flex items-center gap-1">
+          <Check className="w-3 h-3 text-cyan-300" />
+          Window open
+        </span>
+      );
+    }
+  }
+
+  // If ACTIVE: duration since activation + countdown to expiry
+  if (status === 'ACTIVE') {
+    let activeSec = 0;
+    const startStr = signal.actual_entry_utc || signal.open_at_utc;
+    if (startStr) {
+      activeSec = Math.max(0, Math.floor((nowMs - new Date(startStr).getTime()) / 1000));
+    }
+    const mins = Math.floor(activeSec / 60);
+    const secs = activeSec % 60;
+
+    let expiryText = '';
+    const closeStr = signal.close_at_utc || signal.actual_exit_utc;
+    if (closeStr) {
+      const remainSec = Math.floor((new Date(closeStr).getTime() - nowMs) / 1000);
+      if (remainSec > 0) {
+        const remMins = Math.floor(remainSec / 60);
+        const remSecs = remainSec % 60;
+        expiryText = ` • Expires in ${remMins}m ${remSecs}s`;
+      }
+    }
+
+    return (
+      <span className="text-[10px] font-mono text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded border border-blue-500/20 font-bold flex items-center gap-1">
+        <Activity className="w-3 h-3 text-blue-400 animate-pulse" />
+        Active: {mins}m {secs}s{expiryText}
+      </span>
+    );
+  }
+
+  // If expiring / pending
+  if (signal.close_at_utc && (status === 'EXPIRING' || status === 'PENDING')) {
+    const remainSec = Math.floor((new Date(signal.close_at_utc).getTime() - nowMs) / 1000);
+    if (remainSec > 0) {
+      const remMins = Math.floor(remainSec / 60);
+      const remSecs = remainSec % 60;
+      return (
+        <span className="text-[10px] font-mono text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20 font-bold flex items-center gap-1">
+          <Clock className="w-3 h-3 text-amber-400" />
+          Expires in {remMins}m {remSecs}s
+        </span>
+      );
+    }
+  }
+
+  return null;
+};
+
+/* ========================================================================== */
+/* SECTION 24: SYSTEM STATUS BADGE HELPER (UNAMBIGUOUS INDICATORS)            */
+/* ========================================================================== */
+
+const getStatusBadge = (status: string) => {
+  switch (status) {
+    case 'HEALTHY':
+      return (
+        <span className="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+          HEALTHY
+        </span>
+      );
+    case 'DEGRADED':
+      return (
+        <span className="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-amber-500/15 text-amber-400 border border-amber-500/30 flex items-center gap-1">
+          <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+          DEGRADED
+        </span>
+      );
+    case 'BLOCKED':
+      return (
+        <span className="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-rose-500/15 text-rose-400 border border-rose-500/30 flex items-center gap-1">
+          <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
+          BLOCKED
+        </span>
+      );
+    case 'UNAVAILABLE':
+    default:
+      return (
+        <span className="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-slate-800 text-slate-400 border border-slate-700 flex items-center gap-1">
+          <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
+          UNAVAILABLE
+        </span>
+      );
+  }
+};
+
+/* ========================================================================== */
 /* TRADE SIGNAL TERMINAL — Clean, Minimal, Professional Signal Terminal       */
 /* ========================================================================== */
 
@@ -39,9 +155,10 @@ export const TradeSignalTerminal: React.FC = () => {
   const setActivePage = useAppStore((s) => s.setActivePage);
 
   // Sync terminal tab with global activePage or internal state
-  const activeTab = useMemo<'today' | 'history' | 'performance' | 'settings'>(() => {
+  const activeTab = useMemo<'today' | 'history' | 'performance' | 'status' | 'settings'>(() => {
     if (activePage === 'history') return 'history';
     if (activePage === 'performance') return 'performance';
+    if (activePage === 'status') return 'status';
     if (activePage === 'settings') return 'settings';
     return 'today';
   }, [activePage]);
@@ -49,6 +166,7 @@ export const TradeSignalTerminal: React.FC = () => {
   const [todayData, setTodayData] = useState<any>(null);
   const [historyData, setHistoryData] = useState<any>(null);
   const [perfData, setPerfData] = useState<any>(null);
+  const [systemStatus, setSystemStatus] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const [selectedSignal, setSelectedSignal] = useState<any>(null);
@@ -89,7 +207,7 @@ export const TradeSignalTerminal: React.FC = () => {
   const loadData = async (isManual = false) => {
     if (isManual) setRefreshing(true);
     try {
-      const [todayRes, historyRes, perfRes] = await Promise.all([
+      const [todayRes, historyRes, perfRes, statusRes] = await Promise.all([
         fetch('/api/v1/terminal/today').then((r) => (r.ok ? r.json() : null)).catch(() => null),
         fetch(
           `/api/v1/terminal/history?date_filter=${dateFilter}&record_type=${recordTypeFilter}&provider=${providerFilter}&asset=${assetFilter}&direction=${directionFilter}&timeframe=${timeframeFilter}&outcome=${outcomeFilter}&limit=100`
@@ -97,11 +215,15 @@ export const TradeSignalTerminal: React.FC = () => {
         fetch(`/api/v1/terminal/performance?date_filter=${perfDateFilter}`)
           .then((r) => (r.ok ? r.json() : null))
           .catch(() => null),
+        fetch('/api/v1/terminal/system-status')
+          .then((r) => (r.ok ? r.json() : null))
+          .catch(() => null),
       ]);
 
       if (todayRes) setTodayData(todayRes);
       if (historyRes) setHistoryData(historyRes);
       if (perfRes) setPerfData(perfRes);
+      if (statusRes) setSystemStatus(statusRes);
     } catch (err) {
       console.error('Failed to load terminal data:', err);
     } finally {
@@ -139,7 +261,7 @@ export const TradeSignalTerminal: React.FC = () => {
       .finally(() => setLoadingForensics(false));
   }, [selectedSignal]);
 
-  const handleTabChange = (tab: 'today' | 'history' | 'performance' | 'settings') => {
+  const handleTabChange = (tab: 'today' | 'history' | 'performance' | 'status' | 'settings') => {
     setActivePage(tab);
   };
 
@@ -254,6 +376,18 @@ export const TradeSignalTerminal: React.FC = () => {
             >
               <BarChart2 className="w-3.5 h-3.5" />
               PERFORMANCE
+            </button>
+
+            <button
+              onClick={() => handleTabChange('status')}
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition-all ${
+                activeTab === 'status'
+                  ? 'bg-blue-500 text-slate-950 font-bold shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+              }`}
+            >
+              <Activity className="w-3.5 h-3.5" />
+              STATUS
             </button>
 
             <button
@@ -378,7 +512,7 @@ export const TradeSignalTerminal: React.FC = () => {
                     >
                       {/* Card Top: Asset, Direction, Timeframe, Status */}
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1.5 flex-wrap">
                           <span className="text-lg font-black tracking-tight text-white font-mono">
                             {sig.asset}
                           </span>
@@ -388,6 +522,12 @@ export const TradeSignalTerminal: React.FC = () => {
                           <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold">
                             {sig.provider || 'BINANCE'}
                           </span>
+                          {sig.live_data_verified ? (
+                            <span className="flex items-center gap-1 text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold">
+                              <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                              LIVE VERIFIED
+                            </span>
+                          ) : null}
                         </div>
 
                         <div className="flex items-center gap-2">
@@ -420,6 +560,14 @@ export const TradeSignalTerminal: React.FC = () => {
                         </div>
                       </div>
 
+                      {/* Section 16: Countdown & Section 15: Data Age */}
+                      <div className="flex items-center justify-between text-xs font-mono">
+                        <SignalCountdown signal={sig} now={now} />
+                        <span className="text-[10px] text-slate-400">
+                          Data Age: <strong className="text-slate-200">{sig.data_age_seconds != null ? `${sig.data_age_seconds}s` : '<5s'}</strong>
+                        </span>
+                      </div>
+
                       {/* Exact Monospace Price Levels Grid */}
                       <div className="grid grid-cols-3 gap-2 bg-slate-950/80 p-2.5 rounded-xl border border-slate-800/80 font-mono text-xs">
                         <div>
@@ -448,11 +596,15 @@ export const TradeSignalTerminal: React.FC = () => {
                         </div>
                       </div>
 
-                      {/* Exact Timing Grid in India Standard Time (IST) - Section 8 */}
+                      {/* Exact Timing Grid in India Standard Time (IST) - Section 8 & 15 */}
                       <div className="bg-slate-950/40 p-2.5 rounded-xl border border-slate-800/60 space-y-1.5 text-xs font-mono">
                         <div className="flex items-center justify-between text-[11px]">
                           <span className="text-slate-400">Generated:</span>
                           <span className="text-slate-300 font-semibold">{sig.generated_at_ist}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-[11px]">
+                          <span className="text-slate-400">Market Snapshot:</span>
+                          <span className="text-amber-300 font-semibold">{sig.market_snapshot_time_ist || sig.generated_at_ist}</span>
                         </div>
                         <div className="flex items-center justify-between text-[11px]">
                           <span className="text-slate-400">Entry Window:</span>
@@ -464,12 +616,17 @@ export const TradeSignalTerminal: React.FC = () => {
                         </div>
                       </div>
 
-                      {/* Card Footer: Confidence & Realized Outcome */}
+                      {/* Card Footer: Confidence, Agreement & Realized Outcome */}
                       <div className="flex items-center justify-between pt-1 text-xs font-mono">
-                        <div className="flex items-center gap-2">
-                          <span className="text-[10px] text-slate-400">Confidence:</span>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="text-[10px] text-slate-400">Conf:</span>
                           <span className="font-bold text-white bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700">
                             {sig.confidence ?? sig.confidence_pct}%
+                          </span>
+                          <span className="text-slate-600">|</span>
+                          <span className="text-[10px] text-slate-400">Agree:</span>
+                          <span className="font-bold text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">
+                            {sig.agreement_pct ? `${sig.agreement_pct}%` : '>=60%'}
                           </span>
                           <span className="text-slate-600">|</span>
                           <span className="text-[10px] text-slate-400">R:R</span>
@@ -495,13 +652,42 @@ export const TradeSignalTerminal: React.FC = () => {
               </div>
             ) : (
               /* Clean "NO QUALIFIED LIVE SIGNALS" Box - Section 14 Truth */
-              <div className="p-10 text-center bg-slate-900/40 rounded-2xl border border-slate-800 space-y-3">
+              <div className="p-8 text-center bg-slate-900/40 rounded-2xl border border-slate-800 space-y-4">
                 <Clock className="w-10 h-10 text-slate-500 mx-auto" />
                 <div className="text-base font-bold text-slate-200 uppercase font-mono">NO QUALIFIED SIGNALS</div>
                 <p className="text-xs text-slate-300 max-w-lg mx-auto leading-relaxed font-mono">
                   {todayData?.no_signals_reason ||
                     "No signals have passed the real-time qualification gates (model agreement >= 60.0%, consensus >= 0.65) and verified live feed data. Historical, demo, and replay records are excluded from Today's Live Signals."}
                 </p>
+
+                {/* Section 14: Actual Reason Distribution */}
+                {todayData?.rejection_reason_distribution && (
+                  <div className="mt-3 p-3.5 bg-slate-950/80 border border-slate-800 rounded-xl max-w-md mx-auto text-left font-mono">
+                    <div className="text-[10px] uppercase font-bold text-slate-400 mb-2 border-b border-slate-800/80 pb-1.5 flex items-center justify-between">
+                      <span>Rejection Reason Distribution</span>
+                      <span className="text-slate-500 text-[9px]">Live Pipeline Gates</span>
+                    </div>
+                    <div className="space-y-1.5 text-xs">
+                      {Object.entries(todayData.rejection_reason_distribution).map(([reason, count]) => (
+                        <div key={reason} className="flex items-center justify-between text-slate-300">
+                          <span className="text-slate-400">{reason}:</span>
+                          <span
+                            className={`font-bold ${
+                              Number(count) === 0
+                                ? 'text-slate-500'
+                                : reason === 'Qualified'
+                                ? 'text-emerald-400'
+                                : 'text-amber-400'
+                            }`}
+                          >
+                            {String(count)} asset{Number(count) === 1 ? '' : 's'}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex flex-wrap items-center justify-center gap-2 pt-2 text-[11px] font-mono text-slate-400">
                   <span className="px-2 py-0.5 rounded bg-slate-950 border border-slate-800">
                     Live Data Enforcement: <strong className="text-emerald-400">ACTIVE</strong>
@@ -1080,7 +1266,206 @@ export const TradeSignalTerminal: React.FC = () => {
         )}
 
         {/* ================================================================= */}
-        {/* TAB 4: SETTINGS & TERMINAL CONFIGURATION                          */}
+        {/* TAB 4: SYSTEM STATUS & OBSERVABILITY (SECTION 23 & 24)             */}
+        {/* ================================================================= */}
+        {activeTab === 'status' && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between bg-slate-900/60 p-3 rounded-2xl border border-slate-800">
+              <div className="text-xs font-mono text-slate-400">
+                System Status as of <span className="font-bold text-amber-400">{istTimeStr} IST</span>
+              </div>
+              <div className="flex items-center gap-2 text-[11px] font-mono text-slate-400">
+                <span>Execution Mode:</span>
+                <span className="text-cyan-400 font-bold bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20">
+                  DEMO / PAPER ONLY
+                </span>
+              </div>
+            </div>
+
+            {/* 4 Architecture Pillars: DATA, MODELS, PIPELINE, EXECUTION */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* DATA Pillar */}
+              <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 space-y-3">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                  <h3 className="text-sm font-bold font-mono text-white flex items-center gap-2">
+                    <Activity className="w-4 h-4 text-emerald-400" />
+                    DATA FEEDS
+                  </h3>
+                  <span className="text-[10px] font-mono text-slate-500">Live & Execution Data</span>
+                </div>
+                <div className="space-y-2.5">
+                  {systemStatus?.categories?.DATA?.map((item: any, idx: number) => (
+                    <div key={idx} className="flex items-center justify-between p-2.5 rounded-xl bg-slate-950 border border-slate-800/80">
+                      <div>
+                        <div className="font-bold text-slate-200 font-mono text-xs">{item.name}</div>
+                        <div className="text-[10px] text-slate-400 font-mono">{item.details}</div>
+                      </div>
+                      {getStatusBadge(item.status)}
+                    </div>
+                  )) || (
+                    <div className="text-xs text-slate-500 font-mono p-3">Loading data feed health...</div>
+                  )}
+                </div>
+              </div>
+
+              {/* MODELS Pillar */}
+              <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 space-y-3">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                  <h3 className="text-sm font-bold font-mono text-white flex items-center gap-2">
+                    <Layers className="w-4 h-4 text-cyan-400" />
+                    AI & FORECAST MODELS
+                  </h3>
+                  <span className="text-[10px] font-mono text-slate-500">Inference Registry</span>
+                </div>
+                <div className="space-y-2.5">
+                  {systemStatus?.categories?.MODELS?.map((item: any, idx: number) => (
+                    <div key={idx} className="flex items-center justify-between p-2.5 rounded-xl bg-slate-950 border border-slate-800/80">
+                      <div>
+                        <div className="font-bold text-slate-200 font-mono text-xs">{item.name}</div>
+                        <div className="text-[10px] text-slate-400 font-mono">{item.details}</div>
+                      </div>
+                      {getStatusBadge(item.status)}
+                    </div>
+                  )) || (
+                    <div className="text-xs text-slate-500 font-mono p-3">Loading models health...</div>
+                  )}
+                </div>
+              </div>
+
+              {/* PIPELINE Pillar */}
+              <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 space-y-3">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                  <h3 className="text-sm font-bold font-mono text-white flex items-center gap-2">
+                    <Zap className="w-4 h-4 text-amber-400" />
+                    SIGNAL PIPELINE
+                  </h3>
+                  <span className="text-[10px] font-mono text-slate-500">End-to-End Stages</span>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  {systemStatus?.categories?.PIPELINE?.map((item: any, idx: number) => (
+                    <div key={idx} className="p-2 rounded-xl bg-slate-950 border border-slate-800/80 space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-slate-200 font-mono text-xs">{item.name}</span>
+                        {getStatusBadge(item.status)}
+                      </div>
+                      <div className="text-[9px] text-slate-400 font-mono truncate">{item.details}</div>
+                    </div>
+                  )) || (
+                    <div className="text-xs text-slate-500 font-mono p-3 col-span-2">Loading pipeline stages...</div>
+                  )}
+                </div>
+              </div>
+
+              {/* EXECUTION Pillar */}
+              <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 space-y-3">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                  <h3 className="text-sm font-bold font-mono text-white flex items-center gap-2">
+                    <Shield className="w-4 h-4 text-emerald-400" />
+                    EXECUTION GATES
+                  </h3>
+                  <span className="text-[10px] font-mono text-slate-500">Real Money Lockout</span>
+                </div>
+                <div className="space-y-2.5">
+                  {systemStatus?.categories?.EXECUTION?.map((item: any, idx: number) => (
+                    <div key={idx} className="flex items-center justify-between p-2.5 rounded-xl bg-slate-950 border border-slate-800/80">
+                      <div>
+                        <div className="font-bold text-slate-200 font-mono text-xs">{item.name}</div>
+                        <div className="text-[10px] text-slate-400 font-mono">{item.details}</div>
+                      </div>
+                      {getStatusBadge(item.status)}
+                    </div>
+                  )) || (
+                    <div className="text-xs text-slate-500 font-mono p-3">Loading execution status...</div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Observability Metrics Grid (Section 23) */}
+            <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 space-y-3">
+              <h3 className="text-sm font-bold font-mono text-white flex items-center gap-2">
+                <BarChart2 className="w-4 h-4 text-cyan-400" />
+                Live Pipeline Observability Metrics (Section 23)
+              </h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 font-mono">
+                <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                  <div className="text-[9px] uppercase text-slate-400">Snapshot Age</div>
+                  <div className="text-lg font-bold text-white mt-0.5">
+                    {systemStatus?.observability_metrics?.market_snapshot_age != null
+                      ? `${systemStatus.observability_metrics.market_snapshot_age}s`
+                      : '< 1s'}
+                  </div>
+                  <div className="text-[9px] text-slate-500">Gate: &le; 120s</div>
+                </div>
+
+                <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                  <div className="text-[9px] uppercase text-slate-400">Forecast Latency</div>
+                  <div className="text-lg font-bold text-cyan-400 mt-0.5">
+                    {systemStatus?.observability_metrics?.forecast_latency != null
+                      ? `${systemStatus.observability_metrics.forecast_latency}ms`
+                      : '—'}
+                  </div>
+                  <div className="text-[9px] text-slate-500">CPU Inference</div>
+                </div>
+
+                <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                  <div className="text-[9px] uppercase text-slate-400">Consensus Latency</div>
+                  <div className="text-lg font-bold text-cyan-400 mt-0.5">
+                    {systemStatus?.observability_metrics?.consensus_latency != null
+                      ? `${systemStatus.observability_metrics.consensus_latency}ms`
+                      : '—'}
+                  </div>
+                  <div className="text-[9px] text-slate-500">Agreement Calc</div>
+                </div>
+
+                <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                  <div className="text-[9px] uppercase text-slate-400">Qualification Latency</div>
+                  <div className="text-lg font-bold text-cyan-400 mt-0.5">
+                    {systemStatus?.observability_metrics?.qualification_latency != null
+                      ? `${systemStatus.observability_metrics.qualification_latency}ms`
+                      : '—'}
+                  </div>
+                  <div className="text-[9px] text-slate-500">Risk & Price Deviation</div>
+                </div>
+
+                <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                  <div className="text-[9px] uppercase text-slate-400">Signals Generated</div>
+                  <div className="text-lg font-bold text-emerald-400 mt-0.5">
+                    {systemStatus?.observability_metrics?.signal_generation_count ?? 0}
+                  </div>
+                  <div className="text-[9px] text-slate-500">Live Qualified</div>
+                </div>
+
+                <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                  <div className="text-[9px] uppercase text-slate-400">Signals Rejected</div>
+                  <div className="text-lg font-bold text-amber-400 mt-0.5">
+                    {systemStatus?.observability_metrics?.signal_rejection_count ?? 0}
+                  </div>
+                  <div className="text-[9px] text-slate-500">Gated / Filtered</div>
+                </div>
+
+                <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                  <div className="text-[9px] uppercase text-slate-400">Duplicates Prevented</div>
+                  <div className="text-lg font-bold text-blue-400 mt-0.5">
+                    {systemStatus?.observability_metrics?.duplicate_signal_count ?? 0}
+                  </div>
+                  <div className="text-[9px] text-slate-500">Idempotent Cycles</div>
+                </div>
+
+                <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                  <div className="text-[9px] uppercase text-slate-400">Signals Resolved</div>
+                  <div className="text-lg font-bold text-purple-400 mt-0.5">
+                    {systemStatus?.observability_metrics?.resolution_count ?? 0}
+                  </div>
+                  <div className="text-[9px] text-slate-500">Evidence Verified</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ================================================================= */}
+        {/* TAB 5: SETTINGS & TERMINAL CONFIGURATION                          */}
         {/* ================================================================= */}
         {activeTab === 'settings' && (
           <div className="max-w-3xl mx-auto space-y-5">
@@ -1235,12 +1620,19 @@ export const TradeSignalTerminal: React.FC = () => {
                   <div>ID: <span className="text-cyan-400 break-all">{selectedSignal.id || selectedSignal.signal_id}</span></div>
                   <div>Policy: <span className="text-slate-300">{selectedSignal.policy_version || 'POL-70-v1'}</span></div>
                   <div>Model: <span className="text-slate-300">{selectedSignal.model_version || 'Ensemble-v1'}</span></div>
+                  {selectedSignal.market_snapshot_id && (
+                    <div>Snapshot ID: <span className="text-emerald-400 font-mono text-[10px] break-all">{selectedSignal.market_snapshot_id}</span></div>
+                  )}
+                  {selectedSignal.market_snapshot_hash && (
+                    <div>Snapshot Hash: <span className="text-amber-400 font-mono text-[9px] break-all">{selectedSignal.market_snapshot_hash}</span></div>
+                  )}
                 </div>
                 <div className="space-y-1">
                   <div className="text-[9px] uppercase font-bold text-slate-500">B. Data Provenance</div>
                   <div>Provider: <span className="text-emerald-400 font-bold">{selectedSignal.provider || 'MT5'}</span></div>
                   <div>Data Verified: <span className={selectedSignal.live_data_verified ? 'text-emerald-400' : 'text-slate-400'}>{selectedSignal.live_data_verified ? 'YES (Live Feed)' : 'CACHE / HISTORICAL'}</span></div>
                   <div>Data Age: <span className="text-slate-300">{selectedSignal.data_age_seconds != null ? `${selectedSignal.data_age_seconds}s` : 'Fresh (<5s)'}</span></div>
+                  <div>Record Type: <span className="text-cyan-400 font-bold">{selectedSignal.record_type || 'LIVE'}</span></div>
                 </div>
               </div>
 

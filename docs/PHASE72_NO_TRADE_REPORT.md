@@ -1,6 +1,6 @@
 # Phase 72 — NO_TRADE Quality & Counterfactual Effectiveness Report
 **Dataset**: `historical_candles` | **Asset**: `BTCUSD` | **Timeframe**: `1h`
-**Date Range**: 2026-09-25T01:00:00 to 2026-10-01T13:00:00 | **Sample Size**: 200 bars
+**Date Range**: 2026-09-25T02:00:00 to 2026-10-01T14:00:00 | **Sample Size**: 200 bars
 **Total NO_TRADE Decisions**: 166 | **Avoided Loss Rate**: 95.8%
 **Net Capital Preserved**: **+60.2R**
 
