@@ -71,18 +71,42 @@ class ConsensusEngine:
         if "error" not in memory_result:
             mem_expected_return = memory_result.get("expected_return", 0.0)
             
-        # 5. Calculate Weighted Consensus
-        consensus_return = (
-            (kronos_pred * self.weights["kronos"]) +
-            (xgb_pred * self.weights["xgboost"]) +
-            (rf_pred * self.weights["random_forest"]) +
-            (hgb_pred * self.weights["hist_gb"]) +
-            (mem_expected_return * self.weights["pattern_memory"])
-        )
+        # 5. Determine Active Model States and Filter Untrained Baselines
+        model_states = {
+            "kronos": "LOADED" if getattr(self.kronos_model, "predictor", None) is not None else "UNAVAILABLE",
+            "xgboost": getattr(self.xgb_model, "state", "UNTRAINED"),
+            "random_forest": getattr(self.rf_model, "state", "UNTRAINED"),
+            "hist_gb": getattr(self.hgb_model, "state", "UNTRAINED"),
+            "pattern_memory": "LOADED" if "error" not in memory_result else "UNAVAILABLE",
+        }
+
+        active_weights = {}
+        if model_states["kronos"] == "LOADED":
+            active_weights["kronos"] = self.weights["kronos"]
+        if model_states["xgboost"] in ("LOADED", "TRAINED"):
+            active_weights["xgboost"] = self.weights["xgboost"]
+        if model_states["random_forest"] in ("LOADED", "TRAINED"):
+            active_weights["random_forest"] = self.weights["random_forest"]
+        if model_states["hist_gb"] in ("LOADED", "TRAINED"):
+            active_weights["hist_gb"] = self.weights["hist_gb"]
+        if model_states["pattern_memory"] == "LOADED":
+            active_weights["pattern_memory"] = self.weights["pattern_memory"]
+
+        total_active_w = sum(active_weights.values())
+        if total_active_w > 0:
+            consensus_return = (
+                (kronos_pred * active_weights.get("kronos", 0.0)) +
+                (xgb_pred * active_weights.get("xgboost", 0.0)) +
+                (rf_pred * active_weights.get("random_forest", 0.0)) +
+                (hgb_pred * active_weights.get("hist_gb", 0.0)) +
+                (mem_expected_return * active_weights.get("pattern_memory", 0.0))
+            ) / total_active_w
+        else:
+            consensus_return = 0.0
         
         # 6. Determine Agreement Level
         predictions = [kronos_pred, xgb_pred, rf_pred, hgb_pred, mem_expected_return]
-        # Ignore zero predictions (e.g. if kronos is off/failed)
+        # Ignore zero predictions (e.g. if kronos is off/failed or statistical models are UNTRAINED)
         valid_predictions = [p for p in predictions if abs(p) > 1e-6]
         if not valid_predictions:
             bullish_votes, bearish_votes = 0, 0
@@ -113,6 +137,8 @@ class ConsensusEngine:
             "consensus_expected_return": float(consensus_return),
             "confidence_score": float(confidence),
             "agreement_percentage": float(agreement_pct * 100),
+            "model_states": model_states,
+            "active_weights": active_weights,
             "breakdown": {
                 "kronos": float(kronos_pred),
                 "xgboost": float(xgb_pred),

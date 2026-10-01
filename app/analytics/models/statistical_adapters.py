@@ -11,27 +11,40 @@ logger = get_logger(__name__)
 
 class StatisticalAdapter:
     """
-    Adapter to interface TradeSignalAI-v3 market data with statistical models
+    Adapter to interface TradeSignalAI-v3 market data with statistical baseline models
     (XGBoost, Random Forest, HistGradientBoosting).
+
+    Supported states:
+    - UNTRAINED : Instantiated without weights file. Predict returns 0.0 and does not dilute consensus.
+    - LOADED    : Pre-trained serialized weights successfully loaded from disk.
+    - TRAINED   : Model successfully fitted on candle feature data in-session.
+    - FAILED    : Failed to deserialize or train.
+    - DISABLED  : Explicitly disabled.
     """
     def __init__(self, model_name: str = "xgboost"):
         self.model_name = model_name.lower()
         self.model_path = os.path.join(os.path.dirname(__file__), f"stat_{self.model_name}.pkl")
         self.model = None
-        
+        self.state = "UNTRAINED"
+        self._load_or_initialize()
+
+    def _load_or_initialize(self):
         if os.path.exists(self.model_path):
             try:
                 with open(self.model_path, 'rb') as f:
                     self.model = pickle.load(f)
+                self.state = "LOADED"
                 logger.info(f"Loaded pre-trained Statistical ({self.model_name}) weights.")
             except Exception as e:
-                logger.error(f"Failed to load weights: {e}")
+                logger.error(f"Failed to load weights for {self.model_name}: {e}")
+                self.state = "FAILED"
                 self._initialize_new_model()
         else:
             self._initialize_new_model()
 
     def _initialize_new_model(self):
-        logger.info(f"Initializing new Statistical ({self.model_name}) model (no weights found).")
+        self.state = "UNTRAINED"
+        logger.debug(f"Statistical ({self.model_name}) model initialized in UNTRAINED state (no weights found).")
         if self.model_name == "xgboost":
             self.model = xgb.XGBRegressor(
                 n_estimators=200, learning_rate=0.05, max_depth=6,
@@ -70,6 +83,7 @@ class StatisticalAdapter:
         
         logger.info(f"Training Statistical ({self.model_name}) on {len(X)} samples...")
         self.model.fit(X, y)
+        self.state = "TRAINED"
         
         with open(self.model_path, 'wb') as f:
             pickle.dump(self.model, f)
@@ -78,8 +92,9 @@ class StatisticalAdapter:
     def predict(self, df: pd.DataFrame) -> float:
         """
         Generates a scalar prediction for the expected return.
+        If the model is UNTRAINED or FAILED, safely returns 0.0 without raising.
         """
-        if df.empty:
+        if df.empty or self.state not in ("LOADED", "TRAINED"):
             return 0.0
             
         predict_df = df.drop(columns=['Future_Return_5', 'close'], errors='ignore')
@@ -88,10 +103,10 @@ class StatisticalAdapter:
         try:
             expected_return = self.model.predict(latest_features)[0]
         except Exception:
-            logger.warning(f"Statistical ({self.model_name}) model is not fitted yet. Returning 0.0.")
+            logger.debug(f"Statistical ({self.model_name}) model is not fitted yet. Returning 0.0.")
             expected_return = 0.0
             
-        return expected_return
+        return float(expected_return)
 
     def get_feature_importances(self, df: pd.DataFrame) -> dict:
         try:

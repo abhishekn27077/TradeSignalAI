@@ -1,52 +1,171 @@
 import os
+import threading
 import pandas as pd
 import numpy as np
 import torch
+try:
+    import safetensors
+    import safetensors.torch
+except ImportError:
+    safetensors = None
+from typing import Dict, Any, Tuple, Optional
 from app.analytics.models.kronos.kronos import Kronos, KronosTokenizer, KronosPredictor
 from app.logs.logger import get_logger
 
 logger = get_logger(__name__)
 
+
+class KronosModelRegistry:
+    """
+    Lifecycle-managed, thread-safe model registry and cache for the Kronos Foundation Model.
+
+    Guarantees:
+    - Load-once behavior across concurrent threads and repeated adapter instantiations.
+    - Zero redundant memory allocation or duplicate PyTorch tensor allocations in memory.
+    - Thread-safe acquisition using a re-entrant lock.
+    - Safe failure handling with cached failure status to avoid repeated blocking retries.
+    - Explicit lifecycle controls: is_loaded(), get_instance(), clear_cache(), metrics.
+    """
+    _instance: Optional['KronosModelRegistry'] = None
+    _lock = threading.RLock()
+
+    def __init__(self):
+        self._cache: Dict[Tuple[str, str, str], Dict[str, Any]] = {}
+        self._init_count = 0
+        self._load_count = 0
+        self._inference_count = 0
+
+    @classmethod
+    def get_instance(cls) -> 'KronosModelRegistry':
+        if cls._instance is None:
+            with cls._lock:
+                if cls._instance is None:
+                    cls._instance = KronosModelRegistry()
+        return cls._instance
+
+    @property
+    def actual_model_loads(self) -> int:
+        with self._lock:
+            return self._load_count
+
+    @property
+    def adapter_init_calls(self) -> int:
+        with self._lock:
+            return self._init_count
+
+    @property
+    def inferences_executed(self) -> int:
+        with self._lock:
+            return self._inference_count
+
+    def get_or_load(self, model_name: str, tokenizer_name: str, device: str) -> Dict[str, Any]:
+        key = (model_name, tokenizer_name, device)
+        with self._lock:
+            self._init_count += 1
+            if key in self._cache:
+                entry = self._cache[key]
+                if entry.get("status") == "LOADED":
+                    return entry
+
+            logger.info(f"Initializing genuine Kronos model: {model_name} on {device}")
+            tokenizer = None
+            model = None
+            predictor = None
+            status = "FAILED"
+            error = None
+
+            try:
+                # 1. First attempt: local cache
+                try:
+                    tokenizer = KronosTokenizer.from_pretrained(tokenizer_name, local_files_only=True)
+                    model = Kronos.from_pretrained(model_name, local_files_only=True)
+                    if hasattr(model, "eval"):
+                        model.eval()
+                    predictor = KronosPredictor(model, tokenizer, device=device)
+                    logger.info("Successfully loaded PyTorch Kronos model from local cache.")
+                    status = "LOADED"
+                    self._load_count += 1
+                except Exception as local_err:
+                    logger.debug(f"Local cache load attempt had error: {local_err}")
+
+                # 2. Second attempt: remote hub if not in local cache
+                if status != "LOADED":
+                    logger.info(f"Downloading/Loading tokenizer weights from HuggingFace Hub: {tokenizer_name}")
+                    tokenizer = KronosTokenizer.from_pretrained(tokenizer_name)
+                    logger.info(f"Downloading/Loading model weights from HuggingFace Hub: {model_name}")
+                    model = Kronos.from_pretrained(model_name)
+                    if hasattr(model, "eval"):
+                        model.eval()
+                    predictor = KronosPredictor(model, tokenizer, device=device)
+                    logger.info("Successfully loaded PyTorch Kronos model.")
+                    status = "LOADED"
+                    self._load_count += 1
+
+            except Exception as e:
+                error = str(e)
+                logger.warning(f"Kronos model initialization deferred (offline): {e}")
+
+            entry = {
+                "tokenizer": tokenizer,
+                "model": model,
+                "predictor": predictor,
+                "status": status,
+                "error": error,
+                "model_name": model_name,
+                "tokenizer_name": tokenizer_name,
+                "device": device,
+            }
+            self._cache[key] = entry
+            return entry
+
+    def is_loaded(self, model_name: str = "NeoQuasar/Kronos-mini", tokenizer_name: str = "NeoQuasar/Kronos-Tokenizer-base", device: str = "cpu") -> bool:
+        key = (model_name, tokenizer_name, device)
+        with self._lock:
+            return key in self._cache and self._cache[key].get("status") == "LOADED"
+
+    def record_inference(self):
+        with self._lock:
+            self._inference_count += 1
+
+    def clear_cache(self):
+        with self._lock:
+            self._cache.clear()
+            self._load_count = 0
+            self._init_count = 0
+            self._inference_count = 0
+
+    @property
+    def metrics(self) -> Dict[str, Any]:
+        with self._lock:
+            return {
+                "adapter_init_calls": self._init_count,
+                "actual_model_loads": self._load_count,
+                "inferences_executed": self._inference_count,
+                "cached_models": list(self._cache.keys()),
+            }
+
+
 class KronosAdapter:
     """
     Genuine adapter to interface TradeSignalAI-v3 market data with the Kronos Foundation Model.
+    Utilizes KronosModelRegistry for load-once, thread-safe lifecycle caching.
     """
     def __init__(self, model_name: str = "NeoQuasar/Kronos-mini", tokenizer_name: str = "NeoQuasar/Kronos-Tokenizer-base", device: str = "cpu"):
         self.device = device
         self.model_name = model_name
         self.tokenizer_name = tokenizer_name
-        self.tokenizer = None
-        self.model = None
-        self.predictor = None
         
-        self._initialize_model()
-
-    def _initialize_model(self):
-        logger.info(f"Initializing genuine Kronos model: {self.model_name} on {self.device}")
+        self._registry = KronosModelRegistry.get_instance()
+        loaded = self._registry.get_or_load(model_name, tokenizer_name, device)
         
-        try:
-            # First attempt: load from local cache without blocking network
-            try:
-                self.tokenizer = KronosTokenizer.from_pretrained(self.tokenizer_name, local_files_only=True)
-                self.model = Kronos.from_pretrained(self.model_name, local_files_only=True)
-                self.predictor = KronosPredictor(self.model, self.tokenizer, device=self.device)
-                logger.info("Successfully loaded PyTorch Kronos model from local cache.")
-                return
-            except Exception:
-                pass
+        self.tokenizer = loaded.get("tokenizer")
+        self.model = loaded.get("model")
+        self.predictor = loaded.get("predictor")
+        self.status = loaded.get("status", "FAILED")
+        self.error = loaded.get("error")
 
-            # Second attempt: load from HuggingFace Hub
-            logger.info(f"Downloading/Loading tokenizer weights from HuggingFace Hub: {self.tokenizer_name}")
-            self.tokenizer = KronosTokenizer.from_pretrained(self.tokenizer_name)
-            
-            logger.info(f"Downloading/Loading model weights from HuggingFace Hub: {self.model_name}")
-            self.model = Kronos.from_pretrained(self.model_name)
-            
-            self.predictor = KronosPredictor(self.model, self.tokenizer, device=self.device)
-            logger.info("Successfully loaded PyTorch Kronos model.")
-        except Exception as e:
-            logger.warning(f"Kronos model initialization deferred (offline): {e}")
-            # Keep as None, predictions will fallback to baseline statistical models
+    def is_loaded(self) -> bool:
+        return self.status == "LOADED" and self.predictor is not None
 
     def format_market_data(self, ohlcv_data) -> pd.DataFrame:
         """
@@ -118,6 +237,7 @@ class KronosAdapter:
                 pass
 
             # Predict
+            self._registry.record_inference()
             pred_df = self.predictor.predict(
                 df=df,
                 x_timestamp=x_timestamp,

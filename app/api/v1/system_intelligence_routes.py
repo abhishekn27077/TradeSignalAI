@@ -63,6 +63,13 @@ async def get_market_data_health():
     return health_svc.get_system_health()
 
 
+# 1b. MT5 Safe Diagnostics
+@router.get("/mt5-diagnostics")
+async def get_mt5_diagnostics():
+    from app.market_data.providers.mt5_provider import mt5_provider
+    return mt5_provider.get_safe_diagnostics()
+
+
 # 2. Portfolio Exposure
 @router.get("/portfolio-exposure")
 async def get_portfolio_exposure():

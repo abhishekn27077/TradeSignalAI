@@ -211,3 +211,12 @@ async def get_runtime_diagnostics() -> Dict[str, Any]:
             },
         },
     }
+
+
+@router.get("/mt5", summary="Get Safe MT5 Diagnostics")
+async def get_mt5_runtime_diagnostics() -> Dict[str, Any]:
+    """
+    Exposes safe MT5 status without exposing any credentials.
+    """
+    from app.market_data.providers.mt5_provider import mt5_provider
+    return mt5_provider.get_safe_diagnostics()

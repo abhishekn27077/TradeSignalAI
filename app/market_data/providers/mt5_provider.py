@@ -76,6 +76,9 @@ class MT5DataProvider(BaseDataProvider):
         self._last_connect_failure: Optional[datetime] = None
         self._connect_cooldown_seconds: float = 30.0
         self._resolved_symbol_cache: Dict[str, str] = {}
+        self._last_error_code: Optional[int] = None
+        self._last_error_message: Optional[str] = None
+        self._last_successful_tick_time: Optional[datetime] = None
 
     @property
     def name(self) -> str:
@@ -91,6 +94,8 @@ class MT5DataProvider(BaseDataProvider):
         if not MT5_AVAILABLE:
             logger.warning("MetaTrader5 python package not available.")
             self._connected = False
+            self._last_error_code = -100
+            self._last_error_message = "MetaTrader5 python package not installed/available"
             return False
 
         if self._should_skip_connect_attempt():
@@ -122,6 +127,8 @@ class MT5DataProvider(BaseDataProvider):
             if res:
                 self._connected = True
                 self._last_connect_failure = None
+                self._last_error_code = None
+                self._last_error_message = None
                 term_info = await loop.run_in_executor(None, mt5.terminal_info)
                 acct_info = await loop.run_in_executor(None, mt5.account_info)
                 if term_info:
@@ -133,6 +140,12 @@ class MT5DataProvider(BaseDataProvider):
                 return True
             else:
                 err = mt5.last_error()
+                if isinstance(err, tuple) and len(err) >= 2:
+                    self._last_error_code = err[0]
+                    self._last_error_message = str(err[1])
+                else:
+                    self._last_error_code = -1
+                    self._last_error_message = str(err)
                 logger.warning(f"MT5 initialize failed: {err}")
                 self._connected = False
                 self._last_connect_failure = datetime.now(timezone.utc)
@@ -140,11 +153,15 @@ class MT5DataProvider(BaseDataProvider):
         except asyncio.TimeoutError:
             logger.warning("MT5 initialize timed out after 2.0s (terminal unavailable). Failing closed.")
             self._connected = False
+            self._last_error_code = -2
+            self._last_error_message = "Initialization timed out after 2.0s"
             self._last_connect_failure = datetime.now(timezone.utc)
             return False
         except Exception as e:
             logger.error(f"Error during MT5 initialization: {e}")
             self._connected = False
+            self._last_error_code = -3
+            self._last_error_message = str(e)
             self._last_connect_failure = datetime.now(timezone.utc)
             return False
 
@@ -342,6 +359,74 @@ class MT5DataProvider(BaseDataProvider):
             bids=[],
             asks=[],
         )
+
+    def get_safe_diagnostics(self) -> Dict[str, Any]:
+        """
+        Exposes strictly safe diagnostic status without revealing credentials or secrets.
+        Never prints login, password, or auth tokens.
+        """
+        import os
+        settings = get_settings()
+
+        terminal_detected = False
+        terminal_running = False
+
+        # 1. Detection via file system paths
+        candidate_paths = [
+            settings.MT5_PATH,
+            r"C:\Program Files\MetaTrader 5\terminal64.exe",
+            r"C:\Program Files (x86)\MetaTrader 5\terminal.exe",
+        ]
+        for p in candidate_paths:
+            if p and os.path.exists(p):
+                terminal_detected = True
+                break
+
+        # 2. Check running process safely
+        try:
+            import subprocess
+            res = subprocess.check_output(
+                ["tasklist", "/FI", "IMAGENAME eq terminal64.exe"],
+                text=True,
+                creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
+            )
+            if "terminal64.exe" in res:
+                terminal_running = True
+                terminal_detected = True
+        except Exception:
+            terminal_running = False
+
+        account_present = bool(settings.MT5_LOGIN)
+        server_present = bool(settings.MT5_SERVER)
+
+        connection_state = "CONNECTED" if self._connected else "DISCONNECTED"
+        if self._connected:
+            authorization_state = "AUTHORIZED"
+            status = "ACTIONABLE"
+        else:
+            authorization_state = "UNAUTHORIZED" if (self._last_error_code == -6 or not account_present) else "FAILED"
+            status = "BLOCKED / NOT VERIFIED"
+
+        data_age = None
+        last_tick_iso = None
+        if self._last_successful_tick_time:
+            data_age = round(max(0.0, (datetime.now(timezone.utc) - self._last_successful_tick_time).total_seconds()), 2)
+            last_tick_iso = self._last_successful_tick_time.isoformat()
+
+        return {
+            "provider": "MT5",
+            "terminal_detected": terminal_detected,
+            "terminal_running": terminal_running,
+            "connection_state": connection_state,
+            "authorization_state": authorization_state,
+            "account_present": account_present,
+            "server_present": server_present,
+            "last_error_code": self._last_error_code,
+            "last_error_message": self._last_error_message,
+            "last_successful_tick": last_tick_iso,
+            "data_age": data_age,
+            "status": status,
+        }
 
     def shutdown(self):
         if MT5_AVAILABLE:

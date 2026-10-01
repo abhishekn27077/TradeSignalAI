@@ -14,10 +14,14 @@ logger = get_logger(__name__)
 
 class ProviderState(str, Enum):
     UNINITIALIZED = "UNINITIALIZED"
+    REGISTERED = "REGISTERED"
     INITIALIZING = "INITIALIZING"
     CONNECTING = "CONNECTING"
     CONNECTED = "CONNECTED"
+    HEALTHY = "HEALTHY"
     DEGRADED = "DEGRADED"
+    UNHEALTHY = "UNHEALTHY"
+    UNAVAILABLE = "UNAVAILABLE"
     DISCONNECTED = "DISCONNECTED"
     ERROR = "ERROR"
     RECONNECTING = "RECONNECTING"
@@ -96,7 +100,7 @@ class ProviderInstance:
         circuit_breaker: CircuitBreaker | None = None,
     ):
         self.name = name
-        self.state = ProviderState.UNINITIALIZED
+        self.state = ProviderState.REGISTERED
         self._connect_fn = connect_fn
         self._disconnect_fn = disconnect_fn
         self._health_check_fn = health_check_fn
@@ -128,26 +132,35 @@ class ProviderInstance:
 
     def _transition(self, new_state: ProviderState):
         old = self.state
+        if old == new_state:
+            return
         self.state = new_state
         self.last_state_change = datetime.datetime.utcnow()
         logger.info(f"Provider {self.name}: {old.value} -> {new_state.value}")
         self._emit("state_change", old_state=old, new_state=new_state)
 
     def is_connected(self) -> bool:
-        return self.state == ProviderState.CONNECTED
+        return self.state in (ProviderState.CONNECTED, ProviderState.HEALTHY, ProviderState.DEGRADED)
 
     def is_available(self) -> bool:
-        return self.state in (ProviderState.CONNECTED, ProviderState.DEGRADED)
+        return self.state in (ProviderState.HEALTHY, ProviderState.CONNECTED, ProviderState.DEGRADED)
 
     @property
     def healthy(self) -> bool:
-        return self._healthy
+        return self._healthy and self.state == ProviderState.HEALTHY
 
     async def initialize(self):
         self._transition(ProviderState.INITIALIZING)
-        self._transition(ProviderState.CONNECTED if self._connect_fn is None else ProviderState.CONNECTING)
         if self._connect_fn:
+            self._transition(ProviderState.CONNECTING)
             await self.connect()
+        else:
+            # REST / stateless adapter: stays REGISTERED until verified
+            self._transition(ProviderState.REGISTERED)
+            if self._health_check_fn:
+                await self.check_health()
+            else:
+                self._transition(ProviderState.CONNECTED)
 
     async def connect(self):
         if self.state == ProviderState.SHUTDOWN:
@@ -159,10 +172,14 @@ class ProviderInstance:
             else:
                 self._connect_fn()
             self._transition(ProviderState.CONNECTED)
-            self._healthy = True
             self.retry_count = 0
             self._emit("connected")
             self._start_heartbeat()
+            if self._health_check_fn:
+                await self.check_health()
+            else:
+                self._healthy = True
+                self._transition(ProviderState.HEALTHY)
         except Exception as e:
             self._transition(ProviderState.ERROR)
             self._healthy = False
@@ -191,25 +208,33 @@ class ProviderInstance:
 
     async def check_health(self) -> bool:
         if self._health_check_fn is None:
-            return self._healthy
+            return self.healthy
         try:
-            healthy = self._health_check_fn()
-            if asyncio.iscoroutine(healthy):
-                healthy = await healthy
-            self._healthy = bool(healthy)
-            if not self._healthy and self.state == ProviderState.CONNECTED:
-                self._transition(ProviderState.DEGRADED)
-                self._emit("health_degraded")
-            elif self._healthy and self.state == ProviderState.DEGRADED:
-                self._transition(ProviderState.CONNECTED)
+            res = self._health_check_fn()
+            if asyncio.iscoroutine(res):
+                res = await res
+            # Handle dictionary returned from multi-provider health check
+            if isinstance(res, dict):
+                healthy = bool(res.get(self.name, False))
+            else:
+                healthy = bool(res)
+
+            self._healthy = healthy
+            if self._healthy:
+                self._transition(ProviderState.HEALTHY)
                 self._emit("health_restored")
+            else:
+                if self.circuit_breaker and self.circuit_breaker.state == CircuitState.OPEN:
+                    self._transition(ProviderState.UNAVAILABLE)
+                else:
+                    self._transition(ProviderState.UNHEALTHY)
+                self._emit("health_unhealthy")
             return self._healthy
         except Exception as e:
             logger.warning(f"Health check failed for {self.name}: {e}")
             self._healthy = False
-            if self.state == ProviderState.CONNECTED:
-                self._transition(ProviderState.DEGRADED)
-                self._emit("health_degraded")
+            self._transition(ProviderState.UNHEALTHY)
+            self._emit("health_unhealthy")
             return False
 
     def _start_heartbeat(self):

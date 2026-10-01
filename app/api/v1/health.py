@@ -15,7 +15,7 @@ def _check_component(name: str) -> str:
     provider = provider_manager.get(name)
     if provider is None:
         return "uninitialized"
-    return "ok" if provider.is_connected() else "degraded" if provider.is_available() else "error"
+    return "ok" if provider.healthy else "degraded" if provider.is_available() else "error"
 
 
 @router.get("/status", summary="System Health Status")

@@ -1,6 +1,11 @@
 import numpy as np
 import pandas as pd
 import torch
+try:
+    import safetensors
+    import safetensors.torch
+except ImportError:
+    safetensors = None
 from huggingface_hub import PyTorchModelHubMixin
 from tqdm import trange
 

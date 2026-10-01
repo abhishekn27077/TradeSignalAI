@@ -90,6 +90,17 @@ class ModelRouter:
                 results[name] = False
         return results
 
+    async def health_check_provider(self, name: str) -> bool:
+        provider = self._providers.get(name)
+        if not provider:
+            return False
+        try:
+            if hasattr(provider, "health_check"):
+                return await provider.health_check()
+            return True
+        except Exception:
+            return False
+
 
 model_router = ModelRouter()
 

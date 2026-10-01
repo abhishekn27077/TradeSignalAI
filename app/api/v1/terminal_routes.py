@@ -32,6 +32,7 @@ from app.core.market_session import MarketSessionService
 from app.core.asset_registry import canonical_asset_registry
 from app.forecast.tomorrow_forecast_engine import tomorrow_forecast_engine
 from app.analytics.timeframe_intelligence_engine import timeframe_intelligence_engine
+from app.market_data.providers.mt5_provider import mt5_provider
 
 router = APIRouter(prefix="/terminal", tags=["Trade Signal Terminal UX"])
 
@@ -190,6 +191,15 @@ def get_today_signals():
     if not is_forex_open:
         market_status_message = "Forex markets are CLOSED (Sunday Pre-Market). Trading resumes Sunday 22:00 UTC (03:30 AM IST Monday)."
 
+    mt5_diag = mt5_provider.get_safe_diagnostics()
+    is_mt5_live = mt5_diag.get("connection_state") == "CONNECTED" and mt5_diag.get("authorization_state") == "AUTHORIZED"
+    if not is_forex_open:
+        forex_feed_label = "● MT5 — CLOSED"
+    elif is_mt5_live:
+        forex_feed_label = "● MT5 — LIVE"
+    else:
+        forex_feed_label = "● MT5 — BLOCKED / NOT VERIFIED"
+
     return {
         "success": True,
         "timestamp_utc": now_utc.isoformat(),
@@ -201,7 +211,7 @@ def get_today_signals():
         "market_status_message": market_status_message,
         "execution_mode": "PAPER_ONLY",
         "data_feeds": {
-            "forex": "● MT5 — LIVE" if is_forex_open else "● MT5 — CLOSED",
+            "forex": forex_feed_label,
             "crypto": "● BINANCE — LIVE",
             "secondary": "● TradingView — SECONDARY",
             "sqlite": "● SQLite — HISTORICAL_STORE",
@@ -260,6 +270,22 @@ def get_canonical_history(
         canonical_prospective_ledger.resolve_pending_expired_signals(now_utc)
     except Exception:
         pass
+
+    # Ensure safe programmatic invocation defaults
+    if not isinstance(date_filter, str):
+        date_filter = getattr(date_filter, "default", "ALL")
+    if not isinstance(asset, str) and asset is not None:
+        asset = getattr(asset, "default", None)
+    if not isinstance(timeframe, str) and timeframe is not None:
+        timeframe = getattr(timeframe, "default", None)
+    if not isinstance(direction, str) and direction is not None:
+        direction = getattr(direction, "default", None)
+    if not isinstance(outcome, str) and outcome is not None:
+        outcome = getattr(outcome, "default", None)
+    if not isinstance(limit, int):
+        limit = getattr(limit, "default", 100)
+    if not isinstance(offset, int):
+        offset = getattr(offset, "default", 0)
 
     norm_outcome = None
     if outcome and outcome.upper() != "ALL":
@@ -344,6 +370,9 @@ def get_performance_overview(
     Returns institutional performance metrics, breakdown by asset, and breakdown by timeframe.
     Strictly gates statistical claims with 'INSUFFICIENT SAMPLE (N = X)' when N < 15.
     """
+    if not isinstance(date_filter, str):
+        date_filter = getattr(date_filter, "default", "ALL")
+
     now_utc = datetime.now(timezone.utc)
     try:
         canonical_prospective_ledger.resolve_pending_expired_signals(now_utc)

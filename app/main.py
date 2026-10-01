@@ -62,12 +62,12 @@ async def lifespan(app: FastAPI):
     from app.agents.providers.router import model_router
     provider_manager.register("openrouter", ProviderInstance(
         name="openrouter",
-        health_check_fn=model_router.health_check_all,
+        health_check_fn=lambda: model_router.health_check_provider("openrouter"),
         heartbeat_interval=60.0,
     ))
     provider_manager.register("openai", ProviderInstance(
         name="openai",
-        health_check_fn=model_router.health_check_all,
+        health_check_fn=lambda: model_router.health_check_provider("openai"),
         heartbeat_interval=60.0,
     ))
 
